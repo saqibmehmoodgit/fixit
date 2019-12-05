@@ -1,0 +1,283 @@
+<%@ page language="java" pageEncoding="UTF-8"
+	contentType="text/html; charset=UTF-8"%>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
+<%@ taglib prefix="form" uri="http://www.springframework.org/tags/form" %>
+<%@ taglib uri="http://www.springframework.org/tags" prefix="spring" %>
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>ERPfixers | Request</title>
+<script type="text/javascript" src="../js/pages/script.js"></script>
+</head>
+<body>
+	<div class="">
+		<section class="wrapper">
+			<div>
+				<div class="col-lg-8 col-md-8 col-sm-8 col-xs-12">
+					<div class="newRequest" style="background: transparent;">
+						<div class="row">
+							<div class="col-lg-9 col-md-9 col-sm-12 col-xs-12">
+								<div class="newRequestWhite">
+									<h1 class="h1-underline">Success!</h1>
+									
+									 <p>
+										Your Request 
+										<strong id="queryCategories" >
+										 ${queryTitle}
+										 </strong>
+										 has
+										successfully been sent to:
+									</p>
+									
+									<%--  <c:choose>
+									<c:when test="${selectedFixersSetLen eq 1}">
+									
+									<p>
+										Your Request 
+										<strong id="queryCategories" >
+										 ${queryTitle}
+										 </strong>
+										 has been
+										successfully assign to:
+									</p>
+									
+									</c:when>
+									<c:otherwise>
+									
+									<p>
+										Your Request 
+										<strong id="queryCategories" >
+										 ${queryTitle}
+										 </strong>
+										 has
+										successfully been sent to:
+									</p>
+									
+									</c:otherwise>
+									</c:choose> 
+									 --%>
+									
+									
+									
+									
+									<c:if test="${selectedFixersSetLen eq 0}">
+									<p>All Fixers matching the selected categories.
+									</p>
+									</c:if>
+									<c:forEach var="appliedFixersListBo"
+										items="${appliedFixersListBo}" varStatus="loop">
+
+										<div class="clientDetail" id="clientDetail">
+
+											<div class="clientHead">
+												<img onclick="detailFixerClick(${loop.index})"
+													src="${appliedFixersListBo.userFixer.profilePhoto}"
+													onerror="this.src ='../images/profile.png'"><img
+													src="../flags/${appliedFixersListBo.userFixer.country}"
+													class="CuntryFlag"
+													onerror="this.src ='../flags/United States of America(USA).png'">
+												<h1>
+													<span onclick="detailFixerClick(${loop.index})"
+														style="/* width: 50%; */" class="name">${appliedFixersListBo.userFixer.firstName}&nbsp;${appliedFixersListBo.userFixer.lastName}
+													</span>
+													<c:choose>
+														<c:when
+															test="${appliedFixersListBo.userFixer.favouriteFixerStatus eq 'F'}">
+															<span id="fav${loop.index}" class="fixertag  green" onclick="makeUserUnFav(${appliedFixersListBo.userFixer.userId},${loop.index})"> <i data-icon="k"
+																class="icon"></i><span id="favtext${loop.index}" class="fixerTagSpanSuccessPage">Favorite</span></span>
+														</c:when>
+														<c:otherwise>
+															<span id="fav${loop.index}" class="fixertag"  onclick="makeUserFav(${appliedFixersListBo.userFixer.userId},${loop.index})"> <i data-icon="k"
+																class="icon"></i> <span id="favtext${loop.index}" class="fixerTagSpanSuccessPage" style="display: none;">Favorite</span></span>
+
+														</c:otherwise>
+													</c:choose>
+
+												</h1>
+												<span class="ratingC"> <c:forEach var="fixerRating"
+														begin="0" end="4">
+														<c:choose>
+															<c:when
+																test="${appliedFixersListBo.userFixer.fixerRating gt fixerRating}">
+																<i data-icon="m" class="icon"></i>
+															</c:when>
+															<c:otherwise>
+																<i data-icon="l" class="icon"></i>
+															</c:otherwise>
+														</c:choose>
+													</c:forEach>
+
+												</span> <span style="display: block;" class="details"
+													id="details${loop.index}"
+													onclick="detailFixerClick(${loop.index})">Details</span><span
+													style="display: none;" class="closeC"
+													id="closeC${loop.index}"
+													onclick="closeFixerClick(${loop.index})">Close</span>
+											</div>
+											<div style="display: none;" class="clientB"
+												id="clientB${loop.index}">
+												<div class="clientD">
+													<span class="location">Location: <strong>${appliedFixersListBo.userFixer.city},
+															${appliedFixersListBo.userFixer.country}</strong></span><span
+														class="linkdin"> <img
+														src="/ERPFixers/images/in.png" alt=""> <c:choose>
+															<c:when
+																test="${not fn:containsIgnoreCase(appliedFixersListBo.userFixer.linkedinProfile, 'http')}">
+																<a target="_blank"
+																	href="https://${appliedFixersListBo.userFixer.linkedinProfile}">${appliedFixersListBo.userFixer.linkedinProfile}</a>
+															</c:when>
+															<c:otherwise>
+																<a target="_blank"
+																	href="${appliedFixersListBo.userFixer.linkedinProfile}">${appliedFixersListBo.userFixer.linkedinProfile}</a>
+
+															</c:otherwise>
+														</c:choose>
+
+													</span>
+													<div class="clearfix"></div>
+													<span class="time">Fixer Since: <strong>${appliedFixersListBo.userFixer.fixersSince}</strong></span>
+													<span class="time">Time Zone: <strong>${appliedFixersListBo.userFixer.timeZone}</strong></span>
+													<p>${appliedFixersListBo.userFixer.overview}</p>
+													<span class="categorie">Categories: <c:forEach
+															var="categoryList"
+															items="${appliedFixersListBo.userFixer.categoryList}">
+															<strong>${categoryList}, </strong>
+														</c:forEach>
+													<%-- </span> <span class="time">Fixed Requests: <strong>${appliedFixersListBo.userFixer.fixedCounts}</strong></span><span
+														class="time">Resolved within Deadline: <strong>${appliedFixersListBo.userFixer.fixedUnderdeadline}</strong></span><span
+														class="time">Last Active: <strong>${appliedFixersListBo.userFixer.lastLogin}</strong></span> --%>
+												</div>
+												
+												<div class="proBtn"></div>
+											</div>
+										</div>
+									</c:forEach>
+									<p>
+									
+									<strong>Please give the Fixers a little time to
+											respond, and we’ll have your Request rolling soon!</strong> 
+									
+							<%-- 		
+								<c:if test="${selectedFixersSetLen ne 1}">
+										<strong>Please give the Fixers a little time to
+											respond, and we’ll have your Request rolling soon!</strong>
+									</c:if> --%>
+								
+									</p>
+
+									<div class="findFixBtn">
+										<div class="row">
+											<div class="col-lg-6 col-md-6 col-sm-6 col-xs-12 nopadding">
+												<button type="button" class="clear" id="submitAnReq"
+													style="background: #1c75bc; color: #FFF;">Submit
+													Another Request</button>
+											</div>
+											<div class="col-lg-6 col-md-6 col-sm-6 col-xs-12 nopadding">
+												<button type="button"  class="SRequest"
+												id="GoToReq"	style="background: #0d4d80; color: #FFF;">Go to Request</button>
+											</div>
+										</div>
+									</div>
+
+								</div>
+							</div>
+							<div class="col-lg-3 col-md-3 col-sm-12 col-xs-12">
+								<div class="newRequestRight">&nbsp;</div>
+							</div>
+						</div>
+					</div>
+				</div>
+
+
+			</div>
+		</section>
+	</div>
+	<script type="text/javascript">
+	
+	   
+	   $(document).ready(function(){
+ 	        $('a').removeClass('active');
+			$('#newRequest').addClass('active');
+			});
+	
+			function detailFixerClick(index)
+	 {
+		 $('#clientB'+index).slideDown();
+	     $('#details'+index).hide();
+	     $('#closeC'+index).show(); 
+	 }
+	 
+	 function closeFixerClick(index)
+	 {
+		 $('#clientB'+index).slideUp();
+	     $('#details'+index).show();
+	     $('#closeC'+index).hide(); 
+	 }
+	 
+	$(document).ready(function(){
+		$('#GoToReq').on('click',function(){
+			$("[onclick]").removeAttr("onclick"); 
+			window.location.replace("../member/request?msgKey=R");
+			
+			
+		});
+		$('#submitAnReq').on('click',function(){
+			$("[onclick]").removeAttr("onclick"); 
+
+			window.location.replace("../member/newRequest");
+			
+		})
+	});
+	
+	function makeUserFav(userId,index)
+	{
+		 $.ajax({
+	 			method : "POST",
+	 		    url : "../member/fixerFavourite",
+	 		    data : {
+	 		  fixerId : userId
+	 		   
+	 		   
+	 		    }
+	 		   }).done(function(response) {
+	 			if(response.result.response == 'success')
+	 				{
+	 				
+	 				
+ 					$("#favtext"+index).css('display','block');
+ 					
+	 					$("#fav"+index).addClass('fixertag  green');
+	 					document.getElementById('fav'+index).setAttribute('onclick','makeUserUnFav('+userId+',\''+index+'\')');
+	 				}
+	 				
+	 		   });
+	}
+
+	function makeUserUnFav(userId,index)
+	{
+		 $.ajax({
+	 			method : "POST",
+	 		    url : "../member/deleteFavouriteFixer",
+	 		    data : {
+	 		  fixerId : userId
+	 		   
+	 		   
+	 		    }
+	 		   }).done(function(response) {
+	 			if(response.status == 'success')
+	 				{
+ 					$("#favtext"+index).css('display','none');
+
+	 				document.getElementById('fav'+index).setAttribute('onclick','makeUserFav('+userId+',\''+index+'\')')
+	 					$("#fav"+index).removeClass('fixertag  green');
+	 					$("#fav"+index).addClass('fixertag');
+	 				}
+	 				
+	 		   });
+	} 
+	
+	</script>
+</body>
+</html>

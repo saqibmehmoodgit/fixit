@@ -1,0 +1,233 @@
+package com.fixit.service;
+
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Set;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataAccessException;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import com.fixit.dao.QueryAppliedFixersDao;
+import com.fixit.dao.QueryAuditDao;
+import com.fixit.domain.bo.AppliedFixersListBo;
+import com.fixit.domain.bo.UserBo;
+import com.fixit.domain.vo.FavouriteFixer;
+import com.fixit.domain.vo.Query;
+import com.fixit.domain.vo.QueryAppliedFixers;
+import com.fixit.domain.vo.QueryFixers;
+import com.fixit.domain.vo.User;
+import com.fixit.domain.vo.UserCategory;
+import com.fixit.utility.DbConstants;
+import com.fixit.utility.FixitException;
+import com.fixit.utility.TimeDiffUtility;
+
+@Service("QueryAppliedFixersService")
+@Transactional
+public class QueryAppliedFixersServiceImpl implements QueryAppliedFixersService {
+
+	@Autowired
+	QueryAppliedFixersDao queryFixerDao;
+
+	@Autowired
+	private CategoryTypeService categoryTypeService;
+
+	@Autowired
+	private UserCategoryService userCategoryService;
+
+	@Autowired
+	private FixerRatingService fixerRatingService;
+	
+	@Autowired
+	private FavouriteFixerService favouriteFixerService;
+	
+	@Autowired
+	private QueryAuditDao queryAuditDao;
+	
+	@Autowired
+	private QueryService queryService;
+
+	@Autowired
+	private QueryAppliedFixersDao queryAppliedFixersDao;
+	
+	@Override
+	@Transactional
+	public QueryAppliedFixers saveAppliedFixer(User fixer, Query query) throws FixitException {
+		QueryAppliedFixers queryFixer = null;
+		QueryAppliedFixers queryAppliedFixers = null;
+		if (fixer != null) {
+			queryFixer = new QueryAppliedFixers();
+			queryFixer.setQuery(query);
+			queryFixer.setUserFixer(fixer);
+			queryFixer.setUserMember(query.getUser());
+			queryFixer.setStatus("A");
+			try {
+				queryAppliedFixers = queryFixerDao.store(queryFixer);
+				
+			} catch (Exception e) {
+				e.printStackTrace();
+				return null;
+			}
+		}
+		return queryAppliedFixers;
+	}
+
+	@Transactional
+	@Override
+	public List<AppliedFixersListBo> findFixerListByQueryId(Integer userId, Integer queryId, int startIndex,
+			int maxResult) throws FixitException {
+		// TODO Auto-generated method stub
+		List<QueryAppliedFixers> selectedFixerSet = new LinkedList<QueryAppliedFixers>();
+		List<AppliedFixersListBo> listfixers = new ArrayList<AppliedFixersListBo>();
+		try {
+			selectedFixerSet = queryFixerDao.findFixerListByQueryId(userId, queryId, startIndex, maxResult);
+			for (int i = 0; i < selectedFixerSet.size(); i++) {
+				AppliedFixersListBo fixer = new AppliedFixersListBo();
+				try{
+			
+				fixer.setCreatedAt(selectedFixerSet.get(i).getCreatedAt());
+
+				fixer.setQueryAppliedFixersId(selectedFixerSet.get(i).getQueryAppliedFixersId());
+				fixer.setStatus((selectedFixerSet.get(i).getStatus()));
+				fixer.setUpdatedAt(selectedFixerSet.get(i).getUpdatedAt());
+
+				UserBo userFixer = new UserBo();
+				userFixer.setFirstName(selectedFixerSet.get(i).getUserFixer().getFirstName());
+				userFixer.setLastName(selectedFixerSet.get(i).getUserFixer().getLastName());
+				userFixer.setCompanyName(selectedFixerSet.get(i).getUserFixer().getCompanyName());
+				userFixer.setCountry(selectedFixerSet.get(i).getUserFixer().getCountry());
+				userFixer.setLinkedinProfile(selectedFixerSet.get(i).getUserFixer().getLinkedinProfile());
+				userFixer.setOverview(selectedFixerSet.get(i).getUserFixer().getOverview());
+				int fixerId = selectedFixerSet.get(i).getUserFixer().getUserId();
+				
+				FavouriteFixer favouriteFixer = favouriteFixerService.findFavFixerByIds(userId, fixerId);
+				if (favouriteFixer != null) {
+					userFixer.setFavouriteFixerStatus(DbConstants.FIXER_STATUS_FAVOURITE);
+				} else {
+					userFixer.setFavouriteFixerStatus(DbConstants.FIXER_STATUS_UNFAVOURITE);
+				}
+				long unreadCount = queryAuditDao.getUnreadMessageCount(queryId,
+						selectedFixerSet.get(i).getUserFixer().getUserId(), "F");
+				fixer.setUnreadCounts(unreadCount);
+
+				Calendar calendar = selectedFixerSet.get(i).getUserFixer().getCreatedAt();
+				String userSince = TimeDiffUtility.getUserFrom(calendar);
+				List<String> userCats = new ArrayList<String>();
+				Iterator<UserCategory> it = selectedFixerSet.get(i).getUserFixer().getFixerCategory().iterator();
+				while (it.hasNext()) {
+					UserCategory cat = (UserCategory) it.next();
+					userCats.add(cat.getCategoryType().getCatgName());
+				}
+				userFixer.setCategoryList(userCats);
+				// userFixer.setJobTitle(selectedFixerSet.get(i).getUserFixer().getJobTitle());
+				userFixer.setCity(selectedFixerSet.get(i).getUserFixer().getCity());
+				userFixer.setUserId(selectedFixerSet.get(i).getUserFixer().getUserId());
+				userFixer.setProfilePhoto(selectedFixerSet.get(i).getUserFixer().getProfilePhoto());
+				userFixer.setPaypalId(selectedFixerSet.get(i).getUserFixer().getPaypalId());
+				userFixer.setUserId(selectedFixerSet.get(i).getUserFixer().getUserId());
+				userFixer.setFixersSince(userSince);
+				long closedCount = queryService.findFixerClosedStasCount(selectedFixerSet.get(i).getUserFixer().getUserId());
+				userFixer.setFixedCounts(closedCount);
+				userFixer.setTimeZone(selectedFixerSet.get(i).getUserFixer().getTimeZone());
+				Calendar lastLoginCAl =  selectedFixerSet.get(i).getUserFixer().getLastLogin();
+				Calendar currentTime = Calendar.getInstance();
+				String lastLogin = TimeDiffUtility.findDiffString(
+						TimeDiffUtility.findDayDiff(lastLoginCAl, currentTime),
+						TimeDiffUtility.findHrsDiff(lastLoginCAl, currentTime),
+						TimeDiffUtility.findMinutesDiff(lastLoginCAl, currentTime),
+						TimeDiffUtility.findSecondsDiff(lastLoginCAl, currentTime));
+				userFixer.setLastLogin(lastLogin + " ago");
+				double resolvedInDeadline = queryService.findPercentageQueriesFixedWithInDeadline(selectedFixerSet.get(i).getUserFixer().getUserId());
+                userFixer.setFixedUnderdeadline(resolvedInDeadline);;
+				double rating = fixerRatingService
+						.getAggregateRatingsOfFixer(selectedFixerSet.get(i).getUserFixer().getUserId(), selectedFixerSet.get(i).getUserFixer().getRating());
+				userFixer.setFixerRating(rating);
+				fixer.setUserFixer(userFixer);
+
+				listfixers.add(fixer);
+				}
+				catch(Exception  e){
+					System.out.println(selectedFixerSet.get(i).getUserFixer().getLinkedinProfile());
+					System.out.println(fixer.getUserFixer().getEmail());
+				}
+			}
+			return listfixers;
+		} catch (Exception e) {
+			e.printStackTrace();
+			return null;
+		}
+
+	}
+
+	@Override
+	public void saveFixerDecline(Integer fixerId, Integer queryId) throws FixitException {
+		// TODO Auto-generated method stub
+		queryFixerDao.updateAppliedFixerStatus(fixerId, queryId, "D");
+
+	}
+
+	@Override
+	public long getAppliedQueriesCount(int userId) throws FixitException {
+		long count = 0;
+		try {
+			count = queryFixerDao.getAppliedQueriesCount(userId);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		// TODO Auto-generated method stub
+		return count;
+	}
+
+	@Override
+	public List<QueryAppliedFixers> getAppliedQueries(int userId, int startIndex, int pAGE_SIZE) throws FixitException {
+		// TODO Auto-generated method stub
+		List<QueryAppliedFixers> selectedFixerSet = new LinkedList<QueryAppliedFixers>();
+		try {
+			selectedFixerSet = queryFixerDao.findFixerListByFixerId(userId, startIndex, pAGE_SIZE);
+			return selectedFixerSet;
+		} catch (Exception e) {
+			e.printStackTrace();
+			return null;
+		}
+
+	}
+
+	@Override
+	@Transactional
+	public int deleteAppliedFixerByQueryId(Integer queryId) {
+		try {
+			int i = queryFixerDao.deleteAppliedFixerByQueryId(queryId);
+			return i;
+		} catch (Exception e) {
+			e.printStackTrace();
+			return 0;
+
+		}
+	}
+
+	@Override
+	public long countAppliedFixerByQueryIdAndStatus(Integer queryId, String status) throws DataAccessException {
+		long count = queryAppliedFixersDao.countAppliedFixerByQueryIdAndStatus(queryId,status);
+		return count;
+	}
+
+	@Override
+	public int deleteAppliedFixerByQueryIdAndStatus(Integer queryId, String status) throws DataAccessException {
+
+		try {
+			int i = queryFixerDao.deleteAppliedFixerByQueryIdAndStatus(queryId,status);
+			return i;
+		} catch (Exception e) {
+			e.printStackTrace();
+			return 0;
+
+		}
+	
+	}
+
+}

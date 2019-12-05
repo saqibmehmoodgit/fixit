@@ -1,0 +1,1100 @@
+var req;
+var intervalTimer;
+var chatHMax = 0;
+var chatH = 0;
+var chatHArr = [];
+var senchatScroll = false;
+$(document).ready(function() {
+	$('#halfFullBorder').removeClass('halfBorder').addClass('fullBorder');
+	var imgSrc = $('#myProfileImage').attr('src');
+	
+	 $('#chatbgBody').on('scroll',function(){
+    	 var h =  $('#chatbgBody').scrollTop();
+    	 chatH = h;
+    	 chatHArr.push(h);
+    	  
+      });
+	 
+	if(imgSrc == ''){
+
+		$('#myProfileImage').attr('src','../images/profile-pic.jpg');
+		  
+		}
+	 
+     $('#myProfileImage').attr('src', imgSrc + '?' + new Date());
+	
+	$('.alertF').css('display', 'none');
+	setInterval(checkVisibility, 10000);
+	if (userSource == 1 && trackCredit == 'N') {
+
+		$('#asugCredits').css('display', 'block');
+	} else {
+		$('#asugCredits').css('display', 'none');
+	}
+	$('#linkedinProfile').on('click', function(){
+		
+		$('#spanlinkedinProfile').css('display','none');
+		
+	});
+	$('#f_elem_city').on('click', function(){
+		
+		$('#spanCity').css('display','none');
+		
+	});
+	$('#name').on('click', function(){
+		
+		$('#spanName').css('display','none');
+		
+	});
+
+	$('#userEmail').on('click', function(){
+		
+		$('#spanUserEmail').css('display','none');
+		
+	});
+	$('#oldPassword').on('click', function(){
+		
+		$('#spanOldPassword').css('display','none');
+		
+	});
+	$('#newPassword').on('click', function(){
+		
+		$('#spanNewPassword').css('display','none');
+		
+	});
+	$('#reTypePassword').on('click', function(){
+		
+		$('#spanReTypePassword').css('display','none');
+		
+	});
+
+	$('#newPassword').on('keyup', function() {
+		$('#newOneNumb').css('color', '#999');
+		$('#newChar8Len').css('color', '#999');
+		$('#newUpperlower').css('color', '#999');
+		$('#newOneNumbI').css('color', '#999');
+		$('#newChar8LenI').css('color', '#999');
+		$('#newUpperlowerI').css('color', '#999');
+		var password = $(this).val();
+		var numbBool = hasNumbers(password);
+		var passLen = password.length;
+		var upperCaseBool = hasUpperCaseChar(password);
+		var upperLowerBool = hasLowerCaseChar(password);
+
+		if (numbBool) {
+			$('#newOneNumb').css('color', '#1e9873');
+			$('#newOneNumbI').css('color', '#1e9873');
+
+		}
+		if (passLen > 7) {
+			$('#newChar8Len').css('color', '#1e9873');
+			$('#newChar8LenI').css('color', '#1e9873');
+
+		}
+		if (upperCaseBool && upperLowerBool) {
+
+			$('#newUpperlower').css('color', '#1e9873');
+			$('#newUpperlowerI').css('color', '#1e9873');
+
+		}
+
+	});
+
+	$('#reTypePassword').on('keyup', function() {
+		$('#reCheckPass').css('color', '#999');
+        var password = $('#newPassword').val();
+		var ReTypepassword = $(this).val();
+		if(password != null && password.trim() != ''){
+			var string = '<i id="reCheckPassI" class="fa fa-check-circle"></i>';
+		if(ReTypepassword == password){
+			$('#reCheckPass').empty();
+			$('#reCheckPass').append(string + " Passsword  match");
+			$('#reCheckPass').css('color', '#1e9873');
+			$('#reCheckPassI').css('color', '#1e9873');
+
+
+		}else{
+			$('#reCheckPass').empty();
+			$('#reCheckPass').append(string + " Passsword not match");
+			$('#reCheckPass').css('color', '#999');
+			$('#reCheckPassI').css('color', '#999');
+		}
+		}
+
+	});
+
+});
+function hasUpperCaseChar(t)
+{
+var regex = /[A-Z]/;
+return regex.test(t);
+}
+
+function hasLowerCaseChar(t)
+{
+var regex = /[a-z]/;
+return regex.test(t);
+}
+
+function hasNumbers(t)
+{
+var regex = /\d/g;
+return regex.test(t);
+}
+var virtualFileName = '';
+function userChat() {
+	senchatScroll = true;
+	var msg = $("#chatTextArea").val();
+	$('#chatload').css('display', 'block');
+
+	var chatbgBody = $('.chatbgBody');
+	$.ajax({
+		method : "POST",
+		url : "../member/sendGroupMessage",
+		data : {
+			message : msg,
+			groupId : groupId
+		}
+	}).done(function(response) {
+		var successResponse = response.status;
+
+		if (successResponse == 'success') {
+
+			var messageSet = response.result;
+			setchatMessages(messageSet);
+		}
+
+		$('#chatload').css('display', 'none');
+
+		/*
+		 * if (response.status == 'success') {
+		 * 
+		 * var chatMessage = response.result.chatMessage.chatMessage; var
+		 * createdAt = response.result.createdAt; var html = ' <div
+		 * class="chatTxtR">' + chatMessage + '<span>' + createdAt + '</span>
+		 * </div> <div class="clearfix"></div>' chatbgBody.append(html);
+		 * $("#chatTextArea").val("");
+		 * 
+		 * var objDiv = document.getElementById("chatbgBody"); objDiv.scrollTop =
+		 * objDiv.scrollHeight;
+		 * 
+		 *  } else { window.location.reload();
+		 *  }
+		 */
+
+	});
+
+}
+function userNameFromEmail() {
+	var email = $("#userEmail").val();
+	var strArray = email.split('@');
+	var userName = strArray[0];
+	$("#userName").val(userName);
+}
+function setchatMessages(messageSet) {
+
+	$('.chatbgBody').empty();
+	var message = messageSet.chatMessageSet;
+	var len = message.length;
+	var finalHtml = '';
+	var htmlchatTxtR = '<div class="chatTxtR">'
+	var span = '<span>'
+	var divClearFix = '</span></div><div class="clearfix"></div>';
+	var htmlChatTxt = '<div class="chatTxt">';
+
+	for (var i = 0; i < len; i++) {
+		if (message[i].user.userId == userId) {
+			finalHtml += htmlchatTxtR + message[i].chatMessage + span
+					+ message[i].createdAt + divClearFix;
+		} else {
+			finalHtml += htmlChatTxt + message[i].chatMessage + span
+					+ message[i].createdAt + divClearFix;
+
+		}
+	}
+	$('.chatbgBody').append(finalHtml);
+	finalHtml = '';
+	$('#chatTextArea').val('');
+
+	console.log('chatHArr::'+ chatHArr);
+    chatHMax =   Math.max.apply(Math, chatHArr);
+    console.log('chatHMax::'+ chatHMax);
+    
+	if((chatH == chatHMax)||senchatScroll){
+	var objDiv = document.getElementById("chatbgBody");
+	objDiv.scrollTop = objDiv.scrollHeight;
+	senchatScroll = false;
+	}
+
+}
+
+var client = new XMLHttpRequest();
+function uploadProfileImage() {
+    
+	var filePath = $("#multipartFile").val();
+	var fileName = filePath.split('\\').pop();
+	var fileExtension = fileName.split('.').pop().toLowerCase();
+	if (fileExtension == "jpg" || fileExtension == "jpeg"
+			|| fileExtension == "png") {
+		$(".upLoader").css('display', 'block');
+		$("#uploadtxt").css('display', 'none');
+		/*
+		 * $("#myImageUrl").value="../images/default_profile.jpg";
+		 */
+		var multipartFile = document.getElementById("multipartFile");
+		/ Create a FormData instance /
+		var formData = new FormData();
+		formData.append("multipartFile", multipartFile.files[0]);
+		/*
+		 * var id=$('#userId').val(); console.log(id);
+		 */
+		formData.append("userName", document.getElementById("userName").value);
+		// console.log(formData);
+		$('#saveButton').attr('disabled', 'disabled');
+		client.open("post", "../memberProfileImage", true);
+		client.send(formData);
+	} else {
+		alert("Invalid File Format . Only JPG,JPEG,PNG File Format Supported");
+		return;
+	}
+
+}
+client.onreadystatechange = function() {
+	if (client.readyState == 4 && client.status == 200) {
+		var currentDate =  new Date();
+		var data = jQuery.parseJSON(client.response);
+		document.getElementById("imageUrl").value = data.result.originalFileName;
+		document.getElementById("imageUrlSetting").value = data.result.originalFileName;
+		$('#myProfileImage').attr("src", data.result.originalFullFileName +"?" + currentDate);
+		$("#uploadtxt").css('display', 'block');
+
+		$(".upLoader").css('display', 'none');
+		console.log(data);
+	}
+}
+function editProfile() {
+
+	var overviewText = $('#overviewText').val();
+	var name = $('#name').val();
+	var companyName = $('#companyName').val();
+	// var locationAddress = $('#location').val();
+	var city = $('#f_elem_city').val();
+
+	var country = $('#country').val();
+	var linkedinProfile = $('#linkedinProfile').val();
+
+	if (name == null || name.trim() == "") {
+		$('.alertF').css('display', 'none');
+
+		$('#spanName').css('display', 'block');
+
+		return false;
+	}
+	/*
+	 * if (companyName == null || companyName.trim() == "") {
+	 * $('.alertF').css('display', 'none');
+	 * 
+	 * $('#spancompanyName').css('display', 'block');
+	 * 
+	 * return false; }
+	 */
+	/*
+	 * if (linkedinProfile == null || linkedinProfile.trim() == "") {
+	 * $('.alertF').css('display', 'none');
+	 * 
+	 * $('#spanlinkedinProfile').css('display', 'block');
+	 * 
+	 * return false; }
+	 */
+	if (city == null || city.trim() == "") {
+		$('.alertF').css('display', 'none');
+
+		$('#spanCity').css('display', 'block');
+
+		return false;
+	}
+	if (country == null || country.trim() == "") {
+		$('.alertF').css('display', 'none');
+
+		$('#spanCountry').css('display', 'block');
+
+		return false;
+	}
+
+	if (overviewText == null || overviewText.trim() == "") {
+		$('.alertF').css('display', 'none');
+
+		$('#spanOverviewText').css('display', 'block');
+
+		return false;
+	}
+	$('.alertF').css('display', 'none');
+	$('#editUser').submit();
+
+}
+
+function close(id) {
+	$('#categories' + id).remove();
+}
+function getGraphBars() {
+
+	var htmlStart = '';
+	var htmlStarRating = '<i data-icon="m" class="icon"></i>';
+	var htmlBlankStar = '<i data-icon="l" class="icon"></i>';
+	var htmlMiddle = '';
+	var htmlEnd = '';
+	$
+			.ajax({
+				type : "GET",
+				url : "../member/getRequestedAreas",
+
+			})
+			.done(
+					function(response) {
+						var response = response.response
+						var len = response.length;
+						var greaterCount;
+
+						var maximum = Math.max.apply(Math, response
+								.map(function(o) {
+									return o.count;
+								}))
+						var percentWidth = 100 / maximum;
+						var dynamicWidth;
+
+						for (var i = 0; i < len; i++) {
+
+							htmlStart = '<div class="grow"><span style="font-weight: bold;"class="ratingIcon">'
+									+ '' + response[i].catName + '';
+
+							dynamicWidth = percentWidth * (response[i].count);
+
+							htmlEnd = '</span><div class="graphDiv" style="width:'
+									+ dynamicWidth
+									+ '%"><span class="Gline"></span><span class="G-no">'
+									+ ' ' + response[i].count + '';
+							'</span></div></div>';
+
+							$('#graph_container').append(
+									htmlStart + htmlMiddle + htmlEnd);
+							htmlMiddle = '';
+						}
+
+					});
+
+}
+function onemailAlertCheckBox() {
+
+	$("#emailAlert").is(":checked")
+	if ($("#emailAlert").is(":checked")) {
+		$("#emailAlert").val("");
+		$("#emailAlert").val("Y");
+	} else {
+		$("#emailAlert").val("");
+		$("#emailAlert").val("N");
+	}
+
+}
+
+$(document)
+		.ready(
+
+				function() {
+                
+					/*
+					 * $('#smart_search').typeahead({ hint : true, highlight :
+					 * true, minLength : 1 }, { name : 'states', source :
+					 * substringMatcher(countryList) });
+					 */
+					$('#reAssinged').css('display', 'none');
+					$('a').removeClass('active');
+					$('#dashboard').addClass('active');
+
+					$("#chatsend").bind('click', function() {
+						var chatTextArea = $('#chatTextArea').val();
+						if (chatTextArea != null && chatTextArea.trim() != '') {
+							userChat();
+						}
+					});
+
+					$('#money_575').bind('click', function() {
+						$('#money').text('575');
+						$('.hp-cell').css('opacity','0.5');
+						$('#purple').css('opacity','1');
+						$('#purchaseCredits').css({
+							"background" : "#b13794",
+							"color" : "#fff"
+						});
+
+					});
+
+					$('#money_1125').bind('click', function() {
+						$('#money').text('1,125');
+						$('.hp-cell').css('opacity','0.5');
+						$('#purpleDark').css('opacity','1');
+						$('#purchaseCredits').css({
+							"background" : "#63429a",
+							"color" : "#fff"
+						});
+
+					});
+
+					$('#money_2200').bind('click', function() {
+						$('#money').text('2,200');
+						$('.hp-cell').css('opacity','0.5');
+						$('#green').css('opacity','1');
+						$('#purchaseCredits').css({
+							"background" : "#28b78a",
+							"color" : "#fff"
+						});
+
+					});
+
+					$('#money_4300').bind('click', function() {
+						$('#money').text('4,300');
+						$('.hp-cell').css('opacity','0.5');
+						$('#blue').css('opacity','1');
+						$('#purchaseCredits').css({
+							"background" : "#1c75bc",
+							"color" : "#fff"
+						});
+
+					});
+
+					$('#purchaseCredits').bind('click', function() {
+
+						var money = $('#money').text();
+						money = money.replace(',','');
+						money = parseInt(money);
+						if (money != 0) {
+							var url = '../member/paypal?amount=' + money+ '&userUrl=dashBoard';
+							window.location.href= url;
+							/*var win = window.open(url, '_blank');
+							win.focus();*/
+						}
+
+					});
+
+					addHours();
+
+					getGraphBars();
+
+					$('.alertF').css('display', 'none');
+
+					$('#imageUrl').val("");
+					$('#imageUrlSetting').val("");
+
+					$('#userEmail').val(userEmail);
+					$('#userName').val(userName);
+
+					$('#messageTab').bind('click', function() {
+						
+						if (countMsg != 0) {
+							updateMessageNotification();
+						}
+						var objDiv = document.getElementById("chatbgBody");
+						objDiv.scrollTop = objDiv.scrollHeight;
+
+					});
+
+					$("#timeZone option[value='" + timeZone + "']").prop(
+							'selected', true);
+					$('#country option[value="' + country + '"]').prop(
+							'selected', true);
+					$('#saveSetting')
+							.bind(
+									'click',
+									function() {
+										onemailAlertCheckBox();
+										$('.alertF').css('display', 'none');
+										var userEmail = $('#userEmail').val();
+										var userName = $('#userName').val();
+										var timeZone = $('#timeZone').val();
+										var newPassword = $('#newPassword')
+												.val();
+										var reTypePassword = $(
+												'#reTypePassword').val();
+										var oldPassword = $('#oldPassword')
+												.val();
+										var pass = $('#password').val();
+										if (userEmail == null
+												|| userEmail.trim() == "") {
+											$('.alertF').css('display', 'none');
+
+											$('#spanUserEmail').css('display',
+													'block');
+
+											return false;
+										}
+										/*
+										 * if (userName == null ||
+										 * userName.trim() == "") {
+										 * 
+										 * $('.alertF').css('display', 'none');
+										 * 
+										 * $('#spanUserName').css('display',
+										 * 'block'); return false; } var
+										 * userNameLen = userName.length; if
+										 * (userNameLen < 6 || userNameLen > 12) {
+										 * 
+										 * $('.alertF').css('display', 'none');
+										 * 
+										 * $('#spanUserName').css( 'display',
+										 * 'block');
+										 * $('#spanUserName').text("Username
+										 * must not be greater than 12
+										 * characters"); return false; }
+										 */
+
+										if (timeZone == null
+												|| timeZone.trim() == "") {
+
+											return false;
+										}
+
+										if (oldPassword.trim() !="" || newPassword.trim() != ""
+												|| newPassword.length > 1
+												|| reTypePassword.trim() != ""
+												|| reTypePassword.length > 1) {
+
+											if (newPassword.trim() == "") {
+												$('.alertF').css('display',
+														'none');
+												$('#spanNewPassword').text("Please enter a password.");
+												$('#spanNewPassword').css(
+														'display', 'block');
+
+												return false;
+											}
+											if (reTypePassword.trim() == "") {
+												$('.alertF').css('display',
+														'none');
+												$('#spanReTypePassword').text("Please enter a password.");
+												$('#spanReTypePassword').css(
+														'display', 'block');
+
+												return false;
+											}
+											if (newPassword.trim().length < 7
+													|| reTypePassword.trim().length < 7) {
+
+												$('.alertF').css('display',
+														'none');
+												$('#spanNewPassword')
+														.text(
+																'size must be greater than 6');
+												$('#spanNewPassword').css(
+														'display', 'block');
+												return false;
+											}
+											var numbBool = hasNumbers(newPassword);
+											var upperCaseBool = hasUpperCaseChar(newPassword);
+											var upperLowerBool = hasLowerCaseChar(newPassword);
+
+											if (!numbBool) {
+
+												
+												$('#spanNewPassword')
+														.text(
+																'must contains at least one number')
+														.css('display', 'block');
+												return false;
+
+											}
+
+											if (!(upperCaseBool && upperLowerBool)) {
+												
+
+												$('#spanNewPassword')
+														.text(
+																'must contains upper & lowercase letters')
+														.css('display', 'block');
+												return false;
+
+											}
+											if (numbBool && upperCaseBool
+													&& upperLowerBool) {
+												if (reTypePassword != newPassword) {
+													$('.alertF').css('display',
+															'none');
+													$('#spanReTypePassword')
+															.text(
+																	'Password must be Equal');
+													$('#spanReTypePassword')
+															.css('display',
+																	'block');
+													return false;
+												}
+												if (reTypePassword == newPassword) {
+													if(oldPassword
+															.trim() == ""){
+														$('#spanOldPassword')
+														.text(
+														'Please enter old password').css('display','block');
+														return false
+													}
+													if ((oldPassword != null && oldPassword
+															.trim() != "")) {
+														var bool = comparePassword();
+														if (!bool) {
+															return false;
+														}else{
+															if(oldPassword == newPassword){
+																$('.alertF').css('display',
+																'none');
+														$('#spanNewPassword').text("New password must be different from old");
+														$('#spanNewPassword').css(
+																'display', 'block');
+
+														return false;					
+															}
+															
+														}
+															
+														}
+													}
+												}
+											}
+
+										
+										$('.alertF').css('display', 'none');
+										$("#actionSetting").submit();
+
+									});
+
+					$('.edit')
+							.bind(
+									'click',
+									function() {
+										$('#halfFullBorder').removeClass('fullBorder').addClass('halfBorder');
+
+										$('#headingName')
+												.css('display', 'none')
+										$('#headingCompanyName').css('display',
+												'none')
+										$('.uploadimg').css('display', 'block');
+										$('#profileEditRight').removeClass(
+												'prifileRight').addClass(
+												'editprofileDiv');
+										$('#editProfile').css('display',
+												'block');
+										$('.settingDiv').css('display', 'none');
+										$('#setting').css('display', 'none');
+										$('input[type="text"]').prop(
+												'readonly', false);
+										$('#userName').prop('readonly', true);
+										$('#name').attr('type', 'text');
+										$('#companyName').attr('type', 'text');
+										$('#overviewText').prop('readonly',
+												false);
+
+									});
+
+					$('.settings').bind('click', function() {
+
+						$('.uploadimg').css('display', 'block');
+
+						$('#editProfile').css('display', 'none');
+						$('.settingDiv').css('display', 'block');
+						$('#setting').css('display', 'block');
+
+						$('#overviewText').prop('readonly', true);
+
+					});
+					if (countMsg == 0) {
+
+						$('#messageTab').removeClass("newmessage wow fadeIn")
+								.addClass("nullmessage");
+					}
+
+				});
+
+/*
+ * var countryList = new Array(); for (var i = 0; i < countryListJson.length;
+ * i++) {
+ * 
+ * countryList.push(countryListJson[i].countryName); }
+ */
+/*
+ * var substringMatcher = function(strs) { return function findMatches(q, cb) {
+ * var matches, substringRegex;
+ *  // an array that will be populated with substring matches matches = [];
+ *  // regex used to determine if a string contains the substring `q`
+ * substrRegex = new RegExp(q, 'i');
+ *  // iterate through the pool of strings and for any string that // contains
+ * the substring `q`, add it to the `matches` array $.each(strs, function(i,
+ * str) { if (substrRegex.test(str)) { matches.push(str); } });
+ * 
+ * cb(matches); }; };
+ */
+
+/*
+ * $(document).on('click', '.tt-selectable', function() { var str =
+ * $("#smart_search").val();
+ * 
+ * });
+ */
+
+
+
+
+function saveIndustry() {
+	var industryIds = new Array();
+	industryIds = getCheckedBoxes('indestries');
+	$
+			.ajax({
+				method : "POST",
+				url : '../member/updateIndustry',
+				data : {
+					industryIds : industryIds
+				}
+			})
+			.done(
+					function(response) {
+						if (response.status == "success") {
+							$("#industrySpanDiv").empty();
+							var html;
+							var indstSet = response.result.industryIds;
+							userIndustry = [];
+							userIndustry = indstSet;
+							for (var i = 0; i < indstSet.length; i++) {
+								html = ' <span id="industrySpan'
+										+ indstSet[i].indstId
+										+ '" >'
+										+ indstSet[i].indstName
+										+ '<i data-icon="y" class="icon" onclick="removeSelectedIndustry('
+										+ indstSet[i].indstId
+										+ ')" ></i></span>';
+								$("#industrySpanDiv").append(html);
+							}
+						} else {
+							alert("Something Wrong Happened");
+						}
+					});
+}
+
+function cancelIndustry() {
+	for (var i = 0; i < industryJson.length; i++) {
+		$("#industryItem" + industryJson[i].indstId).attr('checked', false);
+	}
+	for (var i = 0; i < userIndustry.length; i++) {
+		$("#industryItem" + userIndustry[i].indstId).attr('checked', true);
+		$("#industryItem" + userIndustry[i].indstId).prop('checked', true);
+	}
+}
+
+function getCheckedBoxes(chkboxName) {
+	var checkboxes = document.getElementsByName(chkboxName);
+	var checkboxesChecked = [];
+	for (var i = 0; i < checkboxes.length; i++) {
+		if (checkboxes[i].checked) {
+			checkboxesChecked.push(checkboxes[i].value);
+		}
+	}
+	return checkboxesChecked.length > 0 ? checkboxesChecked : null;
+}
+
+$(document).ready(function() {
+
+	for (var i = 0; i < userIndustry.length; i++) {
+		$("#industryItem" + userIndustry[i].indstId).attr('checked', true);
+	}
+});
+
+function removeSelectedIndustry(indstId) {
+	$.ajax({
+		method : "POST",
+		url : '../member/deleteIndustry',
+		data : {
+			indstId : indstId
+		}
+	}).done(function(response) {
+		if (response.status = "success") {
+			$("#industrySpan" + indstId).remove();
+			$("#industryItem" + indstId).attr('checked', false);
+		}
+	});
+}
+
+/*
+ * function showPreviousGiattChart(){ $.ajax({ method : "POST", url :
+ * '../member/previousGiattChart', data : { currentStartDate: startDate }
+ * }).done(function(response) { if(response.status="success"){ var result =
+ * response.result; if(result != null){ startDate = result.chartData.startDate;
+ * array = result.chartData.frequencyDurations; chart.clear(); if(array != null &&
+ * array.length>0){ drawGanttChart(startDate, array); }else{
+ * document.getElementById("chartdiv").innerHTML = "Data not available for
+ * graph!"; }
+ *  }
+ *  } });
+ * 
+ * var d = stringToDate(startDate,'dd/MM/yyyy','/'); var locale = "en-us";
+ * d.setMonth(d.getMonth()-1);
+ * document.getElementById("chartForMonth").innerHTML = d.toLocaleString(locale, {
+ * month: "long" })+" " + d.getFullYear(); d =
+ * stringToDate(startDate,'dd/MM/yyyy','/'); d.setMonth(d.getMonth()-2);
+ * document.getElementById("leftGraphBtn").innerHTML = d.toLocaleString(locale, {
+ * month: "short" })+" " + d.getFullYear(); d =
+ * stringToDate(startDate,'dd/MM/yyyy','/'); d.setMonth(d.getMonth());
+ * document.getElementById("rightGraphBtn").innerHTML = d.toLocaleString(locale, {
+ * month: "short" })+" " + d.getFullYear(); }
+ * 
+ * function showNextGiattChart(){
+ * 
+ * $.ajax({ method : "POST", url : '../member/nextGanttChart', data : {
+ * currentStartDate: startDate } }).done(function(response) {
+ * if(response.status="success"){ var result = response.result; if(result !=
+ * null){ startDate = result.chartData.startDate; array =
+ * result.chartData.frequencyDurations; chart.clear(); if(array != null &&
+ * array.length>0){ drawGanttChart(startDate, array); }else{
+ * document.getElementById("chartdiv").innerHTML = "Data not available for
+ * graph!"; } }
+ *  } });
+ * 
+ * var d = stringToDate(startDate,'dd/MM/yyyy','/'); var locale = "en-us";
+ * d.setMonth(d.getMonth()+1);
+ * document.getElementById("chartForMonth").innerHTML = d.toLocaleString(locale, {
+ * month: "long" })+" " + d.getFullYear(); d =
+ * stringToDate(startDate,'dd/MM/yyyy','/');
+ * document.getElementById("leftGraphBtn").innerHTML = d.toLocaleString(locale, {
+ * month: "short" })+" " + d.getFullYear(); d =
+ * stringToDate(startDate,'dd/MM/yyyy','/'); d.setMonth(d.getMonth()+2);
+ * document.getElementById("rightGraphBtn").innerHTML = d.toLocaleString(locale, {
+ * month: "short" })+" " + d.getFullYear(); }
+ * 
+ * function stringToDate(_date,_format,_delimiter) { var
+ * formatLowerCase=_format.toLowerCase(); var
+ * formatItems=formatLowerCase.split(_delimiter); var
+ * dateItems=_date.split(_delimiter); var monthIndex=formatItems.indexOf("mm");
+ * var dayIndex=formatItems.indexOf("dd"); var
+ * yearIndex=formatItems.indexOf("yyyy"); var
+ * month=parseInt(dateItems[monthIndex]); month-=1; var formatedDate = new
+ * Date(dateItems[yearIndex],month,dateItems[dayIndex]); return formatedDate; }
+ * 
+ * 
+ * 
+ * function drawGanttChart(newStartDate, newArray){
+ * 
+ * AmCharts.useUTC = true; chart = AmCharts.makeChart( "chartdiv", { "type":
+ * "gantt", "theme": "light", "marginRight": 10, "period": "DD",
+ * "dataDateFormat":"DD/MM/YYYY", "balloonDateFormat": "JJ:NN", "columnWidth":
+ * 0.01, "mouseWheelZoomEnabled":true, "valueAxis": { "type": "date", "minimum":
+ * 1, "maximum": 30, "labelsEnabled":false, "axisAlpha":0, "gridAlpha":0 },
+ * "categoryAxis": { "gridPosition": "start", "labelsEnabled":false,
+ * "axisAlpha":0, "gridAlpha":0 }, "brightnessStep": 0, "graph": { "fillAlphas":
+ * 1, "balloonText": "<b>[[task]]</b>: [[open]] [[value]]",
+ * "fixedColumnWidth":20 }, "rotate": true, "categoryField": "category",
+ * "segmentsField": "segments", "colorField": "color", "startDate":
+ * newStartDate, "startField": "start", "endField": "end", "durationField":
+ * "duration", "gridAboveGraphs": false, "tapToActivate": true,
+ * "zoomOutButtonAlpha":0, "zoomOutButtonImageSize":0,
+ * "zoomOutButtonRollOverAlpha":0, "zoomOutText":"", "dataProvider": newArray,
+ * "valueScrollbar": { "autoGridCount":false, "srollbarHeight":2,
+ * "backgroundAlpha": false, "enabled":false }, "chartCursor": {
+ * "cursorColor":"#55bb76", "valueBalloonsEnabled": false, "cursorAlpha": 0,
+ * "valueLineAlpha":0.1, "valueLineBalloonEnabled": true, "valueLineEnabled":
+ * true, "zoomable":false, "valueZoomable":false }, "export": { "enabled": false } } ); }
+ */
+
+var chart = AmCharts.makeChart("chartdiv", {
+	"type" : "pie",
+	"startDuration" : 0,
+	"theme" : "light",
+	"addClassNames" : true,
+	"labelsEnabled" : false,
+	"pullOutOnlyOne" : true,
+	"pullOutRadius" : "0%",
+	"radius" : "50%",
+	"pieY" : "50%",
+	"legend" : {
+		"position" : "right",
+		"verticalGap" : 0,
+		"autoMargins" : false,
+		"valueWidth" : 0,
+		"switchable" : false,
+		"fontSize" : 10,
+		"spacing" : 0,
+		"markerSize" : 8,
+		"labelWidth" : 120,
+		"top" : 200
+
+	},
+	"innerRadius" : "40%",
+	"defs" : {
+		"filter" : [ {
+			"id" : "shadow",
+			"width" : "100%",
+			"height" : "100%",
+			"feOffset" : {
+				"result" : "offOut",
+				"in" : "SourceAlpha",
+				"dx" : 0,
+				"dy" : 0
+			},
+			"feGaussianBlur" : {
+				"result" : "blurOut",
+				"in" : "offOut",
+				"stdDeviation" : 5
+			},
+			"feBlend" : {
+				"in" : "SourceGraphic",
+				"in2" : "blurOut",
+				"mode" : "normal"
+			}
+		} ]
+	},
+	"dataProvider" : array,
+	"valueField" : "percentage",
+	"titleField" : "module",
+	"export" : {
+		"enabled" : true
+	}
+});
+
+chart.addListener("init", handleInit);
+
+chart.addListener("rollOverSlice", function(e) {
+	handleRollOver(e);
+});
+
+function handleInit() {
+	chart.legend.addListener("rollOverItem", handleRollOver);
+}
+
+function handleRollOver(e) {
+	var wedge = e.dataItem.wedge.node;
+	wedge.parentNode.appendChild(wedge);
+}
+
+function comparePassword() {
+
+	var bool;
+	var oldPassword = $('#oldPassword').val();
+	if (oldPassword.trim() == '' || oldPassword == null) {
+		oldPassword = $('#password').val();
+
+	}
+	$.ajax({
+		method : "POST",
+		url : "../member/getComparePassword",
+		data : {
+			password : oldPassword
+
+		},
+
+		async : false
+	}).done(function(response) {
+		
+		var getComparePasswordStatus = response.status;
+		if (getComparePasswordStatus == 'success') {
+
+			bool = true;
+		} else {
+			
+			$('#spanOldPassword').text("old password does not match.").css('display', 'block');
+			bool = false;
+		}
+
+	});
+	return bool;
+
+}
+
+function updateMessageNotification() {
+	$.ajax({
+		method : "POST",
+		url : "../member/updateMessageNotification",
+
+	}).done(
+			function(response) {
+				if (response.status == 'success') {
+					$('#messageTab').removeClass("newmessage wow fadeIn")
+							.addClass("nullmessage");
+					$('.no').text(0);
+				}
+			});
+
+}
+function checkVisibility(){
+	
+	var msg = $("#chatTextArea").val();
+	if($('.messageChat').is(':visible')){
+		if(msg == null || msg.trim()==''){
+			loadGroupMessage();
+		}
+	}else{
+		adminMessageNotification()
+	}
+}
+
+function adminMessageNotification(){
+	$.ajax({
+		method : "POST",
+		url : "../member/adminMessageNotification",
+		data : {
+		}
+	}).done(function(response) {
+		var successResponse = response.status;
+		if (successResponse == 'success') {
+			 countMsg = response.result.countMsg;
+			if(countMsg!=0){
+			loadGroupMessage();
+			$('#messageTab').addClass("newmessage wow fadeIn").removeClass("nullmessage");
+			$('#message_count_id').text(countMsg);
+			}
+		}
+	});
+}
+
+
+ 
+
+function loadGroupMessage() {
+	var msg = $("#chatTextArea").val();
+	var visibleFlag = false;
+	if($('.messageChat').is(':visible')){
+		visibleFlag = true;
+	}
+	if(msg == null || msg.trim()==''){
+	req = $.ajax({
+		method : "POST",
+		url : "../member/loadGroupMessage",
+		data : {
+			groupId : groupId ,
+			visibleFlag : visibleFlag
+		}
+	}).done(function(response) {
+		var successResponse = response.status;
+		if (successResponse == 'success') {
+			var messageSet = response.result;
+			setchatMessages(messageSet);
+		}
+	});
+	}else{
+		req.abort();
+	}
+	$('#chatTextArea').on('keydown',function(){
+		req.abort();
+	});
+}
+function changePassDiv() {
+
+	
+	var password = $('#password').val();
+	if (password.trim() != '' && password != null) {
+		var bool = comparePassword();
+		
+		if (bool) {
+			$('#staticPass').css('display', 'none');
+           $('.alertF').css('display', 'none')
+			$('#passDiv').css('display', 'block')
+
+		} else {
+			$('#spanPassword').text("old password does not match.");
+			$('#spanPassword').css('display', 'block');
+		}
+	} else {
+		$('#spanPassword').text("please enter old password");
+		$('#spanPassword').css('display', 'block');
+	}
+}

@@ -1,0 +1,62 @@
+package com.fixit.service;
+
+import java.util.Calendar;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import com.fixit.dao.FavouriteFixerDao;
+import com.fixit.domain.vo.FavouriteFixer;
+import com.fixit.domain.vo.User;
+import com.fixit.utility.FixitException;
+
+@Service("FavouriteFixerService")
+@Transactional
+public class FavouriteFixerServiceImpl implements FavouriteFixerService {
+
+	@Autowired
+	private FavouriteFixerDao favouriteFixerDao;
+	
+	@Autowired
+	private UserService userService;
+	
+	@Override
+	@Transactional
+	public FavouriteFixer saveFavourateFixer(int memberId, int fixerId)
+			throws FixitException {
+		
+		FavouriteFixer favouriteFixer=null;
+		try{
+			User user=userService.findUserById(memberId);
+			favouriteFixer=new FavouriteFixer();
+			favouriteFixer.setFixerId(fixerId);
+			favouriteFixer.setUser(user);
+			favouriteFixer.setCreatedAt(Calendar.getInstance());
+			favouriteFixer=favouriteFixerDao.store(favouriteFixer);
+			return favouriteFixer;
+		}catch(Exception e){
+			return null;
+		}
+		
+	}
+	public Integer deleteFavouriteFixer(int userId,int fixerId) throws FixitException{
+		try{
+			int result=favouriteFixerDao.deleteFavouriteFixerByFixerId(userId, fixerId);
+			return result;
+		}catch(Exception e){
+			return -1;
+		}
+	}
+	@Override
+	public FavouriteFixer findFavFixerByIds(int userId, int fixerId) throws FixitException {
+		try{
+			FavouriteFixer favouriteFixer = favouriteFixerDao.findFavFixerByIds(userId, fixerId);
+			return favouriteFixer;
+		}catch(Exception e){
+			return null;
+		}
+	}
+
+
+}

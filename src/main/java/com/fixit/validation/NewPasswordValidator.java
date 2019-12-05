@@ -1,0 +1,52 @@
+package com.fixit.validation;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+import org.springframework.validation.Errors;
+import org.springframework.validation.ValidationUtils;
+import org.springframework.validation.Validator;
+
+import com.fixit.domain.bo.FixerRegisterBo;
+import com.fixit.domain.bo.NewPassword;
+import com.fixit.service.UserService;
+import com.fixit.utility.PasswordEncode;
+
+@Component
+public class NewPasswordValidator  implements Validator {
+	
+	@Autowired
+	UserService userService;
+
+	com.fixit.domain.vo.User myCurrentUser;
+	@Override
+	public boolean supports(Class<?> arg0) {
+		
+		return NewPassword.class.equals(arg0);
+		
+	}
+
+	public void setMyCurrentUser(com.fixit.domain.vo.User myCurrentUser) {
+		this.myCurrentUser = myCurrentUser;
+	}
+	
+	@Override
+	public void validate(Object object, Errors errors) {
+		
+		NewPassword user = (NewPassword) object;
+		ValidationUtils.rejectIfEmptyOrWhitespace(errors, "newPassword", "NotEmpty.member.newPassword");
+		ValidationUtils.rejectIfEmptyOrWhitespace(errors, "confirmNewPassword", "NotEmpty.member.confirmNewPassword");
+		
+			if(user.getNewPassword()!=null && user.getNewPassword()!="" && user.getConfirmNewPassword()!=null && user.getConfirmNewPassword()!=""){
+				
+				if(user.getNewPassword().equals(user.getConfirmNewPassword())){
+					if(user.getNewPassword().length()<7 &&user.getConfirmNewPassword().length()<7){
+						return;
+					}
+					
+				}else{
+					
+					errors.rejectValue("passwordError", "passwordError.error", "Your new password and confirm password doesn't match.");
+				}
+			}
+		}
+}

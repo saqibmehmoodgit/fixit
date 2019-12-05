@@ -1,0 +1,80 @@
+package com.fixit.dao;
+
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
+
+import javax.persistence.EntityManager;
+import javax.persistence.NoResultException;
+import javax.persistence.PersistenceContext;
+
+import org.skyway.spring.util.dao.AbstractJpaDao;
+import org.springframework.dao.DataAccessException;
+import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
+
+import com.fixit.domain.vo.FavouriteFixer;
+import com.fixit.domain.vo.QueryAudit;
+
+@Repository("FavouriteFixerDao")
+@Transactional
+public class FavouriteFixerDaoImpl extends AbstractJpaDao<FavouriteFixer> implements
+FavouriteFixerDao {
+	@PersistenceContext(unitName = "fixit_db")
+	private EntityManager entityManager;
+
+	private final static Set<Class<?>> dataTypes = new HashSet<Class<?>>(
+			Arrays.asList(new Class<?>[] { QueryAudit.class }));
+
+	public FavouriteFixerDaoImpl() {
+		super();
+	}
+
+	@Override
+	public EntityManager getEntityManager() {
+		return entityManager;
+	}
+
+	@Override
+	public Set<Class<?>> getTypes() {
+		return dataTypes;
+	}
+
+	@Override
+	public boolean canBeMerged(FavouriteFixer o) {
+		return true;
+	}
+	
+	@Override
+	@Transactional
+	public Integer deleteFavouriteFixerByFixerId(int userId,int fixerId) throws DataAccessException{
+		try {
+			javax.persistence.Query query = createNamedQuery("deleteFavouriteFixerByFixerId",-1, -1 ,userId,fixerId );
+			 return query.executeUpdate();
+		 }catch (NoResultException nre) {
+			return 0;
+		}
+	}
+	@Override
+	@Transactional
+	public Integer deleteUserByFixerId(int userId) throws DataAccessException{
+		try {
+			javax.persistence.Query query = createNamedQuery("deleteUserByFixerId",-1, -1 ,userId );
+			 return query.executeUpdate();
+		 }catch (NoResultException nre) {
+			return 0;
+		}
+	}
+
+	@Override
+	public FavouriteFixer findFavFixerByIds(int userId, int fixerId) throws DataAccessException {
+		
+		try {
+			javax.persistence.Query query = createNamedQuery("findFavFixerByIds",-1, -1 ,userId,fixerId );
+			 return  (FavouriteFixer) query.getSingleResult();
+		 }catch (NoResultException nre) {
+			return null;
+		}
+	}
+	
+}

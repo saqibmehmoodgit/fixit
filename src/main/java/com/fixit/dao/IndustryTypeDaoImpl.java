@@ -1,0 +1,84 @@
+package com.fixit.dao;
+
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.LinkedHashSet;
+import java.util.Set;
+
+import javax.persistence.EntityManager;
+import javax.persistence.NoResultException;
+import javax.persistence.PersistenceContext;
+import javax.persistence.Query;
+
+import org.skyway.spring.util.dao.AbstractJpaDao;
+import org.springframework.dao.DataAccessException;
+import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
+import com.fixit.domain.vo.IndustryType;
+import com.fixit.domain.vo.QueryCategory;
+import com.fixit.domain.vo.User;
+
+@Repository("IndustryTypeDao")
+@Transactional
+public class IndustryTypeDaoImpl extends AbstractJpaDao<IndustryType> implements IndustryTypeDao{
+
+	@PersistenceContext(unitName = "fixit")
+	private EntityManager entityManager;
+
+	private final static Set<Class<?>> dataTypes = new HashSet<Class<?>>(
+			Arrays.asList(new Class<?>[] { IndustryType.class }));
+
+	public IndustryTypeDaoImpl() {
+		super();
+	}
+	
+	@Override
+	public EntityManager getEntityManager() {
+		return entityManager;
+	}
+
+	@Override
+	public Set<Class<?>> getTypes() {
+		return dataTypes;
+	}
+
+	@Override
+	public boolean canBeMerged(IndustryType o) {
+		return true;
+	}
+
+	@Override
+	@Transactional
+	public Set<IndustryType> findAllIndustryType() throws DataAccessException {
+		return findAllIndustryType(-1,-1);
+	}
+
+	@Override
+	@Transactional
+	public Set<IndustryType> findAllIndustryType(int startResult, int max) throws DataAccessException {
+		try {
+			 Query query = createNamedQuery("findAllIndustryType",startResult, max);
+			 return new LinkedHashSet<IndustryType>(query.getResultList());
+		 }catch (NoResultException nre) {
+			return null;
+		}
+	}
+
+	@Override
+	@Transactional
+	public IndustryType findIndustryTypeByIndstId(int indstId) throws DataAccessException{
+		return findIndustryTypeByIndstId(indstId,-1,-1);
+	}
+
+	@Override
+	@Transactional
+	public IndustryType findIndustryTypeByIndstId(int indstId, int startResult, int max) throws DataAccessException {
+		try {
+			 Query query = createNamedQuery("findIndustryTypeByIndstId",startResult, max ,indstId);
+			 return (IndustryType) query.getSingleResult();
+		 }catch (NoResultException nre) {
+			return null;
+		}
+	}
+
+}

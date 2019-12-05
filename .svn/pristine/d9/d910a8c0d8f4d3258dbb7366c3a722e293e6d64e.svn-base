@@ -1,0 +1,182 @@
+package com.fixit.service;
+
+import java.math.BigInteger;
+import java.util.Calendar;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Set;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import com.fixit.dao.QueryAuditDao;
+import com.fixit.dao.QueryDao;
+import com.fixit.domain.bo.QueryAuditBo;
+import com.fixit.domain.bo.UserBo;
+import com.fixit.domain.vo.Query;
+import com.fixit.domain.vo.QueryAudit;
+import com.fixit.domain.vo.QueryCategory;
+import com.fixit.domain.vo.User;
+import com.fixit.utility.DbConstants;
+import com.fixit.utility.FixitException;
+
+@Service("QueryAuditService")
+@Transactional
+public class QueryAuditServiceImpl implements QueryAuditService{
+
+	@Autowired
+	QueryAuditDao queryAuditDao;
+	
+	@Autowired
+	QueryDao queryDao;
+	
+	@Autowired
+	QueryService queryService;
+	
+	@Override
+	@Transactional
+	public QueryAudit saveQueryAudit(QueryAudit queryAudit) throws FixitException {
+		try{
+			queryAudit = queryAuditDao.store(queryAudit);
+		}catch(Exception e){
+		throw new FixitException("queryAudit.notSaved","queryAudit.notSaved");	
+		}
+		return queryAudit;
+	}
+
+	@Override
+	@Transactional
+	public int findUnresolvedIssueByFIxerId(int fixerId) throws FixitException {
+		return queryAuditDao.findUnresolvedIssueByFIxerId(fixerId);
+	}
+	
+	@Override
+	@Transactional
+	public List<QueryAudit> getQueryDetailMessages(String hashcode,int startIndex,int max) throws FixitException{
+		List<QueryAudit> messagesSet=new LinkedList<QueryAudit>();
+		Query query = queryService.getQueryByHashCode(hashcode);
+		if(query!=null){
+		messagesSet=queryAuditDao.getQueryRelatedMessages(query.getQueryId(),query.getFixerId() , startIndex, max);
+		}
+		return messagesSet;
+	}
+	@Override
+	@Transactional
+	public List<QueryAudit> getQueryOpenDetailMessages(String hashcode, int fixerId,int startIndex,int max) throws FixitException{
+		List<QueryAudit> messagesSet=new LinkedList<QueryAudit>();
+		Query query = queryService.getQueryByHashCode(hashcode);
+		if(query!=null){
+		messagesSet=queryAuditDao.getQueryRelatedMessages(query.getQueryId(),fixerId , startIndex, max);
+		}
+		return messagesSet;
+	}
+	@Override
+	public QueryAudit getQueryAuditBasedOnStatus(Integer memberId,Integer fixerId,Integer queryId,String currentStatus) throws FixitException{
+		QueryAudit queryAudit=null;
+		try{
+		queryAudit=queryAuditDao.getQueryAuditBasedOnStatus(memberId, fixerId, queryId, currentStatus);
+	 }catch(Exception e){
+		 return null;
+	 }
+		return queryAudit;
+	}
+	@Override
+	public QueryAudit getQueryAuditBasedOnStatusAndMsgFromFixer(Integer memberId,Integer fixerId,Integer queryId,String currentStatus,String msgFrom) throws FixitException{
+		QueryAudit queryAudit=null;
+		try{
+		queryAudit=queryAuditDao.getQueryAuditBasedOnStatusAndMsgFrom(memberId, fixerId, queryId, currentStatus,msgFrom);
+	 }catch(Exception e){
+		 return null;
+	 }
+		return queryAudit;
+	}
+	@Override
+	public QueryAudit saveQueryDetailMessage(QueryAuditBo queryAudiotBo) throws  FixitException{
+		Query existingQuery = null;
+		QueryAudit queryAudit=null;
+		try {
+			existingQuery = queryDao.findQueryByQueryId(queryAudiotBo.getQueryId());
+			if (existingQuery != null) {
+				Calendar lastUpdatedUser = Calendar.getInstance();
+				existingQuery.setLastUpdateByUser(lastUpdatedUser);
+				existingQuery = queryDao.store(existingQuery);
+				if(existingQuery !=null){
+					if (existingQuery != null) {
+
+						queryAudit = new QueryAudit();
+						queryAudit.setQuery(existingQuery);
+						queryAudit.setCustomerId(queryAudiotBo.getCustomerId());
+						queryAudit.setFixerId(queryAudiotBo.getFixerId());
+						queryAudit.setMessage(queryAudiotBo.getMessage());
+						queryAudit.setMsgFrom(queryAudiotBo.getMsgFrom());
+						queryAudit.setStatus(queryAudiotBo.getStatus());
+						queryAudit.setReadStatus("UR");
+						Calendar auditDate = Calendar.getInstance();
+						queryAudit.setAuditDate(auditDate);
+						queryAudit = queryAuditDao.store(queryAudit);
+
+					}
+
+				}
+				
+			} else {
+			
+
+		}
+		}catch (Exception e) {
+			throw new FixitException("", "");
+		}
+		return queryAudit;
+
+	}
+
+	@Override
+	public long findAllQueryCountByFixerId(int fixerId,String status) throws FixitException {
+		long result = queryAuditDao.findAllQueryCountByFixerId(fixerId,status);
+		return result;
+	}
+
+	@Override
+	public long findAllQueryUserIdAndSatus(int userId, String status)
+			throws FixitException {
+		long result = queryAuditDao.findAllQueryUserIdAndSatus(userId, status);
+		return result;
+	}
+
+	@Override
+	@Transactional
+	public Set<QueryAudit> findAllQueryAudit(Integer startIndex , Integer maxResult) throws FixitException {
+		try{
+			 return queryAuditDao.findAllQueryAudit(startIndex, maxResult);
+		}catch (Exception e) {
+			throw new FixitException("", "");
+		}
+	}
+
+	@Override
+	@Transactional
+	public long findAllQueryAuditCount() throws FixitException {
+		try{
+			return queryAuditDao.findAllQueryAuditCount();
+		}catch(Exception e){
+			throw new FixitException("", "");
+		}
+	}
+
+	@Override
+	public int updateMessagesToRead(Integer queryId, Integer fixerId,String usertype) {
+		try{
+		queryAuditDao.updateMessagesToRead(queryId,fixerId,usertype);
+		}
+		catch(Exception e)
+		{
+			e.printStackTrace();
+		}
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+}

@@ -1,0 +1,231 @@
+package com.fixit.domain.bo;
+
+import java.util.List;
+
+import org.hibernate.validator.constraints.NotEmpty;
+
+
+public class QueryBo {
+    
+	private Integer queryId;
+	private Integer userId;
+	private Integer fixerId;
+	private Integer rejectedfixerId;
+	@NotEmpty
+	private String queryTitle;
+	private String queryHascode;
+
+	private String currentStatus;
+	private String status;
+	private String count;
+	private String country;
+	private Integer queryCredits = 0;
+	private Integer oldCredits = 0;
+	private String queryDeadlineDate;
+	
+    
+	
+
+	public String getCountry() {
+		return country;
+	}
+
+	public void setCountry(String country) {
+		this.country = country;
+	}
+
+	@NotEmpty
+	private String queryContent;
+	
+    
+	private List<Integer> categories;
+	
+	
+	private String fixersIds="[]";
+	
+	private String fixersNames="[]";
+	
+	
+
+	public String getFixersNames() {
+		return fixersNames;
+	}
+
+	public void setFixersNames(String fixersNames) {
+		this.fixersNames = fixersNames;
+	}
+
+	public String getFixersIds() {
+		return fixersIds;
+	}
+
+	public void setFixersIds(String fixersIds) {
+		this.fixersIds = fixersIds;
+	}
+
+	private List<String> documents;
+	
+	
+	private String timeZone;
+	
+	
+	// edit or create
+	private String queryMode;
+	
+	
+	
+	
+	public String getStatus() {
+		return status;
+	}
+
+	public void setStatus(String status) {
+		this.status = status;
+	}
+
+	public List<String> getDocuments() {
+		return documents;
+	}
+
+	public void setDocuments(List<String> documents) {
+		this.documents = documents;
+	}
+
+	
+	public String getQueryTitle() {
+		return queryTitle;
+	}
+
+	public void setQueryTitle(String queryTitle) {
+		this.queryTitle = queryTitle;
+	}
+	public String getTimeZone() {
+		return timeZone;
+	}
+
+	public void setTimeZone(String timeZone) {
+		this.timeZone = timeZone;
+	}
+
+	
+	
+
+	
+	public String getCurrentStatus() {
+		return currentStatus;
+	}
+
+	public void setCurrentStatus(String currentStatus) {
+		this.currentStatus = currentStatus;
+	}
+
+	public String getCount() {
+		return count;
+	}
+
+	public void setCount(String count) {
+		this.count = count;
+	}
+
+	
+	
+	
+	
+	
+	public Integer getQueryId() {
+		return queryId;
+	}
+
+	public void setQueryId(Integer queryId) {
+		this.queryId = queryId;
+	}
+
+	public Integer getFixerId() {
+		return fixerId;
+	}
+	
+	public void setFixerId(Integer fixerId) {
+		this.fixerId = fixerId;
+	}
+	public Integer getUserId() {
+		return userId;
+	}
+	public void setUserId(Integer userId) {
+		this.userId = userId;
+	}
+
+	public String getQueryContent() {
+		return queryContent;
+	}
+	
+
+	public void setQueryContent(String queryContent) {
+		this.queryContent = queryContent;
+	}
+	
+
+	public List<Integer> getCategories() {
+		return categories;
+	}
+
+	public void setCategories(List<Integer> categories) {
+		this.categories = categories;
+	}
+
+	
+
+
+	public String getQueryMode() {
+		return queryMode;
+	}
+
+	public void setQueryMode(String queryMode) {
+		this.queryMode = queryMode;
+	}
+
+	public Integer getQueryCredits() {
+		return queryCredits;
+	}
+
+	public void setQueryCredits(Integer queryCredits) {
+		this.queryCredits = queryCredits;
+	}
+
+	public Integer getOldCredits() {
+		return oldCredits;
+	}
+
+	public void setOldCredits(Integer oldCredits) {
+		this.oldCredits = oldCredits;
+	}
+
+	public Integer getRejectedfixerId() {
+		return rejectedfixerId;
+	}
+
+	public void setRejectedfixerId(Integer rejectedfixerId) {
+		this.rejectedfixerId = rejectedfixerId;
+	}
+
+	public String getQueryHascode() {
+		return queryHascode;
+	}
+
+	public void setQueryHascode(String queryHascode) {
+		this.queryHascode = queryHascode;
+	}
+
+	public String getQueryDeadlineDate() {
+		return queryDeadlineDate;
+	}
+
+	public void setQueryDeadlineDate(String queryDeadlineDate) {
+		this.queryDeadlineDate = queryDeadlineDate;
+	}
+
+	
+
+	
+	
+	
+}

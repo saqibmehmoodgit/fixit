@@ -1,0 +1,1037 @@
+@media (min-width: 2500px) and (max-width: 2560px) {
+    .banner {
+        background: #eae8e9 url(../images/banner.jpg) 0 0 no-repeat;
+        background-size: 100%;
+        margin-top: 95px;
+        min-height: 1053px;
+        padding-bottom: 306px
+    }
+    .bannertxt {
+        width: 467px;
+        margin: 23% auto 1% auto;
+        text-align: center
+    }
+}
+@media (min-width: 2040px) and (max-width: 2048px) {
+    .banner {
+        background: #eae8e9 url(../images/banner.jpg) 0 0 no-repeat;
+        background-size: 100%;
+        margin-top: 95px;
+        min-height: 850px;
+        padding-bottom: 306px
+    }
+    .bannertxt {
+        width: 467px;
+        margin: 18% auto 1% auto;
+        text-align: center
+    }
+}
+@media (min-width: 1500px) and (max-width: 1600px) {
+    .banner {
+        background: #eae8e9 url(../images/banner.jpg) 0 0 no-repeat;
+        background-size: 100%;
+        margin-top: 95px;
+        min-height: 649px;
+        padding-bottom: 306px
+    }
+    .bannertxt {
+        width: 467px;
+        margin: 12% auto 1% auto;
+        text-align: center
+    }
+}
+@media (min-width: 1150px) and (max-width: 1280px) {
+    .banner {
+        background: #eae8e9 url(../images/banner.jpg) 0 0 no-repeat;
+        background-size: 100%;
+        margin-top: 95px;
+        max-height: 539px;
+        padding-bottom: 306px
+    }
+    .bannertxt {
+        width: 467px;
+        margin: 8% auto 1% auto;
+        text-align: center
+    }
+}
+@media (max-width: 1024px) {
+	.member_without h1{margin-top: 75px;}
+	.header_without_login ul.mainav li a{color: #fff !important;}
+    .banner {
+        background: #eae8e9 url(../images/banner.jpg) 0 0 no-repeat;
+        background-size: 100%;
+        margin-top: 95px;
+        height: 430px;
+        padding-bottom: 306px
+    }
+    .catindus li,
+    .header ul.mainav li {
+        list-style: none;
+        display: inline-block
+    }
+    .mainhead .navigation {
+        display: none;
+        position: fixed;
+        top: 87px;
+        left: 0;
+        right: 0;
+        background: rgba(3, 155, 229, .75)
+    }
+    .mainhead .signup {
+        position: absolute;
+        top: 10px
+    }
+    .mainhead .signup .mmneu {
+        display: inline-block;
+        float: right;
+        margin-left: 10px
+    }
+    .header ul.mainav {
+        list-style: none;
+        width: 100%;
+        text-align: center;
+        margin-top: 17px;
+        margin-left: -39px;
+		padding-bottom:15px;
+    }
+	.header ul.mainav li{
+		margin:8px 0;
+	}
+    .header ul.mainav li a {
+        color: #fff;
+        font-size: 22px;
+		padding:0 15px;
+    }
+    .header ul.mainav li a.active,
+    .header ul.mainav li a:hover {
+        color: #fff
+    }
+    .catindus li {
+        width: 46%;
+        margin-right: 3%
+    }
+}
+@media (max-width: 900px) {
+    .pricing .price,
+    .pricing .price1,
+    .pricing .price2 {
+        width: 100%;
+        text-align: center
+    }
+    .banner {
+        margin-top: 95px;
+        min-height: 100%;
+        padding-bottom: 50px
+    }
+    .pricing .price {
+        float: right
+    }
+    .pricing .price1 {
+        margin: auto
+    }
+    .table_blk .tablelist {
+        width: 47%;
+    }
+    .table_blk .tablelist:nth-child(2) {
+        margin-bottom: 10px;
+    }
+    .table_blk .tablelist:last-child {
+        width: 100%;
+    }
+    .table_blk .tablelist:last-child .tablelisting {
+        float: left; width: 47%; margin-right: 3%;
+    }
+    .table_blk .tablelist:last-child .tablelisting:last-child {
+        margin-top: -10px;
+    }
+}
+@media (max-width: 768px) {
+	/* .header_without_login{border-bottom:solid 1px #ddd;} */
+	.header_without_login .logo img{width:35% !important; margin-top: 0px;}
+	.header_without_login .mainhead{height: 80px;}
+	.btn_div button p{font-size: 20px;}
+	.btn_div button i{font-size: 20px; top: 3px; left: 28px;}
+	.btn_div button:nth-child(2) i{font-size: 20px; top: 53px; left: 28px;}
+	.membersignup .btn_div button p {     padding-left: 70px; }
+	.header_without_login ul.mainav li a{color: #fff !important;}
+	.member_without h1{margin-top: 50px !important;}
+    .mainhead .signup .mmneu {
+        display: inline-block;
+        float: right;
+        margin-left: 10px
+    }
+    .mainhead {
+        display: table;
+        width: 100%;
+        height: 70px
+    }
+    .mainhead .logo {
+        display: table-cell;
+        vertical-align: middle
+    }
+    .mainhead .navigation {
+        display: none;
+        position: fixed;
+        top: 87px;
+        left: 0;
+        right: 0;
+        background: rgba(3, 155, 229, .75)
+    }
+    .mainhead .signup {
+        position: absolute;
+        top: 10px
+    }
+    .header ul.mainav {
+        list-style: none;
+        width: 100%;
+        text-align: center;
+        margin-top: 17px;
+        margin-left: -39px
+    }
+    .header ul.mainav li {
+        list-style: none;
+        display: inline-block
+    }
+    .header ul.mainav li a {
+        color: #fff;
+        font-size: 19px
+    }
+    .header ul.mainav li a.active,
+    .header ul.mainav li a:hover {
+        color: #fff
+    }
+    .mainhead .logo img {
+        width: 107px
+    }
+    .pricing .price,
+    .pricing .price1,
+    .pricing .price2 {
+        width: 100%;
+        text-align: center
+    }
+    .pricing .price {
+        float: right
+    }
+    .pricing .price1 {
+        margin: auto
+    }
+    .unclaimedR .uclaimedcell .unclatbn .btn {
+        padding: 1px 10px;
+        font-size: 17px;
+        display: inline-block;
+        margin: 0 0 10px 10px
+    }
+    .percent,
+    .percent1,
+    .percent2 {
+        width: 170px;
+        height: 170px;
+        margin: auto
+    }
+    .percent2 {
+        float: none
+    }
+}
+@media (max-width: 750px) {
+    .table_blk .tablelist, .table_blk .tablelist:last-child .tablelisting {
+         margin-right: 0;
+        width: 100%;
+    }
+    .table_blk .tablelist:last-child .tablelisting:last-child {
+        margin-top: 0; 
+    }
+}
+
+@media (max-width: 639px) {
+    .request_cntent_blk img { width: 100%; margin:  0 0 25px; }
+}
+
+@media (min-width: 320px) and (max-width: 640px) {
+	/* .header_without_login{border-bottom:solid 1px #ddd;} */
+	.header_without_login .logo img{width:68% !important; margin-top: 0px;}
+	.header_without_login .mainhead{height: 80px;}
+	.btn_div button p{font-size: 20px; padding-left:50px;}
+	.btn_div button i{font-size: 20px; top: 3px; left:8px;}
+	.btn_div button:nth-child(2) i{font-size: 20px; top: 53px; left:8px;}
+	.header_without_login ul.mainav li a{color: #fff !important;}
+    .header ul.mainav li {
+        list-style: none;
+        display: inline-block;
+        width: 48%;
+        text-align: left
+    }
+    .header ul.mainav li a {
+        color: #fff;
+        font-size: 19px
+    }
+    .payicon {
+        padding: 10px 0
+    }
+    .paymentdiv {
+        width: 100%;
+        display: block;
+        text-align: center
+    }
+    .paymentdiv span img {
+        width: 100%
+    }
+    .pricing .price,
+    .pricing .price1,
+    .pricing .price2 {
+        width: 100%;
+        float: none;
+        text-align: center
+    }
+    .pricing .price1 {
+        margin: 80px 0
+    }
+    .contactdiv .contacttable,
+    .contactdiv .contacttable .div {
+        display: block;
+        width: 100%
+    }
+    .signuptoday {
+        font-size: 28px
+    }
+    .member .notification{
+		z-index: 100;
+		position: relative;
+		width: 100%;
+		border-radius: 5px;
+		display: none;
+		height: auto;
+		left: 0;
+		right: 0;
+		padding: 5px;
+		margin-bottom:10px;
+	}
+	.member .notification span {
+		display: inline-block;
+		font-size: 30px;
+		font-weight: 700;
+		padding: 0 10px;
+	}
+	.search-form {
+        
+    }
+    .member .nav-tabs>li>a {
+        margin-right: 2px;
+        line-height: 1.42857;
+        border: 0;
+        background-color: #34b7ea;
+        color: #fff;
+        outline: 0;
+        font-size: 19px;
+        width: auto
+    }
+    .unclaimedR {
+        display: block;
+        width: 100%;
+        margin-bottom: 20px
+    }
+    .unclaimedR .uclaimedcell {
+        display: block;
+        padding: 10px 18px;
+        vertical-align: middle;
+        width: 100%
+    }
+    .unclaimedR .uclaimedcell:nth-child(1) {
+        background: #f5f5f5;
+        width: 100%
+    }
+    .unclaimedR .uclaimedcell:nth-child(2) {
+        background: #5BC0DE;
+        width: 100%;
+        text-align: center;
+        color: #000;
+        white-space: nowrap;
+        margin-top: 15px
+    }
+    .unclaimedR .uclaimedcell:nth-child(3) {
+        background: #FCC51E;
+        width: 100%;
+        text-align: center;
+        color: #000;
+        white-space: nowrap;
+        margin-top: 15px
+    }
+    .unclaimedR .uclaimedcell .unclatbn .btn {
+        padding: 1px 10px;
+        font-size: 17px;
+        display: inline-block;
+        margin: 0 0 4px 0
+    }
+    .add1 {
+        width: 100% !important
+    }
+    .member h1 {
+        font-size: 39px
+    }
+    .mainhead .logo img {
+        width: 83px
+    }
+    .fixerdetail .unclaimedR .uclaimedcell:first-child {
+        width: 100%
+    }
+    .fixerdetail .unclaimedR .uclaimedcell:last-child {
+        width: 100%;
+        padding: 0;
+        margin-top: 8px
+    }
+    .fixerdetail .unclaimedR .uclaimedcell .uclaibtn,
+    .fixerdetail .unclaimedR .uclaimedcell .uclaibtn1 {
+        padding: 15px 0 !important
+    }
+    .notificationf {
+        display: none
+    }
+    .notimessagetxt {
+        padding: 10px 0 15px
+    }
+    .notimessagetxt .graybg1 {
+        background: #F5F5F5;
+        border-radius: 8px;
+        padding: 15px
+    }
+    .notimessagetxt .graybg1 h2 {
+        padding-left: 0;
+        position: relative;
+        margin: 0
+    }
+    .notimessagetxt .graybg1 h2 span {
+        position: relative;
+        left: 0;
+        top: 0
+    }
+    .notimessagetxt .graybg1 .chatdiv {
+        padding-left: 0;
+        margin-top: 40px
+    }
+    .welcommember {
+        position: absolute;
+        left: 0;
+        top: 52px;
+        font-size: 20px
+    }
+    .search-favourite-fixer {
+        display: block;
+        width: 100%;
+        margin-bottom: 20px
+    }
+    .search-favourite-fixer .uclaimedcell {
+        display: block;
+        padding: 10px 18px;
+        vertical-align: middle;
+        border-radius: 8px;
+        width: 100%
+    }
+    .search-favourite-fixer .uclaimedcell:nth-child(2) {
+        background: #5BC0DE;
+        width: 100%;
+        margin-top: -15px
+    }
+    .search-favourite-fixer .uclaimedcell:nth-child(3) {
+        background: #F0AD4E;
+        width: 100%;
+        margin-top: -15px
+    }
+    .search-favourite-fixer .uclaimedcell h2 {
+        margin: 0;
+        padding-left: 0;
+        position: relative;
+        text-align: center
+    }
+    .search-favourite-fixer .uclaimedcell h2 name {
+        display: block;
+        text-align: center
+    }
+    .search-favourite-fixer .uclaimedcell h2 img {
+        border-radius: 50%;
+        width: 100px;
+        height: 100px;
+        position: relative;
+        margin: auto
+    }
+    .search-favourite-fixer .uclaimedcell .unclatbn {
+        display: block;
+        padding-left: 0;
+        position: relative
+    }
+    .search-favourite-fixer .uclaimedcell .unclatbn h2 {
+        display: block;
+        position: relative;
+        left: 0;
+        top: -6px
+    }
+    .overflowX {
+        width: 100%;
+        overflow-x: auto
+    }
+    .contactdiv {
+        padding: 25px 0
+    }
+    .search-favourite-fixer .uclaimedcell:nth-child(1) {
+        width: 100% !important
+    }
+    .percent,
+    .percent1,
+    .percent2 {
+        width: 170px;
+        height: 170px;
+        margin: auto
+    }
+    .percent2 {
+        float: none
+    }
+    .Bh1 {
+        font-size: 27px !important;
+        text-align: left !important;
+        font-weight: 400 !important;
+        margin: 0;
+        min-width: 320px !important
+    }
+}
+@media (min-width: 641px) and (max-width: 800px) {
+    .banner {
+        background: url(../images/banner.jpg) 0 bottom no-repeat #eae8e9;
+        background-size: 100%;
+        margin-top: 88px;
+        min-height: auto
+    }
+    .catindus li {
+        list-style: none;
+        width: 46%;
+        display: inline-block;
+        margin-right: 3%
+    }
+    .mainhead .logo img {
+        width: 110px
+    }
+    .member .nav-tabs>li>a {
+        font-size: 22px
+    }
+    .contactdiv {
+        padding: 25px 0
+    }
+    .fixertimonial1 .media .media-body p {
+        background: #FFF8E1 none repeat scroll 0% 0%;
+        padding: 15px;
+        min-height: auto !important;
+        border-radius: 8px;
+        position: relative;
+        font-size: 19px;
+        line-height: 20px;
+        margin-top: 10px;
+        font-style: italic
+    }
+    .customertestimonial1 .media .media-body p {
+        background: #E1F5FE none repeat scroll 0% 0%;
+        min-height: auto !important;
+        padding: 15px;
+        border-radius: 8px;
+        position: relative;
+        font-size: 19px;
+        margin-top: 10px;
+        font-style: italic
+    }
+    .pull-right1{float:left;}
+	p.text-success i {
+	    position: absolute;
+	    left: 51px;
+	    top: 1px;
+	}
+}
+@media  screen and (max-width: 767px) {
+.news ul {
+    background: rgba(3, 155, 229, .75);
+    width:175px;
+    top: 60px;
+}
+
+}
+@media (min-width: 561px) and (max-width: 640px) {
+    .banner {
+        background: url(../images/banner.jpg) 0 bottom no-repeat #eae8e9;
+        background-size: 100%;
+        margin-top: 88px;
+        min-height: auto
+    }
+    .paymentdiv span {
+        display: inline-block;
+        width: 13%
+    }
+    .catindus li {
+        list-style: none;
+        width: 46%;
+        float: left;
+        margin-right: 3%
+    }
+    .notification1 {
+        display: inline-block;
+        position: absolute;
+        border: 1px solid #fff;
+        border-radius: 50%;
+        line-height: 24px;
+        margin: 2px 0 0 10px;
+        width: 25px;
+        height: 25px
+    }
+    .search-favourite-fixer .uclaimedcell:nth-child(1) {
+        background: #f5f5f5;
+        border-radius: 8px;
+        margin-right: 5px;
+        width: 100% !important
+    }
+    .contactdiv {
+        padding: 25px 0
+    }
+    .favsearch {
+        position: relative;
+        margin-bottom: 43px
+    }
+    .create-issue select {
+        position: relative;
+        margin: 0;
+        width: 100%
+    }
+    .pagination {
+        width: 100% !important;
+        float: none !important;
+        text-align: center !important
+    }
+    .unclaimedR .uclaimedcell .unclatbn1 {
+        display: block;
+        margin-bottom: 25px
+    }
+    .rating1 {
+        padding-right: 0;
+        padding-left: 0;
+        margin-top: 0px;
+        margin-left: 0;
+        display: block;
+        float: left;
+        width: 100%
+    }
+    .rate-time {
+        display: block !important;
+        margin: 0px 0px 0px !important;
+        padding: 0px;
+        float: left !important;
+		width:100%;
+    }
+    .rating-select {
+        width: 85px;
+        position: relative;
+		right:0;
+    }
+    .profilepic {
+        padding-right: 0px
+    }
+	.btn{margin-bottom:5px;}
+	.remainingCredit{margin-top:30px;}
+	.pull-right1{float:left;}
+	p.text-success i {
+	    position: absolute;
+	    left: 51px;
+	    top: 1px;
+	}
+ul.nested_nav {
+    top: 30px;
+}
+li.news ul li {
+    width: 100% !important;
+}
+}
+@media (min-width: 480px) and (max-width: 560px) {
+	.header_without_login .logo img{width: 60% !important;}
+	.pull-right1{float:left;}
+	p.text-success i {
+	    position: absolute;
+	    left: 51px;
+	    top: 1px;
+	}
+    .banner {
+        background: url(../images/mobilebanner.jpg) 0 bottom no-repeat #eae8e9;
+        background-size: 100%;
+        margin-top: 88px;
+        min-height: auto
+    }
+    .bannertxt {
+        width: 80%;
+        margin: 10% auto 5%;
+        text-align: center
+    }
+    .banner h1 {
+        font-size: 48px;
+        margin-top: 20%
+    }
+    .banner h2 {
+        font-size: 30px
+    }
+    .banner .bluebtn,
+    .banner .yellowbtn {
+        width: 100%;
+        font-size: 18px
+    }
+    .paymentdiv span {
+        display: inline-block;
+        width: 13%
+    }
+    .notification1 {
+        display: inline-block;
+        position: absolute;
+        border: 1px solid #fff;
+        border-radius: 50%;
+        line-height: 24px;
+        margin: 2px 0 0 10px;
+        width: 25px;
+        height: 25px
+    }
+    .blogBox,
+    .blogBox img,
+    .favsearch {
+        position: relative
+    }
+    .contactdiv {
+        padding: 25px 0
+    }
+    .favsearch {
+        margin-bottom: 43px
+    }
+    .create-issue select {
+        position: relative;
+        margin: 0;
+        width: 100%
+    }
+    .pagination {
+        width: 100% !important;
+        float: none !important;
+        text-align: center !important
+    }
+    .blogBox {
+        display: block;
+        margin-top: 10px;
+        padding-left: 0
+    }
+    .blogBox img {
+        top: 0;
+        left: 0;
+        margin-bottom: 10px;
+        width: 100%
+    }
+    .contactDiv1 {
+        font-family: Ubuntu, sans-serif;
+        margin-bottom: 25px;
+        padding-left: 0px
+    }
+    .adminbloglist .unclaimedT {
+        display: block;
+        width: 100%;
+        border-spacing: 10px
+    }
+    .adminbloglist .unclaimedT .unclaimedR {
+        display: block;
+        width: 100%;
+        margin-bottom: 0
+    }
+    .adminbloglist .unclaimedT .unclaimedR .uclaimedcell {
+        padding: 10px 18px;
+        vertical-align: middle;
+        border-radius: 8px;
+        display: block
+    }
+    .adminbloglist .unclaimedT .unclaimedR .uclaimedcell:nth-child(3) {
+        background: #F0AD4E none repeat scroll 0% 0%;
+        width: 100%;
+        text-align: center;
+        color: #FFF;
+        white-space: nowrap;
+        border-radius: 8px
+    }
+    .unclaimedR .uclaimedcell .unclatbn1 {
+        display: block;
+        margin-bottom: 25px
+    }
+    .rating1 {
+        padding-right: 0;
+        padding-left: 0;
+        margin-top: 0px;
+        margin-left: 0;
+        display: block;
+        float: left;
+        width: 100%
+    }
+    .rate-time {
+        display: block !important;
+        margin: 0px 0px 0px !important;
+        padding: 0px;
+        float: left !important;
+		width:100%;
+    }
+    .rating-select {
+        width: 85px;
+        position: relative;right:0;
+    }
+    .profilepic {
+        padding-right: 0px
+    }
+    .remainingCredit{margin-top:30px;}
+	.btn{margin-bottom:5px;}
+	li.news ul li {
+    width: 100% !important;
+}
+}
+@media (min-width: 320px) and (max-width: 479px) {
+	#logindiv {
+    position: fixed;
+    top: 0px;
+    left: 0px;
+    height: 100%;
+    width: 100%;
+    background: rgba(45, 45, 45, 0.49);
+    display: none;
+    z-index: 9999;
+    overflow-y:auto;
+}
+	#custm_pop { width: 80% !important; padding: 10px; margin: 0 auto 600px auto; position: relative !important; border: 8px solid #ccc; left: 0; right: 0; top: 10px; background: #fff;
+    overflow-y:auto;}
+	.width25{width:100%; display:block;}
+	.width25 li{width:50% !important; display:inline-block !important; margin-bottom:5px;}
+	.overflowScroll{overflow-y:auto;}
+	.pull-right1{float:left;}
+    .catindus li,
+    .notification1,
+    .paymentdiv span,
+    p.text-success2 {
+        display: inline-block
+    }
+    .remainingCredit{margin-top:30px;}
+    p.text-success i {
+	    position: absolute;
+	    left: 51px;
+	    top: 1px;
+	}
+    .header ul.mainav li {
+        list-style: none;
+        float: left;
+        width: 49%;
+        text-align: left
+    }
+    .banner {
+        background: url(../images/mobilebanner.jpg) no-repeat #eae8e9;
+        background-size: 100%;
+        margin-top: 88px;
+        min-height: auto;
+        padding-bottom: 185px
+    }
+    .bannertxt {
+        width: 90%;
+        margin: 30% auto 9%;
+        text-align: center
+    }
+    .banner h1 {
+        font-size: 35px;
+        margin-top: 20%
+    }
+    .banner h2 {
+        font-size: 19px
+    }
+    .banner .bluebtn,
+    .banner .yellowbtn {
+        width: 100%;
+        font-size: 18px
+    }
+    .how-work {
+        padding: 70px 0 0
+    }
+    .about,
+    .testimonials {
+        padding: 70px 0 75px
+    }
+    .pricing {
+        padding: 70px 0 180px
+    }
+    .paymentdiv span {
+        width: 13%
+    }
+    .notimessagetxt .graybg1 .chatdiv .chatbox .chat {
+        width: 105.5%
+    }
+    .catindus li {
+        list-style: none;
+        width: 100%;
+        margin-right: 3%
+    }
+    .notification1 {
+        position: absolute;
+        border: 1px solid #fff;
+        border-radius: 50%;
+        width: 25px;
+        height: 25px;
+        line-height: 24px;
+        margin: -51px 0 0 -10px;
+        background: #34B7EA
+    }
+    .blogBox,
+    .blogBox img,
+    .favsearch,
+    p.text-success2 {
+        position: relative
+    }
+    p.text-success2 {
+        width: 100%;
+        margin-right: 3px !important;
+        margin-bottom: 5px !important
+    }
+    .contactdiv {
+        padding: 25px 0;
+        width: 90%
+    }
+    .favsearch {
+        margin-bottom: 43px;
+        z-index: 100
+    }
+    .create-issue select {
+        position: relative;
+        margin: 0px 0 0 0;
+        width: 100%
+    }
+    #childCatDropDownList {
+        margin: 0 !important
+    }
+    #childCatDropDownList select {
+        width: 100% !important;
+        margin: 10px 0
+    }
+    .pagination {
+        width: 100% !important;
+        float: none !important;
+        text-align: center !important
+    }
+    .searcfixpopup .nav-tabs>li>a {
+        font-size: 22px
+    }
+    .blogBox {
+        display: block;
+        margin-top: 10px;
+        padding-left: 0;
+        max-height: 100%
+    }
+    .blogBox img {
+        top: 0;
+        left: 0;
+        margin-bottom: 10px;
+        width: 100%
+    }
+    .contactDiv1 {
+        font-family: Ubuntu, sans-serif;
+        margin-bottom: 25px;
+        padding-left: 0px
+    }
+    .testimonials .nav-tabs > li > a {
+        margin-right: 2px;
+        line-height: 1.42857;
+        border: 0px none;
+        background-color: #34B7EA;
+        color: #FFF;
+        outline: 0px none;
+        font-size: 25px;
+        width: 122px;
+        border-radius: 5px
+    }
+    .how-work .nav-tabs > li > a {
+        margin-right: 2px;
+        line-height: 1.42857;
+        border: 0px none;
+        background-color: #34B7EA;
+        color: #FFF;
+        outline: 0px none;
+        font-size: 25px;
+        width: 122px;
+        border-radius: 5px
+    }
+    .adminbloglist .unclaimedT {
+        display: block;
+        width: 100%;
+        border-spacing: 10px
+    }
+    .adminbloglist .unclaimedT .unclaimedR {
+        display: block;
+        width: 100%;
+        margin-bottom: 0
+    }
+    .adminbloglist .unclaimedT .unclaimedR .uclaimedcell {
+        padding: 10px 18px;
+        vertical-align: middle;
+        border-radius: 8px;
+        display: block
+    }
+    .adminbloglist .unclaimedT .unclaimedR .uclaimedcell:nth-child(3) {
+        background: #F0AD4E none repeat scroll 0% 0%;
+        width: 100%;
+        text-align: center;
+        color: #FFF;
+        white-space: nowrap;
+        border-radius: 8px
+    }
+    .searchPay input[type="search"] {
+        border: 1px solid #CCC;
+        position: absolute;
+        right: 85px;
+        border-radius: 4px;
+        padding: 1px 5px;
+        width: 66% !important;
+        display: inline-block
+    }
+    .how-work .nav-tabs li {
+        display: inline-block;
+        float: none;
+        margin-right: 15px
+    }
+    .testimonials .nav-tabs li {
+        display: inline-block;
+        float: none;
+        margin-right: 15px
+    }
+    .unclaimedR .uclaimedcell .unclatbn1 {
+        display: block;
+        margin-bottom: 25px
+    }
+    .rating1 {
+        padding-right: 0;
+        padding-left: 0;
+        margin-top: 0px;
+        margin-left: 0;
+        display: block;
+        float: left;
+        width: 100%
+    }
+    .rate-time {
+        display: block !important;
+        margin: 0px 0px 0px !important;
+        padding: 0px;
+        float: left !important;
+		width:100%;
+    }
+    .rating-select {
+        width: 85px;
+        position: relative
+    }
+    .profilepic {
+        padding-right: 0px
+    }
+	.btn{margin-bottom:5px;}
+	li.news ul li {
+    width: 100% !important;
+}
+}
+@media (max-width: 320px) {
+    .mmneu {
+        display: inline-block;
+        float: right;
+        margin-left: 1px
+    }
+    .signup .btn {
+        font-size: 18px
+    }
+}

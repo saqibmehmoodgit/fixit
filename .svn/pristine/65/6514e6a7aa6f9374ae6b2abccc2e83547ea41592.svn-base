@@ -1,0 +1,655 @@
+package com.fixit.service;
+
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.LinkedHashSet;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import org.apache.regexp.recompile;
+import org.eclipse.jdt.internal.compiler.ast.DoubleLiteral;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Async;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import com.fixit.dao.CategoryTypeDao;
+import com.fixit.dao.FixerAccountingDao;
+import com.fixit.dao.QueryCategoryDao;
+import com.fixit.dao.QueryDao;
+import com.fixit.dao.QueryFilesDao;
+import com.fixit.dao.UserDao;
+import com.fixit.dao.UsersAccountingDao;
+import com.fixit.domain.bo.AdminMemberSearch;
+import com.fixit.domain.bo.AsugUserData;
+import com.fixit.domain.bo.FixerAccountingGroup;
+import com.fixit.domain.bo.FixerAccountingUserGroup;
+import com.fixit.domain.bo.FixerPayment;
+import com.fixit.domain.bo.FixerSearchBo;
+import com.fixit.domain.bo.MemberDashboardBo;
+import com.fixit.domain.bo.QueryFilesBo;
+import com.fixit.domain.bo.QueryReviewBo;
+import com.fixit.domain.vo.Query;
+import com.fixit.domain.vo.QueryCategory;
+import com.fixit.domain.vo.QueryFiles;
+import com.fixit.domain.vo.User;
+import com.fixit.domain.vo.UserCategory;
+import com.fixit.domain.vo.UsersAccounting;
+import com.fixit.utility.DateFormat;
+import com.fixit.utility.DbConstants;
+import com.fixit.utility.FixitException;
+import com.fixit.utility.TimeDiffUtility;
+
+@Service("AdminService")
+@Transactional
+public class AdminServiceImpl implements AdminService {
+
+	@Autowired
+	private UserDao userDao;
+
+	@Autowired
+	private QueryDao queryDao;
+
+	@Autowired
+	private QueryFilesDao queryFilesDao;
+
+	@Autowired
+	private CategoryTypeDao categoryTypeDao;
+
+	@Autowired
+	private FixerAccountingDao fixerAccountingDao;
+
+	@Autowired
+	private QueryCategoryDao queryCategoryDao;
+
+	@Autowired
+	private UserService userService;
+
+	@Autowired
+	UsersAccountingDao usersAccountingDao;
+
+	@Override
+	public Set<User> loadAllFixerWithStatus(int startResult, int maxRows, String fixerStatus) throws FixitException {
+
+		Set<User> fixer = userDao.findFixerWithStatus(startResult, maxRows, fixerStatus);
+		return fixer;
+	}
+
+	@Override
+	public Set<User> getAllMember(int startResult, int maxRows) throws FixitException {
+
+		try {
+			Set<User> fixer = userDao.getAllMembers(startResult, maxRows);
+			return fixer;
+		} catch (Exception e) {
+			return null;
+		}
+
+	}
+
+	@Override
+	public Set<User> getAllFixers(int startResult, int maxRows) throws FixitException {
+
+		try {
+			Set<User> fixer = userDao.getAllFixers(startResult, maxRows);
+			return fixer;
+		} catch (Exception e) {
+			return null;
+		}
+
+	}
+
+	@Override
+	@Transactional
+	public long loadAllFixerCountWithStatus(int startResult, int maxRows, String fixerStatus) throws FixitException {
+		long count = userDao.findFixerCountWithStatus(startResult, maxRows, fixerStatus);
+		return count;
+	}
+
+	public int updateFixerStatus(int userId, String fixerStatus) throws FixitException {
+		int result = userDao.updateFixerByAdmin(userId, fixerStatus);
+		return result;
+	}
+
+	public Set<Query> loadAllNotSureQueries(int startResult, int maxRows, int fixerId) throws FixitException {
+		Set<Query> fixer = userDao.findAllNotSureQueries(startResult, maxRows, fixerId);
+		return fixer;
+	}
+
+	@Override
+	@Transactional
+	public Set<QueryReviewBo> loadAllReviewQueries(int startResult, int maxRows, String status) throws FixitException {
+		Set<Query> fixer = userDao.findAllReviewQueries(startResult, maxRows, status);
+		Set<QueryReviewBo> queryReviewBos = new LinkedHashSet<QueryReviewBo>();
+		QueryReviewBo queryReviewBo;
+		User fixr;
+		for (Query fix : fixer) {
+			queryReviewBo = new QueryReviewBo();
+			fixr = userDao.findUserByUserId(fix.getFixerId());
+			queryReviewBo.setFixername(fixr.getFirstName() + " " + fixr.getLastName());
+			queryReviewBo.setMemberName(fix.getUser().getFirstName() + " " + fix.getUser().getLastName());
+			queryReviewBo.setQueryTitle(fix.getQueryTitle());
+			queryReviewBo.setQueryHashCode(fix.getHashcode());
+			queryReviewBos.add(queryReviewBo);
+		}
+		return queryReviewBos;
+	}
+
+	public long loadAllReviewQueriesCount(int startResult, int maxRows, String status) throws FixitException {
+		long count = userDao.findAllReviewQueriesCount(startResult, maxRows, status);
+		return count;
+	}
+
+	@Override
+	@Transactional
+	public Set<MemberDashboardBo> findMemberQueryNotAccepted(Calendar currentTime, Integer day, String timeZone,
+			int startIndex, int maxResult) throws FixitException {
+		Set<MemberDashboardBo> unClaimed = new LinkedHashSet<MemberDashboardBo>();
+		MemberDashboardBo memberDashboard;
+		long days, min, hrs, sec;
+		Set<Query> queries = queryDao.findQueryNotAcceptedByFixer(
+				DateFormat.getDateFormat().format(currentTime.getTime()), day, startIndex, maxResult);
+		Set<QueryFiles> queryFiles;
+		Set<QueryFilesBo> queryFilesBo;
+		Set<QueryCategory> queryCategories;
+		Set<String> subCategory = null;
+		QueryFiles queryFile;
+		QueryFilesBo queryFileBo;
+		Iterator<QueryFiles> iteratorQueryFiles;
+		// List<String> uploadedUrls;
+		for (Query query : queries) {
+			memberDashboard = new MemberDashboardBo();
+			subCategory = new HashSet<String>();
+			queryFilesBo = new LinkedHashSet<QueryFilesBo>();
+			queryCategories = queryCategoryDao.findQueryCategoryByQueryId(query.getQueryId());
+			for (QueryCategory queryCategory : queryCategories) {
+				subCategory.add(categoryTypeDao.findCategoryTypeByCatId(queryCategory.getCategoryType().getCatId())
+						.getCatgName());
+			}
+			memberDashboard.setSubCategory(subCategory);
+			memberDashboard.setQueryId(query.getQueryId());
+			memberDashboard.setQueryContent(query.getQueryContent());
+			memberDashboard.setQueryTitle(query.getQueryTitle());
+			memberDashboard.setHashcode(query.getHashcode());
+			queryFiles = queryFilesDao.findDocumentsByQueryId(query.getQueryId());
+			iteratorQueryFiles = queryFiles.iterator();
+			while (iteratorQueryFiles.hasNext()) {
+				queryFile = iteratorQueryFiles.next();
+				queryFileBo = new QueryFilesBo();
+				queryFileBo.setFileName(queryFile.getFileName());
+				queryFileBo.setFileUrl(queryFile.getFileUrl());
+				queryFileBo
+						.setDocUploadDate(TimeDiffUtility.timeToSpecificTimezone(queryFile.getCreatedAt(), timeZone));
+				queryFilesBo.add(queryFileBo);
+			}
+			if (queryFilesBo.size() > 0) {
+				memberDashboard.setAttachedDocumentsCount(1);
+			} else {
+				memberDashboard.setAttachedDocumentsCount(0);
+			}
+			memberDashboard.setAttachedDocuments(queryFilesBo);
+
+			days = TimeDiffUtility.findDayDiff(query.getDateRaised(), currentTime);
+			hrs = TimeDiffUtility.findHrsDiff(query.getDateRaised(), currentTime);
+			min = TimeDiffUtility.findMinutesDiff(query.getDateRaised(), currentTime);
+			sec = TimeDiffUtility.findSecondsDiff(query.getDateRaised(), currentTime);
+			if (days != 0) {
+				memberDashboard.setTimeDiff(days + " day");
+			} else {
+				if (hrs != 0) {
+					memberDashboard.setTimeDiff(hrs + " hrs");
+				} else {
+					if (min != 0) {
+						memberDashboard.setTimeDiff(min + " minutes");
+					} else {
+						memberDashboard.setTimeDiff(sec + " seconds");
+					}
+				}
+			}
+			unClaimed.add(memberDashboard);
+		}
+		return unClaimed;
+	}
+
+	@Override
+	@Transactional
+	public Set<MemberDashboardBo> findQueryNotSureCat(Calendar currentTime, Integer catId, String timeZone,
+			int startIndex, int maxResult) throws FixitException {
+		Set<MemberDashboardBo> unClaimed = new LinkedHashSet<MemberDashboardBo>();
+		MemberDashboardBo memberDashboard;
+		long days, min, hrs, sec;
+		Set<Query> queries = queryDao.findQueryNotSureCat(catId, startIndex, maxResult);
+		Set<QueryFiles> queryFiles;
+		Set<QueryFilesBo> queryFilesBo;
+		Set<QueryCategory> queryCategories;
+		Set<String> subCategory = null;
+		QueryFiles queryFile;
+		QueryFilesBo queryFileBo;
+		Iterator<QueryFiles> iteratorQueryFiles;
+		// List<String> uploadedUrls;
+		for (Query query : queries) {
+			memberDashboard = new MemberDashboardBo();
+			subCategory = new HashSet<String>();
+			queryFilesBo = new LinkedHashSet<QueryFilesBo>();
+			queryCategories = queryCategoryDao.findQueryCategoryByQueryId(query.getQueryId());
+			for (QueryCategory queryCategory : queryCategories) {
+				subCategory.add(categoryTypeDao.findCategoryTypeByCatId(queryCategory.getCategoryType().getCatId())
+						.getCatgName());
+			}
+			memberDashboard.setSubCategory(subCategory);
+			memberDashboard.setQueryId(query.getQueryId());
+			memberDashboard.setQueryContent(query.getQueryContent());
+			memberDashboard.setQueryTitle(query.getQueryTitle());
+			memberDashboard.setHashcode(query.getHashcode());
+			queryFiles = queryFilesDao.findDocumentsByQueryId(query.getQueryId());
+			iteratorQueryFiles = queryFiles.iterator();
+			while (iteratorQueryFiles.hasNext()) {
+				queryFile = iteratorQueryFiles.next();
+				queryFileBo = new QueryFilesBo();
+				queryFileBo.setFileName(queryFile.getFileName());
+				queryFileBo.setFileUrl(queryFile.getFileUrl());
+				queryFileBo
+						.setDocUploadDate(TimeDiffUtility.timeToSpecificTimezone(queryFile.getCreatedAt(), timeZone));
+				queryFilesBo.add(queryFileBo);
+			}
+			if (queryFilesBo.size() > 0) {
+				memberDashboard.setAttachedDocumentsCount(1);
+			} else {
+				memberDashboard.setAttachedDocumentsCount(0);
+			}
+			memberDashboard.setAttachedDocuments(queryFilesBo);
+
+			days = TimeDiffUtility.findDayDiff(query.getDateRaised(), currentTime);
+			hrs = TimeDiffUtility.findHrsDiff(query.getDateRaised(), currentTime);
+			min = TimeDiffUtility.findMinutesDiff(query.getDateRaised(), currentTime);
+			sec = TimeDiffUtility.findSecondsDiff(query.getDateRaised(), currentTime);
+			if (days != 0) {
+				memberDashboard.setTimeDiff(days + " day");
+			} else {
+				if (hrs != 0) {
+					memberDashboard.setTimeDiff(hrs + " hrs");
+				} else {
+					if (min != 0) {
+						memberDashboard.setTimeDiff(min + " minutes");
+					} else {
+						memberDashboard.setTimeDiff(sec + " seconds");
+					}
+				}
+			}
+			unClaimed.add(memberDashboard);
+		}
+		return unClaimed;
+	}
+
+	@Override
+	public Set<User> getListOfFixerWithActivtedStatus(String currentStatus, String userType, int startIndex,
+			int maxResult) throws FixitException {
+		Set<User> fixers = new HashSet<User>();
+		try {
+			fixers = userDao.getListOfFixerWithActivtedStatus(currentStatus, userType, startIndex, maxResult);
+		} catch (Exception e) {
+			return null;
+		}
+		return fixers;
+	}
+
+	@Override
+	@Async
+	public Set<FixerSearchBo> searchListOfUsersAdmin(String searchFieldText, int startIndex, int maxResult)
+			throws FixitException {
+		Set<User> users = new HashSet<>();
+		// User myUser=null;
+		Set<FixerSearchBo> fixers = new HashSet<>();
+		try {
+			// myUser=findUserById(userId);
+			users = userDao.searchListOfUsersBasedOnSearchField(searchFieldText, startIndex, maxResult);
+			for (User u : users) {
+				FixerSearchBo fixerSearchBo = new FixerSearchBo();
+				fixerSearchBo.setUserName(u.getUserName());
+				fixerSearchBo.setFirstName(u.getFirstName());
+				fixerSearchBo.setLastName(u.getLastName());
+				fixerSearchBo.setEmail(u.getEmail());
+				List<String> userCats = new ArrayList<String>();
+				/*
+				 * for(FavouriteFixer f:myUser.getFavouriteFixer()){
+				 * if(u.getUserId().equals(f.getFixerId())){
+				 * fixerSearchBo.setFavUnFavstatus(DbConstants.
+				 * FIXER_STATUS_FAVOURITE); } }
+				 */
+
+				for (UserCategory userCat : u.getFixerCategory()) {
+					userCats.add(userCat.getCategoryType().getCatgName());
+				}
+				fixerSearchBo.setCategoryList(userCats);
+				fixerSearchBo.setProfilePhoto(u.getProfilePhoto());
+				fixerSearchBo.setUserId(u.getUserId());
+				fixerSearchBo.setOverview(u.getOverview());
+				fixers.add(fixerSearchBo);
+			}
+			return fixers;
+		} catch (Exception e) {
+			return null;
+		}
+	}
+
+	@Override
+	@Async
+	public Set<FixerSearchBo> searchListOfUserswithCategory(List<Integer> categories, String searchFieldText,
+			int startIndex, int maxResult) throws FixitException {
+		Set<User> users = new HashSet<>();
+		// User myUser=null;
+		Set<FixerSearchBo> fixers = new HashSet<>();
+		try {
+			// myUser=findUserById(userId);
+			users = userDao.searchListOfUsersBasedOnSearchFieldAndCategory(categories, searchFieldText, startIndex,
+					maxResult);
+			for (User u : users) {
+				FixerSearchBo fixerSearchBo = new FixerSearchBo();
+				fixerSearchBo.setUserName(u.getUserName());
+				fixerSearchBo.setFirstName(u.getFirstName());
+				fixerSearchBo.setLastName(u.getLastName());
+				fixerSearchBo.setEmail(u.getEmail());
+				List<String> userCats = new ArrayList<String>();
+				/*
+				 * for(FavouriteFixer f:myUser.getFavouriteFixer()){
+				 * if(u.getUserId().equals(f.getFixerId())){
+				 * fixerSearchBo.setFavUnFavstatus(DbConstants.
+				 * FIXER_STATUS_FAVOURITE); } }
+				 */
+				for (UserCategory userCat : u.getFixerCategory()) {
+					userCats.add(userCat.getCategoryType().getCatgName());
+				}
+				fixerSearchBo.setCategoryList(userCats);
+				fixerSearchBo.setUserId(u.getUserId());
+				fixerSearchBo.setProfilePhoto(u.getProfilePhoto());
+				fixerSearchBo.setOverview(u.getOverview());
+				fixers.add(fixerSearchBo);
+			}
+			return fixers;
+		} catch (Exception e) {
+			return null;
+		}
+
+	}
+
+	public Set<FixerPayment> searchListOfFixerUsingSearchText(String searchFieldText, int startIndex, int maxResult)
+			throws FixitException {
+		Set<User> fixers;
+		Long count;
+		Set<FixerPayment> fixerPayments = new LinkedHashSet<FixerPayment>();
+		Set<FixerAccountingUserGroup> fixerAccountingUserGroup = new LinkedHashSet<FixerAccountingUserGroup>();
+		FixerPayment fixerpayment;
+		try {
+			fixerAccountingUserGroup = userDao.searchListOfFixerUsingSearchText(searchFieldText, startIndex, maxResult);
+			for (FixerAccountingUserGroup f : fixerAccountingUserGroup) {
+				fixerpayment = new FixerPayment();
+				fixerpayment.setUserId(f.getFixer_id());
+				fixerpayment.setName(f.getFirst_name() + " " + f.getLast_name());
+				fixerpayment.setEmail(f.getEmail());
+				fixerpayment.setAmountPaid(f.getAmount_paid());
+				fixerpayment.setFixedCount(f.getCount());
+				fixerPayments.add(fixerpayment);
+			}
+
+			return fixerPayments;
+		} catch (Exception e) {
+			return null;
+		}
+
+	}
+
+	@Override
+	public Set<AdminMemberSearch> searchListOfUserUsingSearchText(String searchFieldText, int startIndex, int maxResult)
+			throws FixitException {
+		Set<User> users = new LinkedHashSet<User>();
+		Set<AdminMemberSearch> adminMembersList = new LinkedHashSet<AdminMemberSearch>();
+		try {
+			users = userDao.searchListOfUserUsingSearchText(searchFieldText, startIndex, maxResult);
+			if (users != null) {
+				for (User u : users) {
+					AdminMemberSearch adminMemberSearch = new AdminMemberSearch();
+					adminMemberSearch.setUserId(u.getUserId());
+					adminMemberSearch.setUserName(u.getUserName());
+					adminMemberSearch.setEmail(u.getEmail());
+					if(u.getUserType().equals(DbConstants.CUSTOMER) && u.getUserCredits()!= null){
+					adminMemberSearch.setPoints(u.getUserCredits().getPoints());
+					}
+					adminMemberSearch.setUserType(u.getUserType());
+					adminMembersList.add(adminMemberSearch);
+				}
+			}
+
+			return adminMembersList;
+		} catch (Exception e) {
+			return null;
+		}
+
+	}
+
+	@Override
+	public Set<User> searchListOfChatUserUsingSearchText(String searchFieldText, int startIndex, int maxResult)
+			throws FixitException {
+		try {
+			return userDao.searchListOfChatUserUsingSearchText(searchFieldText, startIndex, maxResult);
+		} catch (Exception e) {
+			return null;
+		}
+	}
+
+	@Override
+	public Set<User> searchListOfUserFixersUsingSearchText(String searchFieldText, int startIndex, int maxResult)
+			throws FixitException {
+		try {
+			return userDao.searchListOfUserFixersUsingSearchText(searchFieldText, startIndex, maxResult);
+		} catch (Exception e) {
+			return null;
+		}
+	}
+
+	@Override
+	public long findQueryNotSureCat(Integer catId, int startIndex, int maxResult) throws FixitException {
+		return queryDao.findQueryNotSureCatCount(catId, startIndex, maxResult);
+	}
+
+	@Override
+	public List<FixerPayment> fixersWithAmountToPaid(Integer startIndex, Integer maxResult) throws FixitException {
+		List<FixerPayment> fixerPayments = new LinkedList<FixerPayment>();
+		List<FixerAccountingGroup> fixerPaymentGroups = new LinkedList<FixerAccountingGroup>();
+		FixerPayment fixerpayment;
+		try {
+			fixerPaymentGroups = fixerAccountingDao.findFixerUnpaidQuery(startIndex, maxResult);
+			for (FixerAccountingGroup f : fixerPaymentGroups) {
+				fixerpayment = new FixerPayment();
+				User u = userDao.findUserByUserId(f.getFixer_id());
+				fixerpayment.setPaypalId(u.getPaypalId());
+				fixerpayment.setUserId(u.getUserId());
+				fixerpayment.setName(u.getFirstName() + " " + u.getLastName());
+				fixerpayment.setEmail(u.getEmail());
+				fixerpayment.setAmountPaid(f.getAmount_paid());
+				fixerpayment.setFixedCount(f.getCount());
+				fixerPayments.add(fixerpayment);
+			}
+
+			return fixerPayments;
+		} catch (Exception e) {
+			throw new FixitException("", "");
+		}
+
+	}
+
+	public Integer fixersWithAmountToPaidCount() throws FixitException {
+		Integer count;
+		try {
+			count = fixerAccountingDao.findFixerUnpaidQueryCount();
+			return count;
+		} catch (Exception e) {
+			throw new FixitException("", "");
+		}
+
+	}
+
+	public Integer searchListOfFixerUsingSearchCount(String searchFieldText) throws FixitException {
+		Integer count;
+		try {
+			count = userDao.searchListOfFixerUsingSearchTextCount(searchFieldText);
+			return count;
+		} catch (Exception e) {
+			throw new FixitException("", "");
+		}
+	}
+
+	public Long searchListOfUserUsingSearchCount(String searchFieldText) throws FixitException {
+		Long count;
+		try {
+			count = userDao.searchListOfUserUsingSearchTextCount(searchFieldText);
+			return count;
+		} catch (Exception e) {
+			throw new FixitException("", "");
+		}
+	}
+
+	public Long searchListOfUserFixersUsingSearchCount(String searchFieldText) throws FixitException {
+		Long count;
+		try {
+			count = userDao.searchListOfUserFixersUsingSearchTextCount(searchFieldText);
+			return count;
+		} catch (Exception e) {
+			throw new FixitException("", "");
+		}
+
+	}
+
+	public Set<Query> fixedIssueListByFixerId(int fixerId, int startResult, int maxRows) throws FixitException {
+		Set<Query> fixedIssueList = new HashSet<>();
+		try {
+			fixedIssueList = queryDao.fixedIssueListByFixerId(fixerId, startResult, maxRows);
+		} catch (Exception e) {
+			throw new FixitException("", "");
+		}
+		return fixedIssueList;
+	}
+
+	@Override
+	public Long searchListOfChatUserUsingSearchCount(String searchFieldText) throws FixitException {
+		Long count;
+		try {
+			count = userDao.searchListOfChatUserUsingSearchTextCount(searchFieldText);
+			return count;
+		} catch (Exception e) {
+			throw new FixitException("", "");
+		}
+	}
+
+	@Override
+	@Transactional
+	public Map<String, Object> asugData(Integer year, Integer month) throws FixitException {
+		Map<String, Object> map = new HashMap<String, Object>();
+		List<AsugUserData> list = new ArrayList<AsugUserData>();
+		double totalCredits = 0;
+		double totalrevenue = 0;
+		double totalPaymentToFixer = 0;
+		double totalPaymentToasug = 0;
+		Set<User> users = userService.findUserBySource("1", -1, -1);
+
+		// Calendar cal = Calendar.getInstance();
+		// int month = cal.get(Calendar.MONTH) + 1;
+
+		for (User user : users) {
+
+			int userId = user.getUserId();
+			List<UsersAccounting> listUsersAccounting = usersAccountingDao.findUserAccountingByUserIdAndMonth(userId,
+					year, month);
+			for (UsersAccounting usersAccounting : listUsersAccounting) {
+				double revenue = usersAccounting.getAmount();
+				AsugUserData asugUserData = new AsugUserData();
+
+				if (revenue != 0) {
+					totalrevenue += revenue;
+
+					asugUserData.setUserName(user.getFirstName() + " " + user.getLastName());
+					asugUserData.setRevenue("" + revenue);
+
+					if (revenue == 575) {
+
+						asugUserData.setCreditPurchased("" + 5);
+						double paymentToFixer = 5 * DbConstants.PAID_AMOUNT_PER_ISSUE;
+						asugUserData.setPaymentToFixer("" + paymentToFixer);
+						double paymentToAsug = (revenue - paymentToFixer) / 2;
+						asugUserData.setPaymentToAsug("" + paymentToAsug);
+
+						totalCredits += 5;
+						totalPaymentToFixer += paymentToFixer;
+						totalPaymentToasug += paymentToAsug;
+					}
+					if (revenue == 1125) {
+
+						asugUserData.setCreditPurchased("" + 10);
+						double paymentToFixer = 10 * DbConstants.PAID_AMOUNT_PER_ISSUE;
+						asugUserData.setPaymentToFixer("" + paymentToFixer);
+						double paymentToAsug = (revenue - paymentToFixer) / 2;
+						asugUserData.setPaymentToAsug("" + paymentToAsug);
+
+						totalCredits += 10;
+						totalPaymentToFixer += paymentToFixer;
+						totalPaymentToasug += paymentToAsug;
+
+					}
+					if (revenue == 2200) {
+						asugUserData.setCreditPurchased("" + 20);
+
+						double paymentToFixer = 20 * DbConstants.PAID_AMOUNT_PER_ISSUE;
+						asugUserData.setPaymentToFixer("" + paymentToFixer);
+						double paymentToAsug = (revenue - paymentToFixer) / 2;
+						asugUserData.setPaymentToAsug("" + paymentToAsug);
+
+						totalCredits += 20;
+						totalPaymentToFixer += paymentToFixer;
+						totalPaymentToasug += paymentToAsug;
+
+					}
+					if (revenue == 4300) {
+						asugUserData.setCreditPurchased("" + 40);
+
+						double paymentToFixer = 40 * DbConstants.PAID_AMOUNT_PER_ISSUE;
+						asugUserData.setPaymentToFixer("" + paymentToFixer);
+						double paymentToAsug = (revenue - paymentToFixer) / 2;
+						asugUserData.setPaymentToAsug("" + paymentToAsug);
+
+						totalCredits += 40;
+						totalPaymentToFixer += paymentToFixer;
+						totalPaymentToasug += paymentToAsug;
+
+					}
+					list.add(asugUserData);
+
+				}
+			}
+
+		}
+		map.put("asugUserData", list);
+		map.put("totalCredits", totalCredits);
+		map.put("totalPaymentToFixer", totalPaymentToFixer);
+		map.put("totalPaymentToasug", totalPaymentToasug);
+		map.put("totalrevenue", totalrevenue);
+
+		return map;
+	}
+
+	@Override
+	public int updateFixerRatingByAdmin(int rating, int userId) throws FixitException {
+		int i= 0;
+		try {
+           i =  userDao.updateFixerRatingByAdmin(rating, userId);
+           return i;
+		} catch (Exception e) {
+			e.printStackTrace();
+			return i;
+		}
+		
+	}
+}

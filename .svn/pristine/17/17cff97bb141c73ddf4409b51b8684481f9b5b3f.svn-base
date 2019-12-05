@@ -1,0 +1,301 @@
+package com.fixit.service;
+import java.io.File
+;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.*;
+
+import javax.xml.parsers.ParserConfigurationException;
+
+import org.springframework.stereotype.Service;
+import org.xml.sax.SAXException;
+
+import urn.ebay.api.PayPalAPI.CreateRecurringPaymentsProfileReq;
+import urn.ebay.api.PayPalAPI.CreateRecurringPaymentsProfileRequestType;
+import urn.ebay.api.PayPalAPI.CreateRecurringPaymentsProfileResponseType;
+import urn.ebay.api.PayPalAPI.PayPalAPIInterfaceServiceService;
+import urn.ebay.apis.CoreComponentTypes.BasicAmountType;
+import urn.ebay.apis.eBLBaseComponents.BillingPeriodDetailsType;
+import urn.ebay.apis.eBLBaseComponents.BillingPeriodType;
+import urn.ebay.apis.eBLBaseComponents.CreateRecurringPaymentsProfileRequestDetailsType;
+import urn.ebay.apis.eBLBaseComponents.CreditCardDetailsType;
+import urn.ebay.apis.eBLBaseComponents.CreditCardTypeType;
+import urn.ebay.apis.eBLBaseComponents.CurrencyCodeType;
+import urn.ebay.apis.eBLBaseComponents.RecurringPaymentsProfileDetailsType;
+import urn.ebay.apis.eBLBaseComponents.ScheduleDetailsType;
+/*import urn.ebay.apis.eBLBaseComponents.BillingPeriodType;
+
+import urn.ebay.api.PayPalAPI.CreateRecurringPaymentsProfileReq;
+import urn.ebay.api.PayPalAPI.CreateRecurringPaymentsProfileRequestType;
+import urn.ebay.api.PayPalAPI.CreateRecurringPaymentsProfileResponseType;
+import urn.ebay.api.PayPalAPI.PayPalAPIInterfaceServiceService;
+import urn.ebay.api.PayPalAPI.SetExpressCheckoutReq;
+import urn.ebay.api.PayPalAPI.SetExpressCheckoutRequestType;
+import urn.ebay.api.PayPalAPI.SetExpressCheckoutResponseType;
+import urn.ebay.apis.CoreComponentTypes.BasicAmountType;
+import urn.ebay.apis.eBLBaseComponents.BillingAgreementDetailsType;
+import urn.ebay.apis.eBLBaseComponents.BillingCodeType;
+import urn.ebay.apis.eBLBaseComponents.BillingPeriodDetailsType;
+import urn.ebay.apis.eBLBaseComponents.CreateRecurringPaymentsProfileRequestDetailsType;
+import urn.ebay.apis.eBLBaseComponents.CreditCardDetailsType;
+import urn.ebay.apis.eBLBaseComponents.CurrencyCodeType;
+import urn.ebay.apis.eBLBaseComponents.PaymentDetailsType;
+import urn.ebay.apis.eBLBaseComponents.RecurringPaymentsProfileDetailsType;
+import urn.ebay.apis.eBLBaseComponents.ScheduleDetailsType;
+import urn.ebay.apis.eBLBaseComponents.SetExpressCheckoutRequestDetailsType;*/
+
+import com.paypal.exception.ClientActionRequiredException;
+import com.paypal.exception.HttpErrorException;
+import com.paypal.exception.InvalidCredentialException;
+import com.paypal.exception.InvalidResponseDataException;
+import com.paypal.exception.MissingCredentialException;
+import com.paypal.exception.SSLConfigurationException;
+import com.paypal.sdk.exceptions.OAuthException;
+/*
+import urn.ebay.apis.eBLBaseComponents.PaymentActionCodeType;*/
+@Service
+public class PayPalIntegrationService {
+public static String token=null;
+	/*public static void foo(){
+		RecurringPaymentsProfileDetailsType profileDetails = new RecurringPaymentsProfileDetailsType("2015-09-03T00:00:00:000Z");
+
+		BasicAmountType paymentAmount = new BasicAmountType(CurrencyCodeType.USD, "1.0");
+		BillingPeriodType period = BillingPeriodType.fromValue("Day");
+		int frequency = 10;
+		BillingPeriodDetailsType paymentPeriod = new BillingPeriodDetailsType(period, frequency, paymentAmount);
+
+		ScheduleDetailsType scheduleDetails = new ScheduleDetailsType();
+		scheduleDetails.setDescription("recurring billing");
+		scheduleDetails.setPaymentPeriod(paymentPeriod);
+
+		CreditCardDetailsType creditCard = new CreditCardDetailsType();
+		creditCard.setCreditCardNumber("4745425765192217");
+		creditCard.setCVV2("962");
+		creditCard.setExpMonth(9);
+		creditCard.setExpYear(2015); 
+		//creditCard.setCreditCardType(CreditCardTypeType.fromValue("Visa"));
+
+		CreateRecurringPaymentsProfileRequestDetailsType createRPProfileRequestDetails = new CreateRecurringPaymentsProfileRequestDetailsType(profileDetails, scheduleDetails);
+		createRPProfileRequestDetails.setCreditCard(creditCard);
+
+		CreateRecurringPaymentsProfileRequestType createRPProfileRequest = new CreateRecurringPaymentsProfileRequestType();
+		createRPProfileRequest.setCreateRecurringPaymentsProfileRequestDetails(createRPProfileRequestDetails);
+
+		CreateRecurringPaymentsProfileReq createRPPProfileReq = new CreateRecurringPaymentsProfileReq();
+		createRPPProfileReq.setCreateRecurringPaymentsProfileRequest(createRPProfileRequest);
+
+		Map<String, String> sdkConfig = new HashMap<String, String>();
+		sdkConfig.put("mode", "sandbox");
+		sdkConfig.put("acct1.UserName", "jb-us-seller_api1.paypal.com");
+		sdkConfig.put("acct1.Password", "WX4WTU3S8MY44S7F");
+		sdkConfig.put("acct1.Signature","AFcWxV21C7fd0v3bYYYRCpSSRl31A7yDhhsPUU2XhtMoZXsWHFxu-RWy");
+		PayPalAPIInterfaceServiceService service = new PayPalAPIInterfaceServiceService(sdkConfig);
+		try {
+			CreateRecurringPaymentsProfileResponseType createRPProfileResponse = service.createRecurringPaymentsProfile(createRPPProfileReq);
+		} catch (SSLConfigurationException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (InvalidCredentialException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (HttpErrorException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (InvalidResponseDataException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (ClientActionRequiredException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (MissingCredentialException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (OAuthException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (ParserConfigurationException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (SAXException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		//InputStream is = PaymentWithCreditCardServlet.class.getResourceAsStream("/sdk_config.properties");
+		
+	}*/
+	/*public String paypalPayment(String howMuch){
+		String url="https://www.sandbox.paypal.com/cgi-bin/webscr?cmd=_express-checkout&token=";
+		PaymentDetailsType paymentDetails = new PaymentDetailsType();
+		paymentDetails.setPaymentAction(PaymentActionCodeType.fromValue("Order"));
+
+		BasicAmountType orderTotal = new BasicAmountType();
+		orderTotal.setCurrencyID(CurrencyCodeType.fromValue("USD"));
+		orderTotal.setValue(howMuch);
+		paymentDetails.setOrderTotal(orderTotal);
+		List<PaymentDetailsType> paymentDetailsList = new ArrayList<PaymentDetailsType>();
+		paymentDetailsList.add(paymentDetails);
+
+		SetExpressCheckoutRequestDetailsType setExpressCheckoutRequestDetails = new SetExpressCheckoutRequestDetailsType();
+		setExpressCheckoutRequestDetails.setReturnURL("http://localhost:8080/FIXIT/userPayPal");
+		setExpressCheckoutRequestDetails.setCancelURL("https://devtools-paypal.com/guide/recurring_payment_ec?cancel=true");
+
+		setExpressCheckoutRequestDetails.setPaymentDetails(paymentDetailsList);
+		  
+		BillingAgreementDetailsType billingAgreement = new BillingAgreementDetailsType(BillingCodeType.fromValue("RecurringPayments"));
+		billingAgreement.setBillingAgreementDescription("recurringbilling");
+		List<BillingAgreementDetailsType> billList = new ArrayList<BillingAgreementDetailsType>();
+		billList.add(billingAgreement);
+		setExpressCheckoutRequestDetails.setBillingAgreementDetails(billList);
+
+		SetExpressCheckoutRequestType setExpressCheckoutRequest = new SetExpressCheckoutRequestType(setExpressCheckoutRequestDetails);
+		setExpressCheckoutRequest.setVersion("104.0");
+
+		SetExpressCheckoutReq setExpressCheckoutReq = new SetExpressCheckoutReq();
+		setExpressCheckoutReq.setSetExpressCheckoutRequest(setExpressCheckoutRequest);
+
+		Map<String, String> sdkConfig = new HashMap<String, String>();
+		sdkConfig.put("mode", "sandbox");
+		sdkConfig.put("acct1.UserName", "parshant.verma-facilitator_api1.techbirds.in");
+		sdkConfig.put("acct1.Password", "YHF4ZF56XW4M4C8B");
+		sdkConfig.put("acct1.Signature","AO5U7yJDQvUSH27ek6l2bM7rT8v8A2h9xHwNHdlNBapWXMs1XEsG6seN");
+		PayPalAPIInterfaceServiceService service = new PayPalAPIInterfaceServiceService(sdkConfig);
+		
+		
+		try {
+			SetExpressCheckoutResponseType setExpressCheckoutResponse = service.setExpressCheckout(setExpressCheckoutReq);
+			token=setExpressCheckoutResponse.getToken();
+			url=url.concat(token);
+			System.out.println(setExpressCheckoutResponse.getToken());
+		} catch (SSLConfigurationException | InvalidCredentialException
+				| HttpErrorException | InvalidResponseDataException
+				| ClientActionRequiredException | MissingCredentialException
+				| OAuthException | IOException | InterruptedException
+				| ParserConfigurationException | SAXException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	return url;
+	}
+	
+	public  void payPalPaymentOccuring(String paymentValue){
+		RecurringPaymentsProfileDetailsType profileDetails = new RecurringPaymentsProfileDetailsType("2015-09-03T00:00:00:000Z");
+
+		BasicAmountType paymentAmount = new BasicAmountType(CurrencyCodeType.USD, paymentValue);
+		BillingPeriodType period = BillingPeriodType.fromValue("Day");
+		int frequency = 10;
+		BillingPeriodDetailsType paymentPeriod = new BillingPeriodDetailsType(period, frequency, paymentAmount);
+
+		ScheduleDetailsType scheduleDetails = new ScheduleDetailsType();
+		scheduleDetails.setDescription("recurringbilling");
+		scheduleDetails.setPaymentPeriod(paymentPeriod);
+
+		CreateRecurringPaymentsProfileRequestDetailsType createRPProfileRequestDetails = new CreateRecurringPaymentsProfileRequestDetailsType(profileDetails, scheduleDetails);
+		createRPProfileRequestDetails.setToken(token);
+
+		CreateRecurringPaymentsProfileRequestType createRPProfileRequest = new CreateRecurringPaymentsProfileRequestType();
+		createRPProfileRequest.setCreateRecurringPaymentsProfileRequestDetails(createRPProfileRequestDetails);
+
+		CreateRecurringPaymentsProfileReq createRPPProfileReq = new CreateRecurringPaymentsProfileReq();
+		createRPPProfileReq.setCreateRecurringPaymentsProfileRequest(createRPProfileRequest);
+
+		Map<String, String> sdkConfig = new HashMap<String, String>();
+		sdkConfig.put("mode", "sandbox");
+		sdkConfig.put("acct1.UserName", "parshant.verma-facilitator_api1.techbirds.in");
+		sdkConfig.put("acct1.Password", "YHF4ZF56XW4M4C8B");
+		sdkConfig.put("acct1.Signature","AO5U7yJDQvUSH27ek6l2bM7rT8v8A2h9xHwNHdlNBapWXMs1XEsG6seN");
+		PayPalAPIInterfaceServiceService service = new PayPalAPIInterfaceServiceService(sdkConfig);
+		try {
+			CreateRecurringPaymentsProfileResponseType createRPProfileResponse = service.createRecurringPaymentsProfile(createRPPProfileReq);
+		System.out.println(createRPProfileResponse.getCreateRecurringPaymentsProfileResponseDetails());
+		} catch (SSLConfigurationException | InvalidCredentialException
+				| HttpErrorException | InvalidResponseDataException
+				| ClientActionRequiredException | MissingCredentialException
+				| OAuthException | IOException | InterruptedException
+				| ParserConfigurationException | SAXException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}*/
+
+   public void paymentRecurringUsingCreditCard(String howmuch){
+	   RecurringPaymentsProfileDetailsType profileDetails = new RecurringPaymentsProfileDetailsType("2015-010-05T00:00:00:000Z");
+
+	   BasicAmountType paymentAmount = new BasicAmountType(CurrencyCodeType.USD, "1.0");
+	   BillingPeriodType period = BillingPeriodType.fromValue("Day");
+	   int frequency = 10;
+	   BillingPeriodDetailsType paymentPeriod = new BillingPeriodDetailsType(period, frequency, paymentAmount);
+
+	   ScheduleDetailsType scheduleDetails = new ScheduleDetailsType();
+	   scheduleDetails.setDescription("recurring billing");
+	   scheduleDetails.setPaymentPeriod(paymentPeriod);
+
+	   CreditCardDetailsType creditCard = new CreditCardDetailsType();
+	   creditCard.setCreditCardNumber("4005550000000001");
+	   creditCard.setCVV2("962");
+	   creditCard.setExpMonth(05);
+	   creditCard.setExpYear(2017); 
+	   creditCard.setCreditCardType(CreditCardTypeType.fromValue("Visa"));
+
+	   CreateRecurringPaymentsProfileRequestDetailsType createRPProfileRequestDetails = new CreateRecurringPaymentsProfileRequestDetailsType(profileDetails, scheduleDetails);
+	   createRPProfileRequestDetails.setCreditCard(creditCard);
+
+	   CreateRecurringPaymentsProfileRequestType createRPProfileRequest = new CreateRecurringPaymentsProfileRequestType();
+	   createRPProfileRequest.setCreateRecurringPaymentsProfileRequestDetails(createRPProfileRequestDetails);
+
+	   CreateRecurringPaymentsProfileReq createRPPProfileReq = new CreateRecurringPaymentsProfileReq();
+	   createRPPProfileReq.setCreateRecurringPaymentsProfileRequest(createRPProfileRequest);
+
+	   Map<String, String> sdkConfig = new HashMap<String, String>();
+	   sdkConfig.put("mode", "sandbox");
+	   sdkConfig.put("acct1.UserName", "parshant.verma-facilitator_api1.techbirds.in");
+	   sdkConfig.put("acct1.Password", "YHF4ZF56XW4M4C8B");
+	   sdkConfig.put("acct1.Signature","AO5U7yJDQvUSH27ek6l2bM7rT8v8A2h9xHwNHdlNBapWXMs1XEsG6seN");
+	   PayPalAPIInterfaceServiceService service = new PayPalAPIInterfaceServiceService(sdkConfig);
+	   try {
+		CreateRecurringPaymentsProfileResponseType createRPProfileResponse = service.createRecurringPaymentsProfile(createRPPProfileReq);
+	System.out.println(createRPProfileResponse.getErrors());
+	
+	   } catch (SSLConfigurationException e) {
+		// TODO Auto-generated catch block
+		e.printStackTrace();
+	} catch (InvalidCredentialException e) {
+		// TODO Auto-generated catch block
+		e.printStackTrace();
+	} catch (HttpErrorException e) {
+		// TODO Auto-generated catch block
+		e.printStackTrace();
+	} catch (InvalidResponseDataException e) {
+		// TODO Auto-generated catch block
+		e.printStackTrace();
+	} catch (ClientActionRequiredException e) {
+		// TODO Auto-generated catch block
+		e.printStackTrace();
+	} catch (MissingCredentialException e) {
+		// TODO Auto-generated catch block
+		e.printStackTrace();
+	} catch (OAuthException e) {
+		// TODO Auto-generated catch block
+		e.printStackTrace();
+	} catch (IOException e) {
+		// TODO Auto-generated catch block
+		e.printStackTrace();
+	} catch (InterruptedException e) {
+		// TODO Auto-generated catch block
+		e.printStackTrace();
+	} catch (ParserConfigurationException e) {
+		// TODO Auto-generated catch block
+		e.printStackTrace();
+	} catch (SAXException e) {
+		// TODO Auto-generated catch block
+		e.printStackTrace();
+	}
+   }
+
+}

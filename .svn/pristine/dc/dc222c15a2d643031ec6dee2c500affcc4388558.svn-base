@@ -1,0 +1,1098 @@
+package com.fixit.utility;
+
+import java.awt.Graphics2D;
+import java.awt.image.BufferedImage;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.Iterator;
+import java.util.List;
+
+import javax.imageio.ImageIO;
+
+import org.imgscalr.Scalr;
+import org.imgscalr.Scalr.Method;
+import org.springframework.web.multipart.MultipartFile;
+
+import com.amazonaws.AmazonClientException;
+import com.amazonaws.AmazonServiceException;
+import com.amazonaws.auth.PropertiesCredentials;
+import com.amazonaws.services.s3.AmazonS3;
+import com.amazonaws.services.s3.AmazonS3Client;
+import com.amazonaws.services.s3.model.AmazonS3Exception;
+import com.amazonaws.services.s3.model.CannedAccessControlList;
+import com.amazonaws.services.s3.model.CopyObjectRequest;
+import com.amazonaws.services.s3.model.DeleteObjectRequest;
+import com.amazonaws.services.s3.model.GetObjectRequest;
+import com.amazonaws.services.s3.model.ListObjectsRequest;
+import com.amazonaws.services.s3.model.ObjectListing;
+import com.amazonaws.services.s3.model.ObjectMetadata;
+import com.amazonaws.services.s3.model.PutObjectRequest;
+import com.amazonaws.services.s3.model.S3Object;
+import com.amazonaws.services.s3.model.S3ObjectSummary;
+import com.amazonaws.services.s3.transfer.TransferManager;
+import com.amazonaws.services.s3.transfer.Upload;
+import com.amazonaws.util.IOUtils;
+
+public class FileUpload {
+
+	public static String uploadMemberProfileImage(MultipartFile image, Integer userId) throws FixitException {
+		String originalFileName = null;
+		String originalFileNameIcon = null;
+		String suffix = null;
+		// createFolderOnServer(userId);
+		try {
+			originalFileName = image.getOriginalFilename();
+			String[] extension = originalFileName.split("\\.");
+			if (extension.length > 0) {
+				String prefix = "member";
+				prefix = prefix.concat("_" + userId);
+				suffix = extension[extension.length-1];
+				originalFileName = prefix + "." + suffix;
+				originalFileNameIcon = prefix + "_icon" + "." + suffix;
+			}
+			String filePath;
+			String filePathIcon;
+			filePath = DbConstants.PROFILE_FOLDER + DbConstants.SUFFIX + originalFileName;
+			filePathIcon = DbConstants.PROFILE_FOLDER + DbConstants.SUFFIX + originalFileNameIcon;
+			if (isValidProfileImage(originalFileName)) {
+				deleteFileFromProfileImageFolder(originalFileName);
+			}
+			if (isValidMemberProfileImage(originalFileNameIcon, userId)) {
+				deleteFileFromMemberFolder(originalFileNameIcon, userId);
+			}
+
+			uploadImageOnServer(image, filePath);
+			uploadImageIconOnServer(image, filePathIcon, suffix);
+		} catch (Exception e) {
+			throw new FixitException("", "");
+		}
+		return originalFileName;
+	}
+
+	public static String uploadMemberProfileImageUsingUserName(MultipartFile image, String userName)
+			throws FixitException {
+		String originalFileName = null;
+		String originalFileNameIcon = null;
+		String suffix = null;
+		// createFolderOnServer(userId);
+		try {
+			originalFileName = image.getOriginalFilename();
+			String[] extension = originalFileName.split("\\.");
+			if (extension.length > 0) {
+				String prefix = "member";
+				prefix = prefix.concat("_" + userName);
+				suffix = extension[extension.length-1];
+				originalFileName = prefix + "." + suffix;
+				originalFileNameIcon = prefix + "_icon" + "." + suffix;
+			}
+			String filePath;
+			String filePathIcon;
+			filePath = DbConstants.PROFILE_FOLDER + DbConstants.SUFFIX + originalFileName;
+			filePathIcon = DbConstants.PROFILE_FOLDER + DbConstants.SUFFIX + originalFileNameIcon;
+			if (isValidProfileImage(originalFileName)) {
+				deleteFileFromProfileImageFolder(originalFileName);
+			}
+			if (isValidMemberProfileImageBasedOnUserName(originalFileNameIcon, userName)) {
+				deleteFileFromMemberFolderBasedOnUserName(originalFileNameIcon, userName);
+			}
+
+			uploadImageOnServer(image, filePath);
+			uploadImageIconOnServer(image, filePathIcon, suffix);
+		} catch (Exception e) {
+			throw new FixitException("", "");
+		}
+		return originalFileName;
+	}
+
+	public static String editMyMemberProfileImage(MultipartFile image, Integer userId) throws FixitException {
+		String originalFileName;
+		String originalFileNameIcon = null;
+		String suffix = null;
+		// createFolderOnServer(userId);
+		try {
+			originalFileName = image.getOriginalFilename();
+			String[] extension = originalFileName.split("\\.");
+			if (extension.length > 0) {
+				String prefix = "member";
+				prefix = prefix.concat("_" + userId);
+				suffix = extension[extension.length-1];
+				originalFileName = prefix + "." + suffix;
+				originalFileNameIcon = prefix + "_icon" + "." + suffix;
+			}
+			String filePath;
+			String filePathIcon;
+			filePath = DbConstants.PROFILE_FOLDER + DbConstants.SUFFIX + DbConstants.Member_FOLDER + DbConstants.SUFFIX
+					+ originalFileName;
+			filePathIcon = DbConstants.PROFILE_FOLDER + DbConstants.SUFFIX + DbConstants.Member_FOLDER
+					+ DbConstants.SUFFIX + originalFileNameIcon;
+			if (isValidMemberProfileImage(originalFileName, userId)) {
+				deleteFileFromMemberFolder(originalFileName, userId);
+			}
+			if (isValidMemberProfileImage(originalFileNameIcon, userId)) {
+				deleteFileFromMemberFolder(originalFileNameIcon, userId);
+			}
+
+			uploadImageOnServer(image, filePath);
+			uploadImageIconOnServer(image, filePathIcon, suffix);
+		} catch (Exception e) {
+			throw new FixitException("", "");
+		}
+		return originalFileName;
+	}
+
+	public static Boolean moveFileFromprofileToMemberFolder(String fileName, Integer userId)
+			throws IOException, FixitException {
+		AmazonS3 s3Client;
+		CopyObjectRequest request;
+		String sourceFilePath;
+		String destFilePath;
+		try {
+			s3Client = new AmazonS3Client(new PropertiesCredentials(
+					FileUpload.class.getClassLoader().getResourceAsStream("mandrill.properties")));
+			sourceFilePath = DbConstants.PROFILE_FOLDER + DbConstants.SUFFIX + fileName;
+			destFilePath = DbConstants.PROFILE_FOLDER + DbConstants.SUFFIX + DbConstants.Member_FOLDER
+					+ DbConstants.SUFFIX + fileName;
+			request = new CopyObjectRequest(DbConstants.BUCKET_NAME, sourceFilePath, DbConstants.BUCKET_NAME,
+					destFilePath);
+			request.setCannedAccessControlList(CannedAccessControlList.PublicRead);
+			s3Client.copyObject(request);
+		} catch (AmazonClientException ace) {
+			throw new FixitException("", "");
+		}
+		return true;
+	}
+
+	public static Boolean isValidProfileImage(String filePath) throws IOException, FixitException {
+		if (filePath == null || filePath.equals("")) {
+			return false;
+		}
+		AmazonS3 s3Client;
+		boolean isValidFile = true;
+		ObjectMetadata objectMetadata;
+		try {
+			s3Client = new AmazonS3Client(new PropertiesCredentials(
+					FileUpload.class.getClassLoader().getResourceAsStream("mandrill.properties")));
+			objectMetadata = s3Client.getObjectMetadata(DbConstants.BUCKET_NAME,
+					DbConstants.PROFILE_FOLDER + DbConstants.SUFFIX + filePath);
+		} catch (AmazonS3Exception s3e) {
+			if (s3e.getStatusCode() == 404) {
+				isValidFile = false;
+			} else {
+				throw new FixitException("", "");
+			}
+		} finally {
+			objectMetadata = null;
+			s3Client = null;
+		}
+		return isValidFile;
+	}
+
+	public static Boolean isValidProfileImageIcon(String filePath) throws IOException, FixitException {
+		AmazonS3 s3Client;
+		boolean isValidFile = true;
+		ObjectMetadata objectMetadata;
+		try {
+
+			s3Client = new AmazonS3Client(new PropertiesCredentials(
+					FileUpload.class.getClassLoader().getResourceAsStream("mandrill.properties")));
+			objectMetadata = s3Client.getObjectMetadata(DbConstants.BUCKET_NAME,
+					DbConstants.PROFILE_FOLDER + DbConstants.SUFFIX + filePath);
+		} catch (AmazonS3Exception s3e) {
+			if (s3e.getStatusCode() == 404) {
+				isValidFile = false;
+			} else {
+				throw new FixitException("", "");
+			}
+		} finally {
+			objectMetadata = null;
+			s3Client = null;
+		}
+		return isValidFile;
+	}
+
+	public static Boolean isValidMemberProfileImage(String filePath, Integer userId)
+			throws IOException, FixitException {
+		AmazonS3 s3Client;
+		boolean isValidFile = true;
+		ObjectMetadata objectMetadata;
+		try {
+			s3Client = new AmazonS3Client(new PropertiesCredentials(
+					FileUpload.class.getClassLoader().getResourceAsStream("mandrill.properties")));
+			objectMetadata = s3Client.getObjectMetadata(DbConstants.BUCKET_NAME, DbConstants.PROFILE_FOLDER
+					+ DbConstants.SUFFIX + DbConstants.Member_FOLDER + DbConstants.SUFFIX + filePath);
+		} catch (AmazonS3Exception s3e) {
+			if (s3e.getStatusCode() == 404) {
+				// i.e. 404: NoSuchKey - The specified key does not exist
+				isValidFile = false;
+			} else {
+				throw new FixitException("", "");
+			}
+		} finally {
+			objectMetadata = null;
+			s3Client = null;
+		}
+		return isValidFile;
+	}
+
+	public static Boolean isValidMemberProfileImageBasedOnUserName(String filePath, String userName)
+			throws IOException, FixitException {
+		AmazonS3 s3Client;
+		boolean isValidFile = true;
+		ObjectMetadata objectMetadata;
+		try {
+			s3Client = new AmazonS3Client(new PropertiesCredentials(
+					FileUpload.class.getClassLoader().getResourceAsStream("mandrill.properties")));
+			objectMetadata = s3Client.getObjectMetadata(DbConstants.BUCKET_NAME, DbConstants.PROFILE_FOLDER
+					+ DbConstants.SUFFIX + DbConstants.Member_FOLDER + DbConstants.SUFFIX + filePath);
+		} catch (AmazonS3Exception s3e) {
+			if (s3e.getStatusCode() == 404) {
+				// i.e. 404: NoSuchKey - The specified key does not exist
+				isValidFile = false;
+			} else {
+				throw new FixitException("", "");
+			}
+		} finally {
+			objectMetadata = null;
+			s3Client = null;
+		}
+		return isValidFile;
+	}
+
+	public static void deleteFileFromProfileImageFolder(String filePath) throws IOException, FixitException {
+		AmazonS3 s3Client;
+		try {
+			s3Client = new AmazonS3Client(new PropertiesCredentials(
+					FileUpload.class.getClassLoader().getResourceAsStream("mandrill.properties")));
+			s3Client.deleteObject(new DeleteObjectRequest(DbConstants.BUCKET_NAME,
+					DbConstants.PROFILE_FOLDER + DbConstants.SUFFIX + filePath));
+
+		} catch (AmazonServiceException ase) {
+			throw new FixitException("", "");
+		} catch (AmazonClientException ace) {
+			throw new FixitException("", "");
+		} finally {
+			s3Client = null;
+		}
+	}
+
+	public static void deleteFileFromMemberFolder(String filePath, Integer userId) throws IOException, FixitException {
+		AmazonS3 s3Client;
+		try {
+			s3Client = new AmazonS3Client(new PropertiesCredentials(
+					FileUpload.class.getClassLoader().getResourceAsStream("mandrill.properties")));
+			s3Client.deleteObject(new DeleteObjectRequest(DbConstants.BUCKET_NAME, DbConstants.PROFILE_FOLDER
+					+ DbConstants.SUFFIX + DbConstants.Member_FOLDER + DbConstants.SUFFIX + filePath));
+
+		} catch (AmazonServiceException ase) {
+			throw new FixitException("", "");
+		} catch (AmazonClientException ace) {
+			throw new FixitException("", "");
+		} finally {
+			s3Client = null;
+		}
+	}
+
+	public static void deleteFileFromMemberFolderBasedOnUserName(String filePath, String userName)
+			throws IOException, FixitException {
+		AmazonS3 s3Client;
+		try {
+			s3Client = new AmazonS3Client(new PropertiesCredentials(
+					FileUpload.class.getClassLoader().getResourceAsStream("mandrill.properties")));
+			s3Client.deleteObject(new DeleteObjectRequest(DbConstants.BUCKET_NAME, DbConstants.PROFILE_FOLDER
+					+ DbConstants.SUFFIX + DbConstants.Member_FOLDER + DbConstants.SUFFIX + filePath));
+
+		} catch (AmazonServiceException ase) {
+			throw new FixitException("", "");
+		} catch (AmazonClientException ace) {
+			throw new FixitException("", "");
+		} finally {
+			s3Client = null;
+		}
+	}
+
+	public static void deleteFileFromFixerFolder(String filePath) throws IOException, FixitException {
+		AmazonS3 s3Client;
+		try {
+			s3Client = new AmazonS3Client(new PropertiesCredentials(
+					FileUpload.class.getClassLoader().getResourceAsStream("mandrill.properties")));
+			s3Client.deleteObject(new DeleteObjectRequest(DbConstants.BUCKET_NAME, DbConstants.PROFILE_FOLDER
+					+ DbConstants.SUFFIX + DbConstants.Fixer_FOLDER + DbConstants.SUFFIX + filePath));
+
+		} catch (AmazonServiceException ase) {
+			throw new FixitException("", "");
+		} catch (AmazonClientException ace) {
+			throw new FixitException("", "");
+		} finally {
+			s3Client = null;
+		}
+	}
+
+	public static String uploadDocuments(MultipartFile file, Integer userId) throws FixitException {
+		String originalFileName;
+		String fileName;
+		String fileExt;
+		try {
+			originalFileName = file.getOriginalFilename();
+			String filePath;
+			String[] strArr;
+			strArr = originalFileName.split("\\.");
+
+			StringBuilder filenameBuilder = new StringBuilder();
+			int arrSize = strArr.length - 1;
+			fileExt = strArr[arrSize];
+			if (arrSize <= 1) {
+				filenameBuilder.append(strArr[0]);
+			} else {
+				filenameBuilder.append(strArr[0] + ".");
+				for (int i = 1; i < arrSize; i++) {
+					if (i == arrSize - 1) {
+						filenameBuilder.append(strArr[i]);
+					} else {
+						filenameBuilder.append(strArr[i] + ".");
+					}
+
+				}
+			}
+
+			String orgFileName = filenameBuilder.toString();
+			fileName = filenameBuilder.toString();
+
+			boolean flag = true;
+			int count = 0;
+			while (flag) {
+				flag = isValidFileDocumentFolder(fileName + "." + fileExt, userId);
+				if (!flag) {
+					break;
+				}
+				count++;
+				fileName = orgFileName + count;
+			}
+
+			originalFileName = fileName + "." + fileExt;
+			filePath = DbConstants.DOCUMENTS_FOLDER + DbConstants.SUFFIX + DbConstants.USER_FOLDER + userId
+					+ DbConstants.SUFFIX + originalFileName;
+			uploadFileOnServer(file, filePath);
+		} catch (Exception e) {
+			throw new FixitException("", "");
+		}
+
+		return originalFileName;
+	}
+
+	public static String uploadDocumentQueryFolder(MultipartFile file, Integer userId, Integer queryId)
+			throws FixitException {
+		String originalFileName;
+		String fileName;
+		String fileExt;
+		try {
+			originalFileName = file.getOriginalFilename();
+			String filePath;
+			String[] strArr;
+			strArr = originalFileName.split("\\.");
+
+			StringBuilder filenameBuilder = new StringBuilder();
+			int arrSize = strArr.length - 1;
+			fileExt = strArr[arrSize];
+			if (arrSize <= 1) {
+				filenameBuilder.append(strArr[0]);
+			} else {
+				filenameBuilder.append(strArr[0] + ".");
+				for (int i = 1; i < arrSize; i++) {
+					if (i == arrSize - 1) {
+						filenameBuilder.append(strArr[i]);
+					} else {
+						filenameBuilder.append(strArr[i] + ".");
+					}
+
+				}
+			}
+
+			String orgFileName = filenameBuilder.toString();
+			fileName = filenameBuilder.toString();
+			;
+			boolean flag = true;
+			int count = 0;
+			while (flag) {
+				flag = isValidFileQueryFolderFolder(fileName + "." + fileExt, userId, queryId);
+				if (!flag) {
+					break;
+				}
+				count++;
+				fileName = orgFileName + count;
+			}
+
+			originalFileName = fileName + "." + fileExt;
+			filePath = DbConstants.DOCUMENTS_FOLDER + DbConstants.SUFFIX + DbConstants.USER_FOLDER + userId
+					+ DbConstants.SUFFIX + DbConstants.QUERY_FOLDER + queryId + DbConstants.SUFFIX + originalFileName;
+			uploadFileOnServer(file, filePath);
+		} catch (Exception e) {
+			throw new FixitException("", "");
+		}
+
+		return fileName + "." + fileExt;
+	}
+	
+	
+	public static Boolean uploadFileOnServer(MultipartFile image,
+			String filePath) throws IOException, FixitException,
+			InterruptedException {
+		AmazonS3 s3Client;
+		TransferManager tm;
+		InputStream stream;
+		ObjectMetadata objectMetadata;
+		Upload upload;
+		PutObjectRequest putObjectRequest;
+		byte[] contentBytes;
+		try {
+			s3Client = new AmazonS3Client(new PropertiesCredentials(
+					FileUpload.class.getClassLoader().getResourceAsStream(
+							"mandrill.properties")));
+			tm = new TransferManager(s3Client);
+			stream = image.getInputStream();
+			contentBytes = IOUtils.toByteArray(stream);
+			objectMetadata = new ObjectMetadata();
+			objectMetadata.setContentLength(Long.valueOf(contentBytes.length));
+			stream = image.getInputStream();
+			putObjectRequest = new PutObjectRequest(DbConstants.BUCKET_NAME,
+					filePath, stream, objectMetadata);
+			putObjectRequest.setCannedAcl(CannedAccessControlList.PublicRead);
+			upload = tm.upload(putObjectRequest);
+			upload.waitForCompletion();
+		} catch (AmazonClientException amazonClientException) {
+			amazonClientException.printStackTrace();
+			throw new FixitException("file.notsaved", "Server Error");
+
+		} finally {
+			stream = null;
+			tm = null;
+			objectMetadata = null;
+			s3Client = null;
+		}
+
+		return true;
+	}
+
+	public static Boolean uploadImageOnServer(MultipartFile image, String filePath)
+			throws IOException, FixitException, InterruptedException {
+		AmazonS3 s3Client;
+		TransferManager tm;
+		InputStream stream;
+		ObjectMetadata objectMetadata;
+		Upload upload;
+		BufferedImage bufferedImage;
+		ByteArrayOutputStream baos;
+
+		PutObjectRequest putObjectRequest;
+		byte[] contentBytes;
+		try {
+			s3Client = new AmazonS3Client(new PropertiesCredentials(
+					FileUpload.class.getClassLoader().getResourceAsStream("mandrill.properties")));
+			tm = new TransferManager(s3Client);
+			
+			String originalFileName = image.getOriginalFilename();
+			String[] extension = originalFileName.split("\\.");
+			int exe_len = extension.length;
+			String exeImg = extension[exe_len-1];
+			
+			bufferedImage = ImageIO.read(image.getInputStream());
+			bufferedImage = Scalr.resize(bufferedImage, Scalr.Method.ULTRA_QUALITY, Scalr.Mode.FIT_EXACT, 157,170);
+
+			baos = new ByteArrayOutputStream();
+			ImageIO.write(bufferedImage, exeImg, baos);
+
+			stream = new ByteArrayInputStream(baos.toByteArray());
+			contentBytes = IOUtils.toByteArray(stream);
+
+			objectMetadata = new ObjectMetadata();
+			objectMetadata.setContentLength(Long.valueOf(contentBytes.length));
+
+			stream = new ByteArrayInputStream(baos.toByteArray());
+
+			putObjectRequest = new PutObjectRequest(DbConstants.BUCKET_NAME, filePath, stream, objectMetadata);
+			putObjectRequest.setCannedAcl(CannedAccessControlList.PublicRead);
+
+			upload = tm.upload(putObjectRequest);
+			upload.waitForCompletion();
+
+		} catch (AmazonClientException amazonClientException) {
+			amazonClientException.printStackTrace();
+			throw new FixitException("file.notsaved", "Server Error");
+
+		} finally {
+			stream = null;
+			tm = null;
+			objectMetadata = null;
+			s3Client = null;
+		}
+
+		return true;
+	}
+
+	public static Boolean uploadImageIconOnServer(MultipartFile image, String filePath, String extension)
+			throws IOException, FixitException, InterruptedException {
+		AmazonS3 s3Client;
+		TransferManager tm;
+		InputStream stream;
+		ObjectMetadata objectMetadata;
+		Upload upload;
+		PutObjectRequest putObjectRequest;
+		BufferedImage bufferedImage;
+		final Integer THUMB_IMG_SIZE = 150;
+		ByteArrayOutputStream baos;
+		byte[] contentBytes;
+		try {
+			s3Client = new AmazonS3Client(new PropertiesCredentials(
+					FileUpload.class.getClassLoader().getResourceAsStream("mandrill.properties")));
+			tm = new TransferManager(s3Client);
+
+			bufferedImage = ImageIO.read(image.getInputStream());
+			bufferedImage = Scalr.resize(bufferedImage, Scalr.Method.ULTRA_QUALITY, THUMB_IMG_SIZE);
+
+			baos = new ByteArrayOutputStream();
+			ImageIO.write(bufferedImage, extension, baos);
+
+			stream = new ByteArrayInputStream(baos.toByteArray());
+			contentBytes = IOUtils.toByteArray(stream);
+
+			objectMetadata = new ObjectMetadata();
+			objectMetadata.setContentLength(Long.valueOf(contentBytes.length));
+
+			stream = new ByteArrayInputStream(baos.toByteArray());
+
+			putObjectRequest = new PutObjectRequest(DbConstants.BUCKET_NAME, filePath, stream, objectMetadata);
+			putObjectRequest.setCannedAcl(CannedAccessControlList.PublicRead);
+
+			upload = tm.upload(putObjectRequest);
+			upload.waitForCompletion();
+
+		} catch (Exception e) {
+			System.out.println("hello");
+		}
+		return true;
+	}
+
+	public static Boolean createFolderOnServer(Integer queryId)
+			throws IOException, FixitException, InterruptedException {
+		AmazonS3 s3Client;
+		TransferManager tm;
+		InputStream stream;
+		ObjectMetadata objectMetadata;
+		Upload upload;
+		PutObjectRequest putObjectRequest;
+
+		try {
+			s3Client = new AmazonS3Client(new PropertiesCredentials(
+					FileUpload.class.getClassLoader().getResourceAsStream("mandrill.properties")));
+			tm = new TransferManager(s3Client);
+			objectMetadata = new ObjectMetadata();
+			objectMetadata.setContentLength(0);
+			stream = new ByteArrayInputStream(new byte[0]);
+			putObjectRequest = new PutObjectRequest(DbConstants.BUCKET_NAME,
+					DbConstants.DOCUMENTS_FOLDER + DbConstants.SUFFIX + queryId + DbConstants.SUFFIX, stream,
+					objectMetadata);
+			putObjectRequest.setCannedAcl(CannedAccessControlList.PublicRead);
+			upload = tm.upload(putObjectRequest);
+			upload.waitForCompletion();
+		} catch (AmazonClientException amazonClientException) {
+			amazonClientException.printStackTrace();
+			throw new FixitException("image.notsaved", "Server Error");
+
+		}
+		return true;
+	}
+
+	public static Boolean createQueryFolderOnServer(Integer queryId, Integer userId)
+			throws IOException, FixitException, InterruptedException {
+		AmazonS3 s3Client;
+		TransferManager tm;
+		InputStream stream;
+		ObjectMetadata objectMetadata;
+		Upload upload;
+		PutObjectRequest putObjectRequest;
+
+		try {
+			s3Client = new AmazonS3Client(new PropertiesCredentials(
+					FileUpload.class.getClassLoader().getResourceAsStream("mandrill.properties")));
+			tm = new TransferManager(s3Client);
+			objectMetadata = new ObjectMetadata();
+			objectMetadata.setContentLength(0);
+			stream = new ByteArrayInputStream(new byte[0]);
+			putObjectRequest = new PutObjectRequest(DbConstants.BUCKET_NAME,
+					DbConstants.DOCUMENTS_FOLDER + DbConstants.SUFFIX + DbConstants.USER_FOLDER + userId
+							+ DbConstants.SUFFIX + DbConstants.QUERY_FOLDER + queryId + DbConstants.SUFFIX,
+					stream, objectMetadata);
+			putObjectRequest.setCannedAcl(CannedAccessControlList.PublicRead);
+			upload = tm.upload(putObjectRequest);
+			upload.waitForCompletion();
+		} catch (AmazonClientException amazonClientException) {
+			amazonClientException.printStackTrace();
+			throw new FixitException("image.notsaved", "Server Error");
+
+		}
+		return true;
+	}
+
+	public static Boolean moveFileFromUserToQueryFolder(String fileName, Integer userId, Integer queryId)
+			throws IOException, FixitException {
+		AmazonS3 s3Client;
+		CopyObjectRequest request;
+		String sourceFilePath;
+		String destFilePath;
+		try {
+			s3Client = new AmazonS3Client(new PropertiesCredentials(
+					FileUpload.class.getClassLoader().getResourceAsStream("mandrill.properties")));
+			sourceFilePath = DbConstants.DOCUMENTS_FOLDER + DbConstants.SUFFIX + DbConstants.USER_FOLDER + userId
+					+ DbConstants.SUFFIX + fileName;
+			destFilePath = DbConstants.DOCUMENTS_FOLDER + DbConstants.SUFFIX + DbConstants.USER_FOLDER + userId
+					+ DbConstants.SUFFIX + DbConstants.QUERY_FOLDER + queryId + DbConstants.SUFFIX + fileName;
+			request = new CopyObjectRequest(DbConstants.BUCKET_NAME, sourceFilePath, DbConstants.BUCKET_NAME,
+					destFilePath);
+			request.setCannedAccessControlList(CannedAccessControlList.PublicRead);
+			s3Client.copyObject(request);
+		} catch (AmazonClientException ace) {
+			throw new FixitException("", "");
+		}
+		return true;
+	}
+
+	public static Boolean isValidFile(String filePath, Integer userId) throws IOException, FixitException {
+		AmazonS3 s3Client;
+		boolean isValidFile = true;
+		ObjectMetadata objectMetadata;
+		try {
+			s3Client = new AmazonS3Client(new PropertiesCredentials(
+					FileUpload.class.getClassLoader().getResourceAsStream("mandrill.properties")));
+			objectMetadata = s3Client.getObjectMetadata(DbConstants.BUCKET_NAME, DbConstants.DOCUMENTS_FOLDER
+					+ DbConstants.SUFFIX + DbConstants.USER_FOLDER + userId + DbConstants.SUFFIX + filePath);
+		} catch (AmazonS3Exception s3e) {
+			if (s3e.getStatusCode() == 404) {
+				isValidFile = false;
+			} else {
+				throw new FixitException("", "");
+			}
+		} finally {
+			objectMetadata = null;
+			s3Client = null;
+		}
+		return isValidFile;
+	}
+
+	public static Boolean isValidFileDocumentFolder(String filePath, Integer userId)
+			throws IOException, FixitException {
+		AmazonS3 s3Client;
+		boolean isValidFile = true;
+		ObjectMetadata objectMetadata;
+		try {
+			s3Client = new AmazonS3Client(new PropertiesCredentials(
+					FileUpload.class.getClassLoader().getResourceAsStream("mandrill.properties")));
+			objectMetadata = s3Client.getObjectMetadata(DbConstants.BUCKET_NAME, DbConstants.DOCUMENTS_FOLDER
+					+ DbConstants.SUFFIX + DbConstants.USER_FOLDER + userId + DbConstants.SUFFIX + filePath);
+		} catch (AmazonS3Exception s3e) {
+			if (s3e.getStatusCode() == 404) {
+				isValidFile = false;
+			} else {
+				throw new FixitException("", "");
+			}
+		} finally {
+			objectMetadata = null;
+			s3Client = null;
+		}
+		return isValidFile;
+	}
+
+	public static Boolean isValidFileQueryFolderFolder(String filePath, Integer userId, Integer queryId)
+			throws IOException, FixitException {
+		AmazonS3 s3Client;
+		boolean isValidFile = true;
+		ObjectMetadata objectMetadata;
+		try {
+			s3Client = new AmazonS3Client(new PropertiesCredentials(
+					FileUpload.class.getClassLoader().getResourceAsStream("mandrill.properties")));
+			objectMetadata = s3Client.getObjectMetadata(DbConstants.BUCKET_NAME,
+					DbConstants.DOCUMENTS_FOLDER + DbConstants.SUFFIX + DbConstants.USER_FOLDER + userId
+							+ DbConstants.SUFFIX + DbConstants.QUERY_FOLDER + queryId + DbConstants.SUFFIX + filePath);
+		} catch (AmazonS3Exception s3e) {
+			if (s3e.getStatusCode() == 404) {
+				isValidFile = false;
+			} else {
+				throw new FixitException("", "");
+			}
+		} finally {
+			objectMetadata = null;
+			s3Client = null;
+		}
+		return isValidFile;
+	}
+
+	public static void deleteFileFromUserFolder(String filePath, Integer userId) throws IOException, FixitException {
+		AmazonS3 s3Client;
+		try {
+			s3Client = new AmazonS3Client(new PropertiesCredentials(
+					FileUpload.class.getClassLoader().getResourceAsStream("mandrill.properties")));
+			s3Client.deleteObject(new DeleteObjectRequest(DbConstants.BUCKET_NAME, DbConstants.DOCUMENTS_FOLDER
+					+ DbConstants.SUFFIX + DbConstants.USER_FOLDER + userId + DbConstants.SUFFIX + filePath));
+
+		} catch (AmazonServiceException ase) {
+			throw new FixitException("", "");
+		} catch (AmazonClientException ace) {
+			throw new FixitException("", "");
+		} finally {
+			s3Client = null;
+		}
+	}
+
+	public static void deleteFileFromQueryFolder(String filePath, Integer userId, Integer queryId)
+			throws IOException, FixitException {
+		AmazonS3 s3Client;
+		try {
+			s3Client = new AmazonS3Client(new PropertiesCredentials(
+					FileUpload.class.getClassLoader().getResourceAsStream("mandrill.properties")));
+			s3Client.deleteObject(
+					new DeleteObjectRequest(DbConstants.BUCKET_NAME,
+							DbConstants.DOCUMENTS_FOLDER + DbConstants.SUFFIX + DbConstants.USER_FOLDER + userId
+									+ DbConstants.SUFFIX + DbConstants.QUERY_FOLDER + queryId + DbConstants.SUFFIX
+									+ filePath));
+
+		} catch (AmazonServiceException ase) {
+			throw new FixitException("", "");
+		} catch (AmazonClientException ace) {
+			throw new FixitException("", "");
+		} catch (Exception e) {
+			e.printStackTrace();
+		} finally {
+			s3Client = null;
+		}
+	}
+
+	public static void deleteQueryFolder(Integer userId, Integer queryId) throws IOException, FixitException {
+		AmazonS3 s3Client;
+		try {
+			s3Client = new AmazonS3Client(new PropertiesCredentials(
+					FileUpload.class.getClassLoader().getResourceAsStream("mandrill.properties")));
+			List<S3ObjectSummary> fileList = s3Client.listObjects(DbConstants.BUCKET_NAME,
+					DbConstants.DOCUMENTS_FOLDER + DbConstants.SUFFIX + DbConstants.USER_FOLDER + userId
+							+ DbConstants.SUFFIX + DbConstants.QUERY_FOLDER + queryId)
+					.getObjectSummaries();
+			for (S3ObjectSummary file : fileList) {
+				s3Client.deleteObject(DbConstants.BUCKET_NAME, file.getKey());
+			}
+			s3Client.deleteObject(DbConstants.BUCKET_NAME, DbConstants.DOCUMENTS_FOLDER + DbConstants.SUFFIX
+					+ DbConstants.USER_FOLDER + userId + DbConstants.SUFFIX + DbConstants.QUERY_FOLDER + queryId);
+
+		} catch (AmazonServiceException ase) {
+			throw new FixitException("", "");
+		} catch (AmazonClientException ace) {
+			throw new FixitException("", "");
+		} finally {
+			s3Client = null;
+		}
+	}
+
+	// fixer method
+
+	public static String uploadFixerProfileImage(MultipartFile image, String userName) throws FixitException {
+		String originalFileName = null;
+		String originalFileNameIcon = null;
+		String suffix = null;
+		// createFolderOnServer(userId);
+		try {
+			originalFileName = image.getOriginalFilename();
+			String[] extension = originalFileName.split("\\.");
+			int exe_len = extension.length;
+			if (extension.length > 0) {
+				String prefix = "fixer";
+				prefix = prefix.concat("_" + userName);
+				suffix = extension[exe_len-1];
+				if (suffix.equals("jpg") || suffix.equals("jpeg") || suffix.equals("png")) {
+				} else {
+					originalFileName = "ERROR";
+					return originalFileName;
+				}
+				originalFileName = prefix + "." + suffix;
+				originalFileNameIcon = prefix + "_icon" + "." + suffix;
+			}
+
+			String filePath;
+			String filePathIcon;
+			filePath = DbConstants.PROFILE_FOLDER + DbConstants.SUFFIX + originalFileName;
+			filePathIcon = DbConstants.PROFILE_FOLDER + DbConstants.SUFFIX + originalFileNameIcon;
+			if (isValidProfileImage(originalFileName)) {
+				deleteFileFromProfileImageFolder(originalFileName);
+			}
+			uploadImageOnServer(image, filePath);
+			if (isValidProfileImage(originalFileNameIcon)) {
+				deleteFileFromProfileImageFolder(originalFileNameIcon);
+			}
+			uploadImageIconOnServer(image, filePathIcon, suffix);
+
+		} catch (Exception e) {
+			throw new FixitException("", "");
+		}
+		return originalFileName;
+	}
+
+	public static Boolean moveFileFromprofileToFixerFolder(String fileName, Integer userId)
+			throws IOException, FixitException {
+		AmazonS3 s3Client;
+		CopyObjectRequest request;
+		String sourceFilePath;
+		String destFilePath;
+		try {
+			s3Client = new AmazonS3Client(new PropertiesCredentials(
+					FileUpload.class.getClassLoader().getResourceAsStream("mandrill.properties")));
+			sourceFilePath = DbConstants.PROFILE_FOLDER + DbConstants.SUFFIX + fileName;
+			destFilePath = DbConstants.PROFILE_FOLDER + DbConstants.SUFFIX + DbConstants.Fixer_FOLDER
+					+ DbConstants.SUFFIX + fileName;
+			request = new CopyObjectRequest(DbConstants.BUCKET_NAME, sourceFilePath, DbConstants.BUCKET_NAME,
+					destFilePath);
+			request.setCannedAccessControlList(CannedAccessControlList.PublicRead);
+			s3Client.copyObject(request);
+		} catch (AmazonClientException ace) {
+			throw new FixitException("", "");
+		}
+		return true;
+	}
+
+	public static InputStream downloadFileFromQueryFolder(String filePath, Integer userId, Integer queryId)
+			throws IOException, FixitException {
+		AmazonS3 s3Client;
+		S3Object s3Object;
+		try {
+			s3Client = new AmazonS3Client(new PropertiesCredentials(
+					FileUpload.class.getClassLoader().getResourceAsStream("mandrill.properties")));
+			s3Object = s3Client
+					.getObject(new GetObjectRequest(DbConstants.BUCKET_NAME,
+							DbConstants.DOCUMENTS_FOLDER + DbConstants.SUFFIX + DbConstants.USER_FOLDER + userId
+									+ DbConstants.SUFFIX + DbConstants.QUERY_FOLDER + queryId + DbConstants.SUFFIX
+									+ filePath));
+			InputStream objectData = s3Object.getObjectContent();
+			return objectData;
+		} catch (AmazonServiceException ase) {
+			throw new FixitException("", "");
+		} catch (AmazonClientException ace) {
+			throw new FixitException("", "");
+		} finally {
+			s3Client = null;
+		}
+	}
+
+	public static String youtubeMemberVideoPath() {
+		String path = DbConstants.AMAZON_S3_URL + DbConstants.SUFFIX + DbConstants.YOUTUBE_VIDEOS_FOLDER
+				+ DbConstants.SUFFIX + DbConstants.YOUTUBE_MEMBER_VIDEO_URL;
+		return path;
+	}
+
+	public static String youtubeMemberOGGVideoPath() {
+		String path = DbConstants.AMAZON_S3_URL + DbConstants.SUFFIX + DbConstants.YOUTUBE_VIDEOS_FOLDER
+				+ DbConstants.SUFFIX + DbConstants.YOUTUBE_MEMBER_VIDEO_URL_OGG;
+		return path;
+	}
+
+	public static String youtubeFixerVideoPath() {
+		String path = DbConstants.AMAZON_S3_URL + DbConstants.SUFFIX + DbConstants.YOUTUBE_VIDEOS_FOLDER
+				+ DbConstants.SUFFIX + DbConstants.YOUTUBE_FIXER_VIDEO_URL;
+		return path;
+	}
+
+	public static String youtubeFixerOGGVideoPath() {
+		String path = DbConstants.AMAZON_S3_URL + DbConstants.SUFFIX + DbConstants.YOUTUBE_VIDEOS_FOLDER
+				+ DbConstants.SUFFIX + DbConstants.YOUTUBE_FIXER_VIDEO_URL_OGG;
+		;
+		return path;
+	}
+
+	public static String fixerProfilePath(String imageUrl) {
+		if (imageUrl == null || "".equals(imageUrl)) {
+			return imageUrl;
+		} else {
+			String path = DbConstants.AMAZON_S3_URL + DbConstants.SUFFIX + DbConstants.PROFILE_FOLDER
+					+ DbConstants.SUFFIX + DbConstants.Fixer_FOLDER + DbConstants.SUFFIX + imageUrl;
+			return path;
+		}
+
+	}
+
+	public static String memberProfilePath(String imageUrl) {
+		if (imageUrl == null || "".equals(imageUrl)) {
+			return imageUrl;
+		} else {
+			String path = DbConstants.AMAZON_S3_URL + DbConstants.SUFFIX + DbConstants.PROFILE_FOLDER
+					+ DbConstants.SUFFIX + DbConstants.Member_FOLDER + DbConstants.SUFFIX + imageUrl;
+			return path;
+		}
+
+	}
+
+	private static BufferedImage resizeImage(BufferedImage originalImage, int type) {
+		BufferedImage resizedImage = new BufferedImage(100, 100, type);
+		Graphics2D g = resizedImage.createGraphics();
+		g.drawImage(originalImage, 0, 0, 100, 100, null);
+		g.dispose();
+		return resizedImage;
+	}
+
+	public static String getmemberIconFileNameFromImage(String originalFileName, Integer userId) {
+		if (originalFileName == null || "".equals(originalFileName)) {
+			return originalFileName;
+		} else {
+
+		}
+		String suffix;
+		String originalFileNameIcon;
+		String[] extension = originalFileName.split("\\.");
+		String prefix = "member";
+		prefix = prefix.concat("_" + userId);
+		suffix = extension[extension.length-1];
+		originalFileName = prefix + "." + suffix;
+		originalFileNameIcon = prefix + "_icon" + "." + suffix;
+		return originalFileNameIcon;
+
+	}
+
+	public static String getmemberIconFileNameFromImageBasedOnUserName(String originalFileName, String userName) {
+		if (originalFileName == null || "".equals(originalFileName)) {
+			return originalFileName;
+		} else {
+			String suffix;
+			String originalFileNameIcon;
+			String[] extension = originalFileName.split("\\.");
+			String prefix = "member";
+			prefix = prefix.concat("_" + userName);
+			suffix = extension[extension.length-1];
+			originalFileName = prefix + "." + suffix;
+			originalFileNameIcon = prefix + "_icon" + "." + suffix;
+			return originalFileNameIcon;
+		}
+
+	}
+
+	public static String getFixerIconFileNameFromImage(String originalFileName, String userName) {
+		if (originalFileName == null || "".equals(originalFileName)) {
+			return originalFileName;
+		} else {
+			String suffix;
+			String originalFileNameIcon;
+			String[] extension = originalFileName.split("\\.");
+			String prefix = "fixer";
+			prefix = prefix.concat("_" + userName);
+			suffix = extension[extension.length - 1];
+			originalFileName = prefix + "." + suffix;
+			originalFileNameIcon = prefix + "_icon" + "." + suffix;
+			return originalFileNameIcon;
+		}
+
+	}
+
+	/*
+	 * check for blog files
+	 */
+	public static Boolean isFileExist(String filePath) throws IOException, FixitException {
+		AmazonS3 s3Client;
+		boolean isValidFile = true;
+		ObjectMetadata objectMetadata;
+		try {
+			s3Client = new AmazonS3Client(new PropertiesCredentials(
+					FileUpload.class.getClassLoader().getResourceAsStream("mandrill.properties")));
+			objectMetadata = s3Client.getObjectMetadata(DbConstants.BUCKET_NAME, filePath);
+		} catch (AmazonS3Exception s3e) {
+			if (s3e.getStatusCode() == 404) {
+				isValidFile = false;
+			} else {
+				throw new FixitException("", "");
+			}
+		} finally {
+			objectMetadata = null;
+			s3Client = null;
+		}
+		return isValidFile;
+	}
+
+	public static Boolean createBlogFolderOnServer(String folderPath)
+			throws IOException, FixitException, InterruptedException {
+		AmazonS3 s3Client;
+		TransferManager tm;
+		InputStream stream;
+		ObjectMetadata objectMetadata;
+		Upload upload;
+		PutObjectRequest putObjectRequest;
+
+		try {
+			s3Client = new AmazonS3Client(new PropertiesCredentials(
+					FileUpload.class.getClassLoader().getResourceAsStream("mandrill.properties")));
+			tm = new TransferManager(s3Client);
+			objectMetadata = new ObjectMetadata();
+			objectMetadata.setContentLength(0);
+			stream = new ByteArrayInputStream(new byte[0]);
+			putObjectRequest = new PutObjectRequest(DbConstants.BUCKET_NAME, folderPath, stream, objectMetadata);
+			putObjectRequest.setCannedAcl(CannedAccessControlList.PublicRead);
+			upload = tm.upload(putObjectRequest);
+			upload.waitForCompletion();
+		} catch (AmazonClientException amazonClientException) {
+			amazonClientException.printStackTrace();
+			throw new FixitException("image.notsaved", "Server Error");
+
+		}
+		return true;
+	}
+
+	/*-----------------upload blog file-------------------------*/
+	public static String uploadBlogFiles(MultipartFile image, String userName) throws FixitException {
+		String originalFileName = null;
+		String originalFileNameIcon = null;
+		String suffix = null;
+		String filePath = null;
+		try {
+			int i = countObjectInBucket(DbConstants.BUCKET_NAME, "blogfiles");
+			originalFileName = image.getOriginalFilename();
+			String[] extension = originalFileName.split("\\.");
+			if (extension.length > 0) {
+				String prefix = userName;
+				prefix = prefix.concat("_" + i);
+				suffix = extension[extension.length-1];
+				originalFileName = prefix + "." + suffix;
+
+			}
+
+			filePath = "blogfiles" + DbConstants.SUFFIX + originalFileName;
+
+			uploadFileOnServer(image, filePath);
+
+		} catch (Exception e) {
+			throw new FixitException("", "");
+		}
+		return filePath;
+	}
+
+	public static Integer countObjectInBucket(String bucket, String prefix) {
+		AmazonS3Client conn;
+		int count = 0;
+		try {
+
+			conn = new AmazonS3Client(new PropertiesCredentials(
+					FileUpload.class.getClassLoader().getResourceAsStream("mandrill.properties")));
+			ListObjectsRequest listObjectsRequest = new ListObjectsRequest().withBucketName(bucket)
+					.withPrefix(prefix + DbConstants.SUFFIX);
+
+			ObjectListing objectListing = conn.listObjects(listObjectsRequest);
+
+			for (S3ObjectSummary summary : objectListing.getObjectSummaries()) {
+				System.out.println("count " + summary.getKey());
+				count++;
+
+			}
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+
+		}
+
+		return count;
+
+	}
+
+	
+}

@@ -1,0 +1,45 @@
+package com.fixit.domain.bo;
+
+import javax.validation.constraints.Size;
+
+public class NewPassword {
+
+	/*private String currentPassword;*/
+	
+	@Size(min = 7,message="size must be greater than 6 ")
+	private String newPassword;
+	
+	@Size(min = 7,message="size must be greater than 6 ")
+	private String confirmNewPassword;
+
+	private String passwordError;
+	
+	public String getPasswordError() {
+		return passwordError;
+	}
+
+	public void setPasswordError(String passwordError) {
+		this.passwordError = passwordError;
+	}
+
+
+	public String getNewPassword() {
+		return newPassword;
+	}
+
+	public void setNewPassword(String newPassword) {
+		this.newPassword = newPassword;
+	}
+
+	public String getConfirmNewPassword() {
+		return confirmNewPassword;
+	}
+
+	public void setConfirmNewPassword(String confirmNewPassword) {
+		this.confirmNewPassword = confirmNewPassword;
+	}
+
+	
+	
+	
+}

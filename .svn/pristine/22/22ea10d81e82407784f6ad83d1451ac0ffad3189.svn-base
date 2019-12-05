@@ -1,0 +1,22 @@
+package com.fixit.service;
+
+import org.springframework.stereotype.Service;
+
+
+
+@Service
+public class BrainTreeIntegrationService {
+
+/*	BraintreeGateway gateway = null;*/
+
+	public void createGateway() {
+		/*this.gateway = new BraintreeGateway(Environment.SANDBOX,
+				"b9gnybh5bdcshsg4", "wt2drd9nrhns4qvw",
+				"f62ec0154207306f280b60d0d6ddc725");*/
+	}
+
+	public void getToken() {
+		/*String accessToken = gateway.clientToken().generate();
+		System.out.println(accessToken);*/
+	}
+}

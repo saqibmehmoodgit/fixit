@@ -1,0 +1,564 @@
+package com.fixit.dao;
+
+import java.math.BigInteger;
+import java.util.Calendar;
+import java.util.List;
+import java.util.Set;
+
+import org.skyway.spring.util.dao.JpaDao;
+import org.springframework.dao.DataAccessException;
+
+import com.fixit.domain.bo.QueryBo;
+import com.fixit.domain.vo.Query;
+import com.fixit.utility.FixitException;
+
+public interface QueryDao extends JpaDao<Query> {
+	/**
+	 * @param queryId
+	 *            - query Id of a query.
+	 * @return object of Query based on queryId.
+	 */
+	public Query findQueryByQueryId(Integer queryId) throws DataAccessException;
+
+	/**
+	 * @param fixerId
+	 *            - userId of a particular user(fixer).
+	 * @param startResult
+	 *            - the first row to be returned.
+	 * @param maxRows
+	 *            - maxResults the maximum number of rows to be returned.
+	 * @return Set of object of Query.
+	 */
+	public Set<Query> fixedIssueListByFixerId(int fixerId, int startResult, int maxRows) throws DataAccessException;
+
+	/**
+	 * @param hashcode
+	 *            -generated hash code.
+	 * @return object of Query.
+	 */
+	public Query getQueryByQueryHashCode(String hashcode) throws DataAccessException;
+
+	/**
+	 * @param queryId
+	 *            - query Id of a query.
+	 * @param startResult
+	 *            - the first row to be returned.
+	 * @param max
+	 *            - maxResults the maximum number of rows to be returned.
+	 * @return object of Query.
+	 */
+	public Query findQueryByQueryId(Integer queryId, int startResult, int max) throws DataAccessException;
+
+	/**
+	 * @param currentDate
+	 *            - current system date.
+	 * @param days
+	 *            duration in days.
+	 * @return Set of object of Query.
+	 */
+	public Set<Query> openQueryIfNotNotifyAfterNotFixed(String currentDate, int day) throws DataAccessException;
+
+	/**
+	 * @param userId
+	 *            - user Id of a user.
+	 * @param min
+	 *            - the first row to be returned.
+	 * @param max
+	 *            - maxResults the maximum number of rows to be returned.
+	 * @param type
+	 *            - type of a question.
+	 * @param list
+	 *            -list of string.
+	 * @return Set of object of Query.
+	 */
+	public Set<Query> getQuestionByCustomerId(Integer userId, String type, List<String> list, int min, int max)
+			throws DataAccessException;
+
+	/**
+	 * @param fixerId
+	 *            - user id of a user(fixer).
+	 */
+	public Set getFixerStats(Integer fixerId) throws DataAccessException;
+
+	/**
+	 * @param customerId
+	 *            - user id of a user(member).
+	 * @return Set of object of Query.
+	 */
+	public Set<Query> getCustomerStats(Integer customerId) throws DataAccessException;
+
+	/**
+	 * @param userId
+	 *            - user Id of a user.
+	 * @param start
+	 *            - the first row to be returned.
+	 * @param max
+	 *            - maxResults the maximum number of rows to be returned.
+	 * @param type
+	 *            - type of a question.
+	 * @param list
+	 *            -list of string.
+	 * @return Set of object of Query.
+	 */
+	public Set<Query> getQuestionsByFixerId(Integer userId, String type, List<String> list, int start, int max)
+			throws DataAccessException;
+
+	/**
+	 * @param start
+	 *            - the first row to be returned.
+	 * @param max
+	 *            - maxResults the maximum number of rows to be returned.
+	 * @param currentDate
+	 *            - current system date.
+	 * @param days
+	 *            duration in days.
+	 * @return Set of object of Query.
+	 */
+	public Set<Query> findQueryNotAcceptedByFixer(String currentDate, int days, int startIndex, int maxResult)
+			throws DataAccessException;
+
+	/**
+	 * @param currentDate
+	 *            - current system date.
+	 * @param days
+	 *            duration in days.
+	 * @return Set of object of Query.
+	 */
+	public Set<Query> findQueryNotAcceptedByFixerNative(String currentDate, int days) throws DataAccessException;
+
+	/**
+	 * @param currentDate
+	 *            - current system date.
+	 * @param days
+	 *            duration in days.
+	 * @return count of queries not excepted by fixer.
+	 */
+	public BigInteger findQueryNotAcceptedByFixerCount(String currentDate, int days) throws DataAccessException;
+
+	/**
+	 * @param currentDate
+	 *            - current system date.
+	 * @param days
+	 *            duration in days.
+	 * @return Set of object of Query.
+	 */
+	public Set<Query> findQueryNotAcceptedByIndividualFixer(String currentDate, int days) throws DataAccessException;
+
+	/**
+	 * @param currentDate
+	 *            - current system date.
+	 * @param days
+	 *            duration in days.
+	 * @return Set of object of Query.
+	 */
+	public Set<Query> findQueryInactiveFixers(String currentDate, int day) throws DataAccessException;
+
+	/**
+	 * @param currentDate
+	 *            - current system date.
+	 * @param days
+	 *            duration in days.
+	 * @return Set of object of Query.
+	 */
+	public Set<Query> findQueryCustomerNotAnswer(String currentDate, int day) throws DataAccessException;
+
+	/**
+	 * @param currentDate
+	 *            - current system date.
+	 * @param day
+	 *            -duration in days.
+	 * @param startTime
+	 *            - start time of a query.
+	 * @param endTime
+	 *            - end time of a query.
+	 * @return Set of object of Query.
+	 */
+	public Set<Query> findQueryFixerNotAccepted(String currentDate, int day, String startTime, String endTime)
+			throws DataAccessException;
+
+	/**
+	 * @param userId
+	 *            - userId of a particular user.
+	 * @return Set of object of Query.
+	 */
+	public Set<Query> findQueryNotAccepted(int userId) throws DataAccessException;
+
+	/**
+	 * @param userId
+	 *            - userId of a particular user.
+	 * @param startResult
+	 *            - the first row to be returned.
+	 * @param max
+	 *            - maxResults the maximum number of rows to be returned.
+	 * @return Set of object of Query.
+	 */
+	public Set<Query> findQueryNotAccepted(int userId, int startResult, int max) throws DataAccessException;
+
+	/**
+	 * @param userId
+	 *            - userId of a particular user.
+	 * @return Set of object of Query.
+	 */
+	public Set<Query> findQueryWorking(int userId) throws DataAccessException;
+
+	/**
+	 * @param userId
+	 *            - userId of a particular user.
+	 * @param startResult
+	 *            - the first row to be returned.
+	 * @param max
+	 *            - maxResults the maximum number of rows to be returned.
+	 * @return Set of object of Query.
+	 */
+	public Set<Query> findQueryWorking(int userId, int startResult, int max) throws DataAccessException;
+
+	/**
+	 * @param userId
+	 *            - userId of a particular user.
+	 * @return Set of object of Query.
+	 */
+	public Set<Query> findQueryClosed(int userId) throws DataAccessException;
+
+	
+	/**
+	 * @param userId
+	 *            - userId of a particular user.
+	 * @return Set of object of Query.
+	 */
+	public Set<Query> findQueryClosed(int userId, Calendar startDate , Calendar endDate) throws DataAccessException;
+	
+	
+	/**
+	 * @param userId
+	 *            - userId of a particular user.
+	 * @param startResult
+	 *            - the first row to be returned.
+	 * @param max
+	 *            - maxResults the maximum number of rows to be returned.
+	 * @return Set of object of Query.
+	 */
+	public Set<Query> findQueryClosed(int userId, int startResult, int max) throws DataAccessException;
+	
+	
+	/**
+	 * @param userId
+	 *            - userId of a particular user.
+	 * @param startResult
+	 *            - the first row to be returned.
+	 * @param max
+	 *            - maxResults the maximum number of rows to be returned.
+	 * @return Set of object of Query.
+	 */
+	public Set<Query> findQueryClosed(int userId,Calendar startDate , Calendar endDate, int startResult, int max) throws DataAccessException;
+
+	/**
+	 * @param userId
+	 *            - userId of a particular user.
+	 * @return Set of object of Query.
+	 */
+	public Set<Query> findQueryPendingResolution(int userId, int startResult, int max) throws DataAccessException;
+
+	/**
+	 * @param userId
+	 *            - userId of a particular user.
+	 */
+	public Long findUserStasCount(int userId, String currentStatus) throws DataAccessException;
+
+	/**
+	 * @param userId
+	 *            - userId of a particular user.
+	 */
+	public Long findUserClosedStasCount(int userId) throws DataAccessException;
+
+	/**
+	 * @param userId
+	 *            - userId of a particular user.
+	 * @return count of pending resolution.
+	 */
+	public Long findUserPendingResolutionStasCount(int userId) throws DataAccessException;
+
+	/**
+	 * @param queryId
+	 *            - query Id of a query.
+	 * @return if success.
+	 */
+	public Integer deleteAllQueryRelatedStuff(Integer queryId) throws DataAccessException;
+
+	/**
+	 * @param fixerId
+	 *            - userId of a particular user.
+	 * @return Set of object of Query.
+	 */
+	public Set<Query> findQueryNotAcceptedFixer(int fixerId) throws DataAccessException;
+
+	/**
+	 * @param fixerId
+	 *            - userId of a particular user.
+	 * @param startResult
+	 *            - the first row to be returned.
+	 * @param max
+	 *            - maxResults the maximum number of rows to be returned.
+	 * @return Set of object of Query.
+	 */
+	public Set<Query> findQueryNotAcceptedFixer(int fixerId, int startResult, int max) throws DataAccessException;
+
+	/**
+	 * @param fixerId
+	 *            - userId of a particular user.
+	 * @param startResult
+	 *            - the first row to be returned.
+	 * @param max
+	 *            - maxResults the maximum number of rows to be returned.
+	 * @return Set of object of Query.
+	 */
+	public Set<Query> findQueryNotAcceptedFixerNative(int fixerId, int startResult, int max) throws DataAccessException;
+
+	/**
+	 * @param categoryList
+	 *            - list of categories.
+	 * @return Set of object of Query.
+	 */
+	public Set<Query> findQueryNotAcceptedFixerNamed(List<Integer> categoryList) throws DataAccessException;
+
+	/**
+	 * @param startResult
+	 *            - the first row to be returned.
+	 * @param max
+	 *            - maxResults the maximum number of rows to be returned.
+	 * @param categoryList
+	 *            - list of categories.
+	 * @return Set of object of Query.
+	 */
+	public Set<Query> findQueryNotAcceptedFixerNamed(List<Integer> categoryList, int startResult, int max)
+			throws DataAccessException;
+
+	/**
+	 * @param categoryList
+	 *            - list of categories.
+	 * @return Set of object of Query.
+	 */
+	public Long findQueryNotAcceptedFixerNamedCount(List<Integer> categoryList) throws DataAccessException;
+
+	/**
+	 * @param fixerId
+	 *            - userId of a particular user.
+	 */
+	public BigInteger findQueryNotAcceptedFixerCount(int fixerId) throws DataAccessException;
+
+	/**
+	 * @param fixerId
+	 *            - userId of a particular user.
+	 * @return Set of object of Query.
+	 */
+	public Set<Query> findQueryWorkingFixer(int fixerId) throws DataAccessException;
+
+	/**
+	 * @param fixerId
+	 *            - userId of a particular user.
+	 * @param startResult
+	 *            - the first row to be returned.
+	 * @param max
+	 *            - maxResults the maximum number of rows to be returned.
+	 * @return Set of object of Query.
+	 */
+	public Set<Query> findQueryWorkingFixer(int fixerId, int startResult, int max) throws DataAccessException;
+
+	/**
+	 * @param fixerId
+	 *            - userId of a particular user.
+	 * @return Set of object of Query.
+	 */
+	public Set<Query> findQueryClosedFixer(int fixerId) throws DataAccessException;
+
+	/**
+	 * @param fixerId
+	 *            - userId of a particular user.
+	 * @param startResult
+	 *            - the first row to be returned.
+	 * @param max
+	 *            - maxResults the maximum number of rows to be returned.
+	 * @return Set of object of Query.
+	 */
+	public Set<Query> findQueryClosedFixer(int fixerId, int startResult, int max) throws DataAccessException;
+	
+	
+	
+	/**
+	 * @param fixerId
+	 *            - userId of a particular user.
+	 * @return Set of object of Query.
+	 */
+	public Set<Query> findQueryClosedFixer(int fixerId,Calendar startDate , Calendar endDate) throws DataAccessException;
+
+	/**
+	 * @param fixerId
+	 *            - userId of a particular user.
+	 * @param startResult
+	 *            - the first row to be returned.
+	 * @param max
+	 *            - maxResults the maximum number of rows to be returned.
+	 * @return Set of object of Query.
+	 */
+	public Set<Query> findQueryClosedFixer(int fixerId,Calendar startDate , Calendar endDate, int startResult, int max) throws DataAccessException;
+	
+
+	/**
+	 * @param fixerId
+	 *            - userId of a particular user.
+	 * @param startResult
+	 *            - the first row to be returned.
+	 * @param max
+	 *            - maxResults the maximum number of rows to be returned.
+	 * @return Set of object of Query.
+	 */
+	public Set<Query> findQueryPendingResolutionFixer(int fixerId, int startResult, int max) throws DataAccessException;
+
+	/**
+	 * @param fixerId
+	 *            - userId of a particular user.
+	 * @param currentStatus
+	 *            - current status of queries resolved by fixer.
+	 */
+	public Long findFixerStasCount(int fixerId, String currentStatus) throws DataAccessException;
+
+	/**
+	 * @param fixerId
+	 *            - userId of a particular user.
+	 */
+	public Long findFixerClosedStasCount(int fixerId) throws DataAccessException;
+
+	/**
+	 * @param fixerId
+	 *            - userId of a particular user.
+	 */
+	public Long findFixerPendingResolutionStasCount(int fixerId) throws DataAccessException;
+
+	/**
+	 * @param fixerId
+	 *            - userId of a particular user.
+	 */
+	public BigInteger findUnClaimedStatsByFixer(int fixerId);
+
+	/**
+	 * @param queryId
+	 *            - query Id of a query.
+	 * @return if success.
+	 */
+	public int deleteQueryByQueryId(Integer queryId) throws DataAccessException;
+
+	/**
+	 * @param fixerId
+	 *            - userId of a particular user.
+	 * @return Set of object of Query.
+	 */
+	public Set<Query> notFixedQuerybyFixedId(Integer fixerId) throws DataAccessException;
+
+	/**
+	 * @param customerId
+	 *            - userId of a particular user.
+	 * @return Set of object of Query.
+	 */
+	public Set<Query> findQueryByCustomerId(int customerId) throws DataAccessException;
+
+	/**
+	 * @param fixerId
+	 *            - userId of a particular user.
+	 * @param startResult
+	 *            - the first row to be returned.
+	 * @param max
+	 *            - maxResults the maximum number of rows to be returned.
+	 * @return Set of object of Query.
+	 */
+	public Set<Query> notFixedQuerybyFixedId(Integer fixerId, Integer startResult, Integer max)
+			throws DataAccessException;
+
+	/**
+	 * @param bcozOfInactivity
+	 *            - inactive queries because of inactivity.
+	 * @param bcozOfNotFixed
+	 *            - inactive queries because of not fixed by fixer.
+	 * @param startResult
+	 *            - the first row to be returned.
+	 * @param max
+	 *            - maxResults the maximum number of rows to be returned.
+	 * @return Set of object of Query.
+	 */
+	public Set<Query> notFixedAndInactiveQueries(String bcozOfInactivity, String bcozOfNotFixed, Integer startResult,
+			Integer max) throws DataAccessException;
+
+	/**
+	 * @param catId
+	 *            - catid of not sure category
+	 * @return Set of object of Query.
+	 */
+	public Set<Query> findQueryNotSureCat(Integer catId) throws DataAccessException;
+
+	/**
+	 * @param catId
+	 *            - catid of not sure category
+	 * @param startResult
+	 *            - the first row to be returned.
+	 * @param max
+	 *            - maxResults the maximum number of rows to be returned.
+	 * @return Set of object of Query.
+	 */
+	public Set<Query> findQueryNotSureCat(Integer catId, Integer startResult, Integer max) throws DataAccessException;
+
+	/**
+	 * @param catId
+	 *            - catid of not sure category
+	 * @param startResult
+	 *            - the first row to be returned.
+	 * @param max
+	 *            - maxResults the maximum number of rows to be returned.
+	 * @return Set of object of Query.
+	 */
+	public long findQueryNotSureCatCount(Integer catId, Integer startResult, Integer max) throws DataAccessException;
+
+	/**
+	 * @param queryId
+	 *            - query Id of a query.
+	 * @return calendar object.
+	 */
+	public Calendar findIssueOpenDate(Integer queryId) throws DataAccessException;
+
+	/**
+	 * @param queryId
+	 *            - query Id of a query.
+	 * 
+	 * @return calendar object.
+	 */
+	public Calendar findIssueCloseDate(Integer queryId) throws DataAccessException;
+
+	/**
+	 * @param fixerId
+	 *            - userId of a particular user.
+	 * @param status
+	 *            - status of a query.
+	 * @return Set of object of Query.
+	 */
+	public Set<Query> findQueryByFixerIdAndStatus(Integer fixerId, String status) throws DataAccessException;
+
+	/**
+	 * @param userId
+	 *            - userId of a particular user.
+	 * @return cout of queries by member.
+	 */
+	public long findMemberQueryCount(int userId) throws DataAccessException;
+	
+	public long findSumofQueryCreditByUserId( int userId) throws DataAccessException;
+	public long findSumofQueryCreditInProgAndFixedByUserId( int userId) throws DataAccessException;
+
+	
+	public long findFixerClosedRequestsCountInDeadline(Integer userId) throws DataAccessException;
+
+	public Set<Query> findQueriesNearByDeadline(String currentDate) throws DataAccessException;	
+	
+	public List<Object> findQueryByParentCatMember(Integer userId) throws DataAccessException;
+	
+	public List<Object> findQueryByParentCatFixer(Integer userId) throws DataAccessException;
+
+	public List<Object> findQueryByCatIdFixer(Integer userId) throws DataAccessException;
+
+
+}

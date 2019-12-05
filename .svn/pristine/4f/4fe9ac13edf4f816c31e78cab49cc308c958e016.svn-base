@@ -1,0 +1,130 @@
+package com.fixit.dao;
+
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Set;
+import javax.persistence.EntityManager;
+import javax.persistence.NoResultException;
+import javax.persistence.PersistenceContext;
+import javax.persistence.Query;
+
+import org.skyway.spring.util.dao.AbstractJpaDao;
+import org.springframework.dao.DataAccessException;
+import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
+
+import com.fixit.domain.vo.UserCategory;
+import com.fixit.domain.vo.User;
+import com.fixit.domain.vo.UserIndustry;
+
+@Repository("FixerCategoryDao")
+@Transactional
+public class UserCategoryDaoImpl extends AbstractJpaDao<UserCategory> implements UserCategoryDao {
+
+	@PersistenceContext(unitName = "fixit_db")
+	private EntityManager entityManager;
+
+	private final static Set<Class<?>> dataTypes = new HashSet<Class<?>>(
+			Arrays.asList(new Class<?>[] { UserCategory.class }));
+
+	public UserCategoryDaoImpl() {
+		super();
+	}
+	
+	
+	@Override
+	public EntityManager getEntityManager() {
+		return entityManager;
+	}
+
+	@Override
+	public Set<Class<?>> getTypes() {
+		return dataTypes;
+	}
+
+	@Override
+	public boolean canBeMerged(UserCategory o) {
+		return true;
+	}
+
+
+	@Override
+	public Set<User> findFixerByCategory() throws DataAccessException {
+		return null;
+	}
+
+	@Override
+	@Transactional
+	public int deleteUserCategory(int userId, List<Integer> catlist)
+			throws DataAccessException {
+		try {
+			Query query = createNamedQuery("deleteUserCategory", -1, -1, userId);
+			query.setParameter("catIds", catlist);
+			return query.executeUpdate();
+		} catch (NoResultException nre) {
+			return 0;
+		}
+	}
+	
+	@Override
+	@Transactional
+	public int deleteUserCategoryBasedOnUserId(int userId)
+			throws DataAccessException{
+		try {
+			Query query = createNamedQuery("deleteUserCategoryBasedOnUserId", -1, -1, userId);
+			
+			return query.executeUpdate();
+		} catch (NoResultException nre) {
+			return 0;
+		}
+	}
+	
+	@Override
+	public UserCategory findUserCategoryByUserIdandcatId(int userId ,int catId) throws DataAccessException {
+		return findUserCategoryByUserIdandcatId(userId,catId,-1,-1);
+	}
+
+	@Override
+	@Transactional
+	public UserCategory findUserCategoryByUserIdandcatId(int userId,int catId, int startResult, int maxResult) throws DataAccessException {
+		try {
+			 Query query = createNamedQuery("findUserCategoryByUserIdandcatId",startResult, maxResult ,userId,catId);
+			 return (UserCategory) query.getSingleResult();
+		 }catch (NoResultException nre) {
+			return null;
+		}
+	}
+	
+	@Override
+	@Transactional
+	public Set<UserCategory> findUserCategoryByUserId(int userId) throws DataAccessException {
+		return findUserCategoryByUserId(userId ,-1,-1 );
+	}
+
+	@Override
+	@Transactional
+	public Set<UserCategory> findUserCategoryByUserId(int userId, int startResult, int maxResult) throws DataAccessException {
+		try {
+			 Query query = createNamedQuery("findUserCategoryByUserId",startResult, maxResult ,userId);
+			 return new LinkedHashSet<UserCategory>(query.getResultList());
+		 }catch (NoResultException nre) {
+			return null;
+		}
+	}
+
+
+	@Override
+	public int deleteUserCategoryBasedOnUserIdandCatId(Integer userId, Integer catId) throws DataAccessException {
+		try {
+			Query query = createNamedQuery("deleteUserCategoryBasedOnUserIdandCatId", -1, -1, userId,catId);
+			return query.executeUpdate();
+		} catch (NoResultException nre) {
+			return 0;
+		}
+	}
+
+
+	
+}

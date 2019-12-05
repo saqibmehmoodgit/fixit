@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<decorators defaultdir="/WEB-INF/sitemesh-decorators">
+
+	<excludes>
+		<pattern>/j_spring_security_logout</pattern>
+		<pattern>/js</pattern>
+		<pattern>/fonts</pattern>
+		<pattern>/css</pattern>
+		<pattern>/adminCss</pattern>
+		
+		<pattern>/images</pattern>
+		<pattern>/member-login-linkedin</pattern>
+		
+	</excludes>
+
+	
+	<decorator name="loginAndRegistration" page="mainwithoutlogin.jsp">
+		<pattern>/login</pattern>
+		<pattern>/fixerSignUp</pattern>
+		<pattern>/linkedInSignup</pattern>
+		<pattern>/googleSignUp</pattern>
+		<pattern>/memberSignUp**</pattern>
+	</decorator>
+	
+	
+	<decorator name="forgotpassword" page="forgotdecorator.jsp">
+	     <pattern>/resetpassword**</pattern>
+		<pattern>/resetpasswordmail**</pattern>
+		<pattern>/forgotpassword**</pattern>
+		<pattern>/rst**</pattern>
+	</decorator>
+	
+	
+	<decorator name="fixerTemplate" page="fixer_template.jsp">
+	 <pattern>/fixer/*</pattern> 
+	</decorator>
+	
+	
+	<decorator name="memberTemplate" page="member_template.jsp">
+		 <pattern>/member/*</pattern> 
+	</decorator>
+	
+	<decorator name="adminTemplate" page="mainAdmin.jsp">
+	 <pattern>/admin/*</pattern> 
+	</decorator>
+	
+	
+	
+</decorators>

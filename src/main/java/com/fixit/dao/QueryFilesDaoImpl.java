@@ -1,0 +1,169 @@
+package com.fixit.dao;
+
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Set;
+import javax.persistence.EntityManager;
+import javax.persistence.NoResultException;
+import javax.persistence.PersistenceContext;
+import org.skyway.spring.util.dao.AbstractJpaDao;
+import org.springframework.dao.DataAccessException;
+import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
+
+import com.fixit.domain.vo.Query;
+import com.fixit.domain.vo.QueryFiles;
+import com.fixit.utility.FixitException;
+
+@Repository("QueryFilesDao")
+@Transactional
+public class QueryFilesDaoImpl extends AbstractJpaDao<QueryFiles> implements
+		QueryFilesDao {
+
+	@PersistenceContext(unitName = "fixit")
+	private EntityManager entityManager;
+
+	private final static Set<Class<?>> dataTypes = new HashSet<Class<?>>(
+			Arrays.asList(new Class<?>[] { QueryFiles.class }));
+
+	public QueryFilesDaoImpl() {
+		super();
+	}
+
+	@Override
+	public EntityManager getEntityManager() {
+		return entityManager;
+	}
+
+	@Override
+	public Set<Class<?>> getTypes() {
+		return dataTypes;
+	}
+
+	@Override
+	public boolean canBeMerged(QueryFiles o) {
+		return true;
+	}
+
+	@Override
+	@Transactional
+	public Set<QueryFiles> findDocumentsByQueryId(Integer queryId)
+			throws DataAccessException {
+		try {
+			javax.persistence.Query query = createNamedQuery("findDocumentsByQueryId", -1, -1, queryId);
+			return new LinkedHashSet<QueryFiles>(query.getResultList());
+        } catch (NoResultException nre) {
+			return null;
+		}
+		catch (Exception e) {
+			e.printStackTrace();
+			return null;
+		}
+
+	}
+
+	@Override
+	@Transactional
+	public int deleteDocumentsByQueryIds(Integer queryId, List<String> fileNames) throws DataAccessException {
+		try {
+			javax.persistence.Query query = createNamedQuery("deleteDocumentsByQueryIds",-1, -1 ,queryId );
+			 query.setParameter("fileNames", fileNames);
+			 return query.executeUpdate();
+		 }catch (NoResultException nre) {
+			return 0;
+		}
+		
+	}
+
+	@Override
+	@Transactional
+	public QueryFiles findDocumentsByQueryIdandName(Integer queryId, String fileName) throws DataAccessException {
+		try {
+			javax.persistence.Query query = createNamedQuery("findDocumentsByQueryIdandName", -1, -1, queryId,fileName);
+			return (QueryFiles) (query.getSingleResult());
+        } catch (NoResultException nre) {
+			return null;
+		}
+	}
+
+	@Override
+	@Transactional
+	public int deleteAllDocumentsByQueryId(Integer queryId) throws DataAccessException {
+		try {
+			javax.persistence.Query query = createNamedQuery("deleteAllDocumentsByQueryId",-1, -1 ,queryId );
+			 return query.executeUpdate();
+		 }catch (NoResultException nre) {
+			return 0;
+		}
+	}
+
+	@Override
+	@Transactional
+	 public int deleteAllDataByQueryId(Integer queryId) throws DataAccessException{
+		try {
+			javax.persistence.Query query = createNamedQuery("deleteAllDataByQueryId",-1, -1 ,queryId );
+			 return query.executeUpdate();
+		 }catch (NoResultException nre) {
+			return 0;
+		}
+	 }
+	@Override
+	@Transactional
+	public Set<QueryFiles> findUrlLinksByQueryId(Integer queryId) throws DataAccessException {
+		try {
+			javax.persistence.Query query = createNamedQuery("findurlByQueryId", -1, -1, queryId);
+			return new LinkedHashSet<QueryFiles>(query.getResultList());
+        } catch (NoResultException nre) {
+			return null;
+		}
+		
+	}
+
+	@Override
+	@Transactional
+	public int deleteUrlLinksByQueryIds(Integer queryId, List<String> urlNames) throws DataAccessException {
+		try {
+			javax.persistence.Query query = createNamedQuery("deleteurlByQueryIds",-1, -1 ,queryId );
+			 query.setParameter("urlNames", urlNames);
+			 return query.executeUpdate();
+		 }catch (NoResultException nre) {
+			return 0;
+		}
+	}
+
+	@Override
+	@Transactional
+	public QueryFiles findUrlLinksByQueryIdandName(Integer queryId, String urlNames) throws DataAccessException {
+		try {
+			javax.persistence.Query query = createNamedQuery("findurlByQueryIdandName", -1, -1, queryId,urlNames);
+			return (QueryFiles) (query.getSingleResult());
+        } catch (NoResultException nre) {
+			return null;
+		}
+	}
+
+	@Override
+	@Transactional
+	public int deleteAllUrlLinksByQueryId(Integer queryId) throws DataAccessException {
+		try {
+			javax.persistence.Query query = createNamedQuery("deleteAllurlByQueryId",-1, -1 ,queryId );
+			 return query.executeUpdate();
+		 }catch (NoResultException nre) {
+			return 0;
+		}
+	}
+
+	@Override
+	public Integer deleteQueryFilesByFileUniqueCode(Integer queryId ,String fileUniqueCode) throws FixitException {
+		
+		try {
+			javax.persistence.Query query = createNamedQuery("deleteQueryFilesByFileUniqueCode",-1, -1 ,queryId , fileUniqueCode);
+			 return query.executeUpdate();
+		 }catch (NoResultException nre) {
+			return 0;
+		}
+	}
+
+}

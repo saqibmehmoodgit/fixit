@@ -1,0 +1,262 @@
+package com.fixit.service;
+
+import java.io.File;
+import java.util.List;
+import java.util.Set;
+
+import org.springframework.web.multipart.MultipartFile;
+
+import com.fixit.domain.vo.Query;
+import com.fixit.domain.vo.QueryAudit;
+import com.fixit.domain.vo.QueryExpire;
+import com.fixit.domain.vo.User;
+import com.fixit.domain.vo.Verification;
+import com.fixit.utility.FixitException;
+
+public interface EmailServcie {
+
+	/**
+	 * method used to send email to fixer for profile activation.
+	 * 
+	 * @param fixers - Take set of user(fixer) 
+	 * @param baseUrl - Take baseUrl of application.
+	 * 
+	 *  
+	 */
+	public void emailToFixerForProfileActivation(Set<User> fixers,String baseUrl) throws FixitException;
+	
+	
+	/**
+	 * method used to send email to fixer for profile rejection.
+	 * 
+	 * @param fixers - Take set of user(fixer) 
+	 * @param baseUrl - Take baseUrl of application.
+	 * 
+	 *  
+	 */
+	public void emailToFixerForProfileRejection(Set<User> fixers) throws FixitException;
+	
+	
+	
+	/**
+	 * method used to send email to member for request accepted.
+	 * 
+	 * @param member - Take User as Object 
+	 * @param query - Take query as Query Object.
+	 * 
+	 *  
+	 */
+	public void emailToMemberIssueAccepted(User member ,Query query) throws FixitException;
+	/**
+	 * method used to send email to fixer for Request rejected.
+	 * 
+	 * @param  fixer - Take  fixer as Object 
+	 * @param query - Take query as Query Object.
+	 * 
+	 *  
+	 */
+	public void emailToFixerRequestRejected(User fixer ,Query query) throws FixitException;
+	/**
+	 * method used to send email to fixer for Request fixed.
+	 * 
+	 * @param  fixer - Take  fixer as Object 
+	 * @param query - Take query as Query Object.
+	 * 
+	 *  
+	 */
+	public void emailToFixerRequestFixed(User fixer ,Query query) throws FixitException;
+	
+//	public void emailToFixerRequestNotFixed(User fixer ,Query query) throws FixitException;
+	/**
+	 * method used to send email to fixer for Request rejected for not responding.
+	 * 
+	 * @param  fixer - Take  fixer as Object 
+	 * @param query - Take query as Query Object.
+	 * 
+	 *  
+	 */
+	public void emailToFixerRequestRejectedNonResponse(User fixer ,Query query) throws FixitException;
+	/**
+	 * method used to send email to fixer for deactivating.
+	 * 
+	 * @param  fixer - Take  fixer as Object 
+	 * 
+	 *  
+	 */
+	public void emailToFixerDeactivated(User fixer) throws FixitException;
+	/**
+	 * method used to send email to fixers who matched with query category.
+	 * 
+	 * @param users - Take set of user(fixer) 
+	 * @param query - Take query as Query Object.
+	 * @param queryExpireDao - Take Set<QueryExpire>  as Set.
+	 * @param baseUrl - Take baseUrl of application.
+	 *  
+	 */
+    public void emailToFixerWhoMatchQueryCatAndQueryExpire(Set<User> users, Query query, Set<QueryExpire> queryExpireDao,String baseUrl, List<String> fileList) throws FixitException;
+    /**
+	 * method used to send email to all member for not accepting query by any fixer.
+	 * 
+	 * @param query - Take query as Query Object.
+	 * @param queryExpires - Take Set<QueryExpire>  as Set.
+	 * @param baseUrl - Take baseUrl of application.
+	 *  
+	 */
+    public void emailToMemberAllFixerNotAcceptedQuery(Query query ,Set<QueryExpire> queryExpires , String baseUrl) throws FixitException;
+    /**
+   	 * method used to send email to member for not sure category.
+   	 * 
+   	 * @param query - Take query as Query Object.
+   	 * @param queryExpires - Take Set<QueryExpire>  as Set.
+   	 * @param baseUrl - Take baseUrl of application.
+   	 *  
+   	 */
+    public void emailToMemberNotSureCat(Query query, Set<QueryExpire> queryExpires,String baseUrl) throws FixitException;
+    /**
+   	 * method used to send email to member for not accepted query.
+   	 * 
+   	 * @param queries - Take Set<Query> as Set.
+   	 * @param queryExpireDao - Take Set<QueryExpire>  as Set.
+   	 * @param baseUrl - Take baseUrl of application.
+   	 *  
+   	 */
+    public void emailToMembersFixerNotAcceptedQuery(Set<Query> queries, Set<QueryExpire> queryExpireDao,String baseUrl) throws FixitException;
+    /**
+   	 * method used to send email to member for not accepted query.
+   	 * 
+   	 * @param queries - Take Set<Query> as Set.
+   	 * @param queryExpireDao - Take Set<QueryExpire>  as Set.
+   	 * @param baseUrl - Take baseUrl of application.
+   	 *  
+   	 */
+    public void emailToMembersToRespondFixer(Set<Query> queries, Set<QueryExpire> queryExpireDao,String baseUrl) throws FixitException;
+    /**
+   	 * method used to send email to fixer fro not replying after not fixed.
+   	 * 
+   	 * @param user - Take argument as User(Fixer).
+   	 * @param query - Take argument as Query.
+   	 *  
+   	 */
+	public void emailToFixerForNotReplyingAfterNotFixed(User fixer ,Query query) throws FixitException;
+	/**
+	 * method used to send email to fixer for not fixed query.
+	 * 
+	 * @param users - Take argument as user.
+	 * @param query - Take query as Query Object.
+	 * @param queryExpireDao - Take Set<QueryExpire>  as Set.
+	 * @param baseUrl - Take baseUrl of application.
+	 *  
+	 */
+    public  void emailToFixerForNotFixed(User users, Query query,Set<QueryExpire> queryExpireDao, String baseUrl) throws FixitException;
+    /**
+	 * method used to send email to admin for fixer approval.
+	 * 
+	 * @param user - Take argument of User.
+	 * @param baseUrl - Take baseUrl of application.
+	 *  
+	 */
+    public void emailToAdminForFixerApproval(User user,String baseUrl) throws FixitException;
+    /**
+ 	 * method used to send email of chat message to member.
+ 	 * 
+ 	 * @param queryAudit- Take arguement as QueryAudit Object.
+ 	 * @param fixer - Take argument as user(fixer).
+ 	 * @param baseUrl - Take baseUrl of application.
+ 	 * 
+ 	 */
+    public void emailToMemberChatMessage(QueryAudit queryAudit,User fixer, String baseUrl) throws FixitException;
+    /**
+  	 * method used to send email of chat message to fixer.
+  	 * 
+  	 * @param queryAudit- Take arguement as QueryAudit Object.
+  	 * @param member - Take argument as user(member).
+  	 * @param baseUrl - Take baseUrl of application.
+  	 *  
+  	 */
+    public void emailToFixerChatMessage(QueryAudit queryAudit, User member ,String baseUrl) throws FixitException;
+    /**
+  	 * method used to send email of user for resetting the password.
+  	 * 
+  	 * @param user- Take arguement as User Object.
+  	 * @param verification - Take argument as Verification Object.
+  	 * @param baseUrl - Take baseUrl of application.
+  	 *  
+  	 */
+    public void resetpasswordmail(User user ,Verification verification,String baseUrl) throws FixitException;
+    /**
+   	 * method used to send email of attachment to member.
+   	 * 
+   	 * @param queryAudit- Take arguement as QueryAudit Object.
+   	 * @param fixer - Take argument as user.
+   	 * @param baseUrl - Take baseUrl of application.
+   	 *  
+   	 *  @param file- Take argument as MultiPart File.
+   	 */
+	public void emailToMemberChatAttachMentMessage(QueryAudit queryAudit,User fixer, String baseUrl,MultipartFile file) throws FixitException ;
+    /**
+   	 * method used to send email of attachment to member.
+   	 * 
+   	 * @param queryAudit- Take arguement as QueryAudit Object.
+   	 * @param member - Take argument as user(member).
+   	 * @param baseUrl - Take baseUrl of application.
+   	 *  
+   	 *  @param file- Take argument as MultiPart File.
+   	 */
+	public void emailToFixerChatAttachmentMessage(QueryAudit queryAudit,User member, String baseUrl,MultipartFile file) throws FixitException;
+    
+	/**
+	 * method used to send email to fixers who matched with query category.
+	 * 
+	 * @param users - Take set of user(fixer) 
+	 * @param query - Take query as Query Object.
+	 * @param queryExpireDao - Take Set<QueryExpire>  as Set.
+	 * @param baseUrl - Take baseUrl of application.
+	 *  
+	 */
+    public void emailToAllUsers(Set<User> users, String message , String subject , String baseUrl , String userType) throws FixitException;
+    
+    
+    /**
+     * 
+     * @param query
+     * @param member
+     * @throws FixitException
+     */
+    public void emailToMemberFixerApplyRequest(String base , Query query , User member,User fixer) throws FixitException; 
+    
+    /**
+     * 
+     * @param query
+     * @param fixer
+     * @throws FixitException
+     */
+    
+    public void emailToFixerMemberApproveRequest(String base , Query query ,User fixer) throws FixitException;
+    
+    /**
+     * 
+     * @param query
+     * @param fixers
+     * @throws FixitException
+     */
+    
+    public void emailToFixersMemberDisapproveRequest(String base , Query query , int fixerId) throws FixitException;
+    
+    /**
+     * 
+     * @param query
+     * @param fixer
+     * @throws FixitException
+     */
+    
+    public void emailToFixerAlertRequestDeadline(String base , Query query , User fixer) throws FixitException;
+    
+    
+    public void emailToAppliedFixersMemberDisapproveRequest(String base , Query query , User fixer) throws FixitException;
+
+    public void emailToUserChatMessageByAdmin(String msg, User user, String baseUrl) throws FixitException;
+    
+    public void emailToAdminChatMessageByUser(String msg, User user, String baseUrl) throws FixitException;
+
+    
+}

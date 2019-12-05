@@ -1,0 +1,233 @@
+package com.fixit.utility;
+
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.Locale;
+import java.util.TimeZone;
+
+public class TimeDiffUtility {
+
+	public static long findDayDiff(Calendar start , Calendar target) throws FixitException{
+		 long days = (target.getTimeInMillis()-start.getTimeInMillis())/ (24 * 60 * 60 * 1000);
+		 return days;
+	}
+
+	public static long findHrsDiff(Calendar start , Calendar target) throws FixitException{
+		 long hrs = (target.getTimeInMillis()-start.getTimeInMillis())/ ( 60 * 60 * 1000);
+		return hrs;
+	}
+
+	public static long findMinutesDiff(Calendar start , Calendar target) throws FixitException{
+		 long min = (target.getTimeInMillis()-start.getTimeInMillis())/ ( 60 * 1000);
+		return min;
+	}
+
+	public static long findSecondsDiff(Calendar start , Calendar target) throws FixitException{
+		 long sec = (target.getTimeInMillis()-start.getTimeInMillis())/ ( 1000);
+		return sec;
+	}
+	
+	
+	public static String findDiffString(long days,long hrs,long min,long sec) throws FixitException{
+		  if(days !=0){
+			   if(days==1){
+				   return days+" day";
+			   }else{
+				   return days+" days"; 
+			   }
+			  
+		   }else{
+			  if(hrs != 0){
+				if(hrs==1){
+					return  hrs+" hr";
+				}else{
+					return  hrs+" hrs";
+				}
+				
+			  }else{
+				  if(min != 0){
+					if(min==1){
+						return  min+" minute";
+					}else{
+						return  min+" minutes";
+					}
+					
+				  }else{
+					  if(sec==1){
+						  return sec+ " second"; 
+					  }else{
+						  return sec+ " seconds";
+					  }
+					
+				  }
+			  }
+		  }
+		
+	}
+	
+	
+  public  static String  timeToSpecificTimezone(Calendar utcTime , String timeZone){
+	  if(timeZone == null)
+		  timeZone = "America/Chicago";
+	  String [] timeZoneArray = timeZone.split("\\(");
+      String timeZoneId =	timeZoneArray[timeZoneArray.length-1].split("\\)")[0];
+	  DateFormat pstFormat = new SimpleDateFormat("h.mm a d MMMM yyyy");
+	  pstFormat.setTimeZone(TimeZone.getTimeZone(timeZoneId));
+	  String date = pstFormat.format(utcTime.getTime());
+	  if(date.contains("PM")){
+		     String [] split =date.split("PM");
+		     String []split2 =split[1].split(" ");
+		     return split[0]+"PM"+" "+split2[1]+getDayOfMonthSuffix(Integer.parseInt(split2[1]))+" "+split2[2]+" "+split2[3];
+		     }else{
+		    	 String [] split =date.split("AM");
+			     String []split2 =split[1].split(" ");
+			     return split[0]+"AM"+" "+split2[1]+getDayOfMonthSuffix(Integer.parseInt(split2[1]))+" "+split2[2]+" "+split2[3];
+		     }
+	  
+  }
+  
+  public  static String  timeToSpecificTimezoneForChat(Calendar utcTime , String timeZone){
+	  if(timeZone == null)
+		  timeZone = "America/Chicago";
+	  String [] timeZoneArray = timeZone.split("\\(");
+      String timeZoneId =	timeZoneArray[timeZoneArray.length-1].split("\\)")[0];
+	  //DateFormat pstFormat = new SimpleDateFormat("h.mm a d MMMM yyyy");
+      //MON, NOV 28, 12:39 AM 
+      DateFormat pstFormat = new SimpleDateFormat("EEE, MMM dd, hh:mm a");
+	  pstFormat.setTimeZone(TimeZone.getTimeZone(timeZoneId));
+	  String date = pstFormat.format(utcTime.getTime());
+	 
+	  return date;
+	  
+  }
+  
+  public  static String  timeToSpecificTimezoneWithChangeFormat(Calendar utcTime , String timeZone,String dateFormat){
+	  if(timeZone == null)
+		  timeZone = "America/Chicago";
+	  String [] timeZoneArray = timeZone.split("\\(");
+      String timeZoneId =	timeZoneArray[timeZoneArray.length-1].split("\\)")[0];
+	  DateFormat pstFormat = new SimpleDateFormat(dateFormat);
+	  pstFormat.setTimeZone(TimeZone.getTimeZone(timeZoneId));
+	  String date = pstFormat.format(utcTime.getTime());
+	  return date;
+	  
+  }
+  
+  public  static String  setDeadlineTimeWithZone(Calendar utcTime , String timeZone,String dateFormat){
+	  if(timeZone == null)
+		  timeZone = "America/Chicago";
+	  String [] timeZoneArray = timeZone.split("\\(");
+      String timeZoneId =	timeZoneArray[timeZoneArray.length-1].split("\\)")[0];
+	  DateFormat pstFormat = new SimpleDateFormat(dateFormat);
+	  pstFormat.setTimeZone(TimeZone.getTimeZone(timeZoneId));
+	  
+	  String time = pstFormat.format(utcTime.getTime()) ;
+	  
+	  return time ;
+	  
+  }
+  
+  
+  public  static String  timeToSpecificTimezoneWithChangeFormatWithTimeZoneId(Calendar utcTime , String timeZone,String dateFormat){
+	  if(timeZone == null)
+		  timeZone = "America/Chicago";
+	  String [] timeZoneArray = timeZone.split("\\(");
+      String timeZoneId =	timeZoneArray[timeZoneArray.length-1].split("\\)")[0];
+	  DateFormat pstFormat = new SimpleDateFormat(dateFormat);
+	  pstFormat.setTimeZone(TimeZone.getTimeZone(timeZoneId));
+	  
+	  String date = pstFormat.format(utcTime.getTime());
+	//  date =  setDueDate(date, utcTime.getTime().getMonth());
+	  
+//	  SimpleDateFormat newDateFormat = new SimpleDateFormat(dateFormat);
+//	  Date utcDate = utcTime.getTime();
+//	  newDateFormat.applyPattern("EEEE, MMM d, yyyy");
+//	   newDateFormat.setTimeZone(TimeZone.getTimeZone(timeZoneId));
+//	  String date = newDateFormat.format(utcDate);
+//	  
+	  return date ;
+	  
+  }
+  
+  
+  
+  
+  
+  public static String setDueDate(String date, int day){
+	  String dueDate = "";
+	  if(date != null && !date.trim().isEmpty()){
+	  String [] splitWithComma = date.split(",");
+	  String daySuffix = getDayOfMonthSuffix(day);
+	  String monthDay = splitWithComma[1] + daySuffix; 
+	  dueDate = splitWithComma[0] + ", " + monthDay+ ", " + splitWithComma[2]  ;
+	  }
+	  return dueDate;
+	  
+  }
+ 
+  
+  static  String getDayOfMonthSuffix(final int n) {
+	  
+	    if (n >= 11 && n <= 13) {
+	        return "th";
+	    }
+	    switch (n % 10) {
+	        case 1:  return "st";
+	        case 2:  return "nd";
+	        case 3:  return "rd";
+	        default: return "th";
+	    }
+	}
+	
+  
+ public  static String getUniqueString(){
+	  Calendar calendar = Calendar.getInstance();
+	  String s1=String.valueOf(calendar.get(Calendar.MILLISECOND))+calendar.get(Calendar.SECOND)+calendar.get(Calendar.MINUTE)+calendar.get(Calendar.HOUR)+calendar.get(Calendar.DAY_OF_MONTH)+calendar.get(Calendar.MONTH)+calendar.get(Calendar.YEAR);
+      return s1;
+  }
+ 
+ public static String getUserFrom(Calendar cal) {
+		String joinDate = "";
+		try {
+//			DateFormat inputDF = new SimpleDateFormat("mm/dd/yy");
+//			Date date = inputDF.parse(stringDate);
+
+			
+			String month = cal.getDisplayName(Calendar.MONTH, Calendar.LONG, Locale.getDefault());
+			int year = cal.get(Calendar.YEAR);
+			joinDate = month + ", " + String.valueOf(year);
+
+		} catch (Exception e) {
+			e.printStackTrace();
+			return null;
+		}
+
+		return joinDate;
+	}
+ 
+ public static Calendar convertStringtoCalender(String date , String format,String timeZone)
+ {
+	 Calendar cal = Calendar.getInstance();
+	 SimpleDateFormat sdf = new SimpleDateFormat(format);
+	 if(timeZone != null){
+		  String [] timeZoneArray = timeZone.split("\\(");
+	      String timeZoneId =	timeZoneArray[timeZoneArray.length-1].split("\\)")[0];
+	      sdf.setTimeZone(TimeZone.getTimeZone(timeZoneId));
+	 }
+	
+	 try {
+		cal.setTime(sdf.parse(date));
+	} catch (ParseException e) {
+		
+		e.printStackTrace();
+	}
+	
+	
+	 return cal;
+ }
+ 
+ 
+}

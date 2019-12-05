@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>ERPfixers | In Progress</title>
+    <link rel="stylesheet" type="text/css" href="css/bootstrap.css">
+	<link rel="stylesheet" href="css/animate.css">
+	<link rel="stylesheet" href="css/font-icon.css">
+    <link rel="stylesheet" type="text/css" href="css/custom.css">
+	<script type="text/javascript" src="js/jquery.min.js"></script>
+    <script type="text/javascript" src="js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="js/script.js"></script>
+	<script src="js/wow.min.js"></script>
+	  <script>
+		wow = new WOW(
+		  {
+			animateClass: 'animated',
+			offset:       100,
+			callback:     function(box) {
+			  console.log("WOW: animating <" + box.tagName.toLowerCase() + ">")
+			}
+		  }
+		);
+		wow.init();
+		document.getElementById('moar').onclick = function() {
+		  var section = document.createElement('section');
+		  section.className = 'section--purple wow fadeInDown';
+		  this.parentNode.insertBefore(section, this);
+		};
+	  </script>
+		<script type="text/javascript">//<![CDATA[
+		function preloader(){document.getElementById("loader").style.display="none";document.getElementById("pagewrap").style.display="block";}
+		window.onload=preloader;
+		//]]>
+		</script>
+    <!--[if lt IE 9]>
+    <script type="text/javascript" src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+    <script type="text/javascript" src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+  </head>
+  <body>
+  <div id="loader"><img src="images/loader.gif" alt=""></div>
+  <div id="pagewrap">
+    <aside>
+		<div class="logo">
+			<img src="images/logo.jpg" alt="logo">
+			Kim C.
+		</div>
+		<div class="menuCL">
+			<i class="icon icon-cross-icon-2-1"></i>
+		</div>
+		<ul>
+			<li><a href="fixerDashboard.html"><i data-icon="b" class="icon"></i> Dashboard</a></li>
+			<li><a href="request.html"><i data-icon="e" class="icon"></i> Requests (4)</a></li>
+			<li><a href="in-progress.html" class="active"><i data-icon="g" class="icon"></i> In Progress</a></li>
+			<li><a href="fixed.html"><i data-icon="d" class="icon"></i> Fixed</a></li>
+		</ul>
+		
+		<div class="logout"><i data-icon="i" class="icon"></i> Logout</div>
+    </aside>
+    <!-- Main Sidebar end-->
+    
+	
+	<!-- Header start-->
+    <header>
+		<div class="logo">
+			<img src="images/logo.jpg" alt="logo">
+			Kim C.
+			<img src="images/menuBarH.png" alt="" class="mMneu">
+		</div>
+	</header>
+    <!-- Header end-->
+    
+	
+	<!-- Work Here start-->
+    <section class="wrapper">
+		<div class="container-fluid">
+			<div class="requestsBox">
+				<div class="row">
+					<div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+						<div class="requestsbg  wow fadeIn">
+							<div class="notification">2</div>
+							<div class="time">
+								<h1>3</h1>
+								<span>HOURS</span>
+							</div>
+							<div class="more-less">
+								<div class="more-block">
+									<h1>Emergency Accounting</h1>
+									<p>Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.</p>
+									<h2>Categories</h2>
+									<div class="categoriesBox">
+										<span class="categoriesBtn">High Tech</span>
+										<span class="categoriesBtn">Accounting</span>
+									</div>
+									<div class="clearfix"></div>
+									<h2>Attachment</h2>
+									<div class="download">
+										<span>Download:</span>
+										super-cool-file.xls(315KB)
+									</div>
+									
+									
+									<div class="account borderNone">
+											
+										<div class="proBtn">
+											<a href="" class="request">Decline Request</a>
+											<a href="" class="accept">Mark Request fixed</a>
+										</div>
+									</div>
+									
+									
+								<div class="clearfix"></div>	
+								</div>
+							</div>
+							<span class="duration grayD">Posted: 2 days ago... </span>
+							
+							<!-- // chat // -->
+							<div class="popupRfixed">
+								<div class="chatDiv">
+									<h1>Are you Sure?</h1>
+									<div class="chatbody">
+										<p>Are you sure you want to mark this Request as <strong>Fixed</strong></p>
+									</div>
+									<div class="proBtn">
+										<a href="" class="request">Cancel</a>
+										<a href="" class="accept">Yes, Mark Request fixed</a>
+									</div>
+								</div>
+							</div>
+							<!--// chat //  -->
+							
+							
+						</div>
+						
+						
+						
+						
+						<div class="requestsbg  wow fadeIn" data-wow-delay="1s">
+							<div class="time">
+								<h1>1</h1>
+								<span>HOURS</span>
+							</div>
+							<div class="more-less">
+								<div class="more-block">
+									<h1>Another Thing</h1>
+								  <p>Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.</p>
+								</div>
+							</div>
+							<span class="duration purple">3 days ago... </span>
+						</div>
+					</div>
+				
+				
+					<div class="col-lg-5 col-md-5 col-sm-5 col-xs-12">
+						<div class="clientBox">
+							<div class="clientbg wow fadeIn" data-wow-delay="1.5s">
+								<h1>Client</h1>
+								<div class="clientDetail">
+									<div class="clientDetail">
+										<div class="clientHead">
+											<img src="images/profile.png" alt="">
+											<h1>Bree Castilias
+												<span>Castel Chemistry</span>
+											</h1>
+											<span class="details">Details</span>
+											<span class="closeC">Close</span>
+										</div>	
+										<div class="clientB">
+											<div class="clientD">
+												<span class="location">Location: <strong>Juva, Finland</strong></span>
+												<span class="linkdin"><img src="images/in.png" alt=""> linkedin.com/in/breecanolie</span>
+												<div class="clearfix"></div>
+												<span class="time">Member Since: <strong>June, 2015</strong></span>
+												<span class="categorie">Categories <strong>High Tech, Accounting, Medical</strong></span>
+											</div>
+											<p>Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book.</p>
+											<p>Lorem Ipsum is simply dummy text of the printing and typesetting industry.</p>
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+					
+						<div class="cahatingBox wow fadeIn" data-wow-delay="2s">
+							<div class="chatbgBody">
+								<div class="chatTxt">Not a problem at all. It looks like something like this will actually take around 5 hours. Please adjust your request, and i'll accept! thanks.
+									<span>3:30pm, MST Today</span>
+								</div>
+								<div class="hitEnter">
+									<img src="images/waitC.png" alt="">
+									<span>Hit Enter to Send</span>
+								</div>
+
+							</div>
+							<div class="chatbgFooter">
+								<textarea placeholder="Sounds good! i'll update the requl"></textarea>
+								<span>
+									<input type="file" value="">
+									<img src="images/attachment.png" alt="">
+								</span>
+							</div>
+						</div>
+						
+						<div class="screenSharing">
+							<h2>Screen Sharing Tools</h2>
+							<div class="sharingTool">
+								<a href=""><img src="images/team_viewe.png" alt="Team Viewer"></a>
+								<a href=""><img src="images/join_me.png" alt="Join Me"></a>
+							</div>
+							<div class="clearfix"></div>
+						</div>
+					
+					</div>
+				</div>
+			</div>
+		</div>
+	</section>
+    
+    </div>
+	<script type="text/javascript">
+
+$(function(){
+
+// The height of the content block when it's not expanded
+var adjustheight = 130;
+// The "more" link text
+var moreText = "More ";
+// The "less" link text
+var lessText = "Close";
+
+// Sets the .more-block div to the specified height and hides any content that overflows
+$(".more-less .more-block").css('height', adjustheight).css('overflow', 'hidden');
+
+// The section added to the bottom of the "more-less" div
+$(".more-less").append('<p class="continued"></p><a href="#" class="adjust"></a>');
+
+$("a.adjust").text(moreText);
+
+$(".adjust").toggle(function() {
+		$(this).parents("div:first").find(".more-block").css('height', 'auto').css('overflow', 'visible');
+		// Hide the [...] when expanded
+		$(this).parents("div:first").find("p.continued").css('display', 'none');
+		$(this).text(lessText);
+	}, function() {
+		$(this).parents("div:first").find(".more-block").css('height', adjustheight).css('overflow', 'hidden');
+		$(this).parents("div:first").find("p.continued").css('display', 'block');
+		$(this).text(moreText);
+});
+});
+
+</script>
+  </body>
+</html>

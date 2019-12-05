@@ -1,0 +1,513 @@
+package com.fixit.service;
+
+import java.math.BigInteger;
+import java.util.Calendar;
+import java.util.List;
+import java.util.Set;
+
+import javax.persistence.criteria.CriteriaBuilder.In;
+
+import org.springframework.dao.DataAccessException;
+
+import com.fixit.domain.bo.MemberDashboardBo;
+import com.fixit.domain.bo.PieChartData;
+import com.fixit.domain.bo.QueryBo;
+import com.fixit.domain.vo.Query;
+import com.fixit.utility.FixitException;
+
+public interface QueryService {
+	/**
+	 * 
+	 * use to save query.
+	 * 
+	 * @param userId
+	 *            - userId of a particular user.
+	 * @param queryBo
+	 *            - Object of queryBo used to set/get queryId, fixerId, userId.
+	 * @param path
+	 *            - current url path of query
+	 * 
+	 * @return return Query
+	 */
+	public Query saveQuery(QueryBo queryBo, String path, Integer userId) throws FixitException;
+
+	/**
+	 * 
+	 * used to update the Query.
+	 * 
+	 * @param query
+	 *            - Object of Query used to set/get queryId, fixerId, userId,
+	 *            fixeracounting etc.
+	 * @return return Query.
+	 */
+	public Query UpdateQuery(Query query) throws FixitException;
+
+	/**
+	 * used to update the query to closed.
+	 * 
+	 * @param query
+	 *            - Object of Query used to set/get queryId, fixerId, userId,
+	 *            fixeracounting etc.
+	 * @return Query
+	 */
+	public Query UpdateQueryToClosed(Query query) throws FixitException;
+
+	/**
+	 * used to find the query based on MemberId.
+	 * 
+	 * @param customerId
+	 *            - Id of particular user (member).
+	 * @return Set
+	 */
+	public Set<Query> findQueryByCustomerId(int customerId) throws FixitException;
+
+	/**
+	 * used to find query in-active fixer.
+	 * 
+	 * @param currentDate
+	 *            - current utc date time from system.
+	 * @param day
+	 *            - duration in days of inactive fixer.
+	 * 
+	 * @return return Set
+	 */
+	public Set<Query> findQueryInactiveFixers(String currentDate, int day) throws FixitException;
+
+	/**
+	 * used to find query that is not answered in a given time.
+	 * 
+	 * @param currentDate
+	 *            - current utc date time from system.
+	 * @param day
+	 *            - duration in days.
+	 * 
+	 * @return return Set
+	 */
+	public Set<Query> findQueryCustomerNotAnswer(String currentDate, int day) throws FixitException;
+
+	/**
+	 * used to find the not accepted query based on userId.
+	 * 
+	 * @param userId
+	 *            - userId of a particular user
+	 * 
+	 * @return return userId.
+	 */
+	public Set<Query> findQueryNotAccepted(int userId) throws FixitException;
+
+	/**
+	 * 
+	 * used to find the working query based on userId.
+	 * 
+	 * @param userId
+	 *            - userId of a particular user
+	 * 
+	 * @return return Set
+	 */
+	public Set<Query> findQueryWorking(int userId) throws FixitException;
+
+	/**
+	 * used to find closed query based on userId.
+	 * 
+	 * @param userId
+	 *            - userId of a particular user
+	 * 
+	 * @return return Set
+	 */
+	public Set<Query> findQueryClosed(int userId) throws FixitException;
+	
+	
+	/**
+	 * used to find closed query based on userId.
+	 * 
+	 * @param userId
+	 *            - userId of a particular user
+	 * 
+	 * @return return Set
+	 */
+	public Set<Query> findQueryClosed(int userId, Calendar startDate , Calendar endDate) throws FixitException;
+	
+
+	/**
+	 * used to find the user statistics count based on userId and current
+	 * status.
+	 * 
+	 * @param userId
+	 *            - userId of a particular user
+	 * @param currentStatus
+	 *            - currentStutus of Query.
+	 * 
+	 * @return return Long
+	 */
+	public Long findUserStasCount(int userId, String currentStatus) throws FixitException;
+
+	/**
+	 * 
+	 * used to find the user closed queries count.
+	 * 
+	 * @param userId
+	 *            - userId of a particular user
+	 * 
+	 * @return return Long.
+	 */
+	public Long findUserClosedStasCount(int userId) throws FixitException;
+
+	/**
+	 * used ot find the user pending resolution queries count.
+	 * 
+	 * @param userId
+	 *            - userId of a particular user
+	 * 
+	 * @return return Long
+	 */
+	public Long findUserPendingResolutionStasCount(int userId) throws FixitException;
+
+	/**
+	 * used to find the query that is not accepted.
+	 * 
+	 * @param fixerId
+	 *            - fixerId of a particular user(fixer)
+	 * 
+	 *            return Set<Queries>
+	 */
+
+	public Set<Query> findQueryNotAcceptedFixer(int fixerId) throws FixitException;
+
+	/**
+	 * used to find the working query for a fixer based on fixerId.
+	 * 
+	 * @param fixerId
+	 *            - fixerId of a particular user(fixer)
+	 * 
+	 * @return return Set<Queries>
+	 */
+
+	public Set<Query> findQueryWorkingFixer(int fixerId) throws FixitException;
+
+	/**
+	 * used to find closed queries of fixer based on fixerid.
+	 * 
+	 * @param fixerId
+	 *            - fixerId of a particular user(fixer)
+	 * @return return Set<Query>
+	 */
+	public Set<Query> findQueryClosedFixer(int fixerId) throws FixitException;
+	
+	
+
+	/**
+	 * used to find closed queries of fixer based on fixerid.
+	 * 
+	 * @param fixerId
+	 *            - fixerId of a particular user(fixer)
+	 * @return return Set<Query>
+	 */
+	public Set<Query> findQueryClosedFixer(int fixerId , Calendar startDate , Calendar endDate) throws FixitException;
+
+
+	/**
+	 * used to find fixer stats count.
+	 * 
+	 * @param fixerId
+	 *            - fixerId of a particular user(fixer)
+	 * @param currentStatus
+	 *            - currentStatus of a fixer.
+	 * @return return Long
+	 */
+
+	public Long findFixerStasCount(int fixerId, String currentStatus) throws FixitException;
+
+	/**
+	 * 
+	 * used to find closed queries count based on fixerId.
+	 * 
+	 * @param fixerId
+	 *            - fixerId of a particular user(fixer)
+	 * @return return Long
+	 */
+
+	public Long findFixerClosedStasCount(int fixerId) throws FixitException;
+
+	/**
+	 * used to find pending resolution queries count based on fixerId.
+	 * 
+	 * @param fixerId
+	 *            - fixerId of a particular user(fixer)
+	 * 
+	 * @return Long
+	 */
+
+	public Long findFixerPendingResolutionStasCount(int fixerId) throws FixitException;
+
+	/**
+	 * 
+	 * used to find the query based on queryId.
+	 * 
+	 * @param queryId
+	 *            - queryId of a particular Query.
+	 * 
+	 * @return Query
+	 * 
+	 */
+	public Query findQueryByQueryId(Integer queryId) throws FixitException;
+
+	/**
+	 * used to get the Query object based on hashcode.
+	 * 
+	 * @param hashcode
+	 *            - generated hash value.
+	 * 
+	 * @return Query
+	 */
+	public Query getQueryByHashCode(String hashcode) throws FixitException;
+
+	/**
+	 * used to delete all queries data.
+	 * 
+	 * @param queryId
+	 *            - queryId of a particular Query.
+	 * 
+	 * @return Integer
+	 */
+	public Integer deleteAllQueryRelatedStuff(Integer queryId) throws FixitException;
+
+	/**
+	 * 
+	 * used to find unclaimed queries status based on fixerId.
+	 * 
+	 * @param fixerId
+	 *            - fixerId of a particular user(fixer)
+	 * 
+	 * @return BigInteger
+	 */
+
+	public BigInteger findUnClaimedStatsByFixer(int fixerId) throws FixitException;
+
+	/**
+	 * used to delete the query based on userId and queryId.
+	 * 
+	 * @param userId
+	 *            - userId of a particular user.
+	 * 
+	 * @param queryId
+	 *            - queryId of a particular Query.
+	 * @return Integer.
+	 * 
+	 */
+	public int deleteQueryByQueryId(Integer userId, Integer queryId) throws FixitException;
+
+	/**
+	 * used to fix the query based on queryId.
+	 * 
+	 * @param queryId
+	 *            - queryId of a particular Query.
+	 * 
+	 * @return Query
+	 */
+	public Query fixedQueryByQueryId(Integer queryId) throws FixitException;
+
+	/**
+	 * used to get the not fixed query based on queryId.
+	 * 
+	 * @param queryId
+	 *            - queryId of a particular Query.
+	 * @param message
+	 *            - string message of query not fixed
+	 * 
+	 * @return Query
+	 */
+	public Query notFixedQuerybyQueryId(Integer queryId, String message) throws FixitException;
+
+	/**
+	 * used the get the not fixed queries based on the fixerId.
+	 * 
+	 * @param userId
+	 *            - userId of a particular user.
+	 * 
+	 * @return Set<Query>
+	 */
+
+	public Set<Query> notFixedQuerybyFixedId(Integer fixerId) throws FixitException;
+
+	/**
+	 * used to get the not fixed queries.
+	 * 
+	 * @param bcozOfInactivity
+	 *            - status of not fixed query because of inactive fixer.
+	 * @param bcozOfNotFixed
+	 *            - status of not fixed query because of not fixed marked by
+	 *            member.
+	 * @param startResult
+	 *            - firstResult the first row to be returned.
+	 * @param max
+	 *            - maxResults the maximum number of rows to be returned.
+	 * 
+	 * @return Set<Query>
+	 */
+	public Set<Query> notFixedQueries(String bcozOfInactivity, String bcozOfNotFixed, Integer startResult, Integer max)
+			throws FixitException;
+
+	/**
+	 * used to set the query status to 'Review'.
+	 * 
+	 * @param queryId
+	 *            - queryId of a particular Query.
+	 * 
+	 * @return Query
+	 */
+	public Query setQueryStatusToReview(Integer queryId) throws FixitException;
+
+	/**
+	 * used to reject the fixer.
+	 * 
+	 * @param queryId
+	 *            - queryId of a particular Query.
+	 * 
+	 * @return Query
+	 */
+	public Query rejectFixer(Integer queryId) throws FixitException;
+
+	/**
+	 * fixer accepted for not given satisfactory answer.
+	 * 
+	 * @param queryId
+	 *            - queryId of a particular Query.
+	 * @return Query
+	 */
+	public Query FixerAcceptedForNotAnswer(Integer queryId) throws FixitException;
+
+	/**
+	 * used to raise a conflict by a fixer based on query and message.
+	 * 
+	 * @param query
+	 *            - object of query to set/get required parameters.
+	 * @param message
+	 *            - string message of query not fixed
+	 * 
+	 * @return Query
+	 */
+	public Query conflictRaisedByFixer(Query query, String message) throws FixitException;
+
+	/**
+	 * 
+	 * used to set the status of query to closed.
+	 * 
+	 * @param queryId
+	 *            - queryId of a particular Query.
+	 * @param status
+	 *            - status of query to b closed.
+	 * 
+	 * @return Query
+	 */
+	public Query setQueryStatusToClosed(Integer queryId, String status) throws FixitException;
+
+	/**
+	 * used when admin is in favor of member.
+	 * 
+	 * @param queryId
+	 *            - queryId of a particular Query.
+	 * 
+	 * @return Query
+	 */
+	public Query adminInFavourOfMember(Integer queryId) throws FixitException;
+
+	/**
+	 * used ot find the not sure queries.
+	 * 
+	 * @param catId
+	 *            - categoryId of query marked with not sure category.
+	 * 
+	 * @return Set<Query>
+	 */
+	public Set<Query> findQueryNotSureCat(Integer catId) throws FixitException;
+
+	/**
+	 * used ot find the query not accepted by a fixer.
+	 * 
+	 * @param currentTime
+	 *            - current utc date time from system.
+	 * @param day
+	 *            - duration in days of inactive fixer.
+	 * @param startIndex
+	 *            - firstResult the first row to be returned.
+	 * @param maxResult
+	 *            - maxResults the maximum number of rows to be returned.
+	 * 
+	 * @return Set<Query>
+	 */
+	public Set<Query> findQueryNotAcceptedByFixer(String currentTime, Integer day, int startIndex, int maxResult)
+			throws FixitException;
+
+	/**
+	 * 
+	 * used to find the count of not accepted queries.
+	 * 
+	 * @param currentTime
+	 *            - current utc date time from system.
+	 * @param day
+	 *            - duration in days of inactive fixer.
+	 * 
+	 * @return BigInteger
+	 */
+	public BigInteger findQueryNotAcceptedByFixerCount(String currentTime, Integer day) throws FixitException;
+
+	/**
+	 * used to find the count of not accepted queries based on fixerId.
+	 * 
+	 * @param userId
+	 *            - userId of a particular user(fixer)
+	 * @return BigInteger
+	 */
+
+	public BigInteger findQueryNotAcceptedFixerCount(int fixerId) throws FixitException;
+
+	/**
+	 * used to find the average response time.
+	 * 
+	 * @param userId
+	 *            - userId of a particular user(fixer)
+	 * 
+	 * @return long
+	 */
+
+	public long findAverageResponseTime(Integer fixerId, String status) throws DataAccessException;
+
+	/**
+	 * used to find the member query count.
+	 * 
+	 * @param userId
+	 *            - userId of a particular user
+	 * 
+	 * @return Long.
+	 */
+
+	public long findMemberQueryCount(int userId) throws FixitException;
+
+	/**
+	 * 
+	 * used to find the query details.
+	 * 
+	 * @param currentTime
+	 *            - current utc date time from system.
+	 * @param query
+	 *            - object of query to set/get required parameters.
+	 * @param timeZone
+	 *            - time zone of current zone.
+	 * 
+	 * @return MemberDashboardBo
+	 */
+	public MemberDashboardBo findQueryDetail(Query query, Calendar currentTime, String timeZone) throws FixitException;
+
+	public long findSumofQueryCreditByUserId(int userId) throws FixitException;
+
+	public double findPercentageQueriesFixedWithInDeadline(int userId);
+	
+	public List<PieChartData> findQueryByParentCatMember(Integer userId) throws DataAccessException;
+	
+	public List<PieChartData> findQueryByParentCatFixer(Integer fixerId) throws DataAccessException;
+	
+	
+	public Integer deleteQueryFilesByFileUniqueCode(Integer queryId, String fileUniqueCode) throws FixitException;
+	public long findSumofQueryCreditInProgAndFixedByUserId( int userId) throws DataAccessException;
+
+}

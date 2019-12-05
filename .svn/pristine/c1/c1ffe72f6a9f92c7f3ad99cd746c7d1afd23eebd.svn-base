@@ -1,0 +1,42 @@
+<%@ page contentType="text/html; charset=UTF-8" %>
+
+<div class="new_footer">
+		<div class="container">
+			<div class="row">
+				<div class="col-md-12">
+					<div class="footer_icon">
+						<a href=" https://www.facebook.com/ERPfixers/" target="_blank"><i
+							data-icon="R" class="icon"></i></a> <a
+							href=" https://twitter.com/ERPfixers" target="_blank"><i
+							data-icon="S" class="icon"></i></a> <a
+							href=" https://www.linkedin.com/company/erpfixers?trk=company_logo"
+							target="_blank"><i data-icon="Q" class="icon"></i></a> <a
+							href=" https://plus.google.com/u/0/b/113616486343442134301/113616486343442134301"
+							target="_blank"><i data-icon="P" class="icon"></i></a>
+					</div>
+				</div>
+			</div>
+		</div>
+</div>
+
+
+<div class="footer_bottom">
+	<div class="container">
+		<div class="row">
+			<div class="col-md-12">
+				<div class="footer_icon1">
+					<a href="http://www.erpfixers.com/how-to-fix/">fixer process</a> <a
+						href="http://www.erpfixers.com/member-process/">member process</a>
+					<a href="http://www.erpfixers.com/modules-list/">modules list</a>
+					<div class="clear"></div>
+					<p class="text-center"><a href="http://www.asug.com"><img src="${pageContext.request.contextPath}/images/asug.png" alt="asug" style="width:150px; margin:30px 0;"></a></p>
+					<p>
+						<a href="tel:+18882931680">+1(888) 293-1680</a> / <a
+							href="mailto:info@erpfixers.com">info@erpfixers.com</a>
+					</p>
+				</div>
+			</div>
+		</div>
+		<div class="clear"></div>
+	</div>
+</div>

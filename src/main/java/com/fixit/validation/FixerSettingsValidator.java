@@ -1,0 +1,66 @@
+package com.fixit.validation;
+
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+import org.springframework.validation.Errors;
+import org.springframework.validation.ValidationUtils;
+import org.springframework.validation.Validator;
+
+import com.fixit.domain.bo.UserBo;
+import com.fixit.domain.vo.User;
+import com.fixit.service.UserService;
+import com.fixit.utility.FixitException;
+@Component
+public class FixerSettingsValidator  implements Validator{
+	@Autowired
+	UserService userService;
+
+	com.fixit.domain.vo.User myCurrentUser;
+	
+	public com.fixit.domain.vo.User getMyCurrentUser() {
+		return myCurrentUser;
+	}
+
+	public void setMyCurrentUser(com.fixit.domain.vo.User myCurrentUser) {
+		this.myCurrentUser = myCurrentUser;
+	}
+
+	@Override
+	public boolean supports(Class<?> clazz) {
+		return UserBo.class.equals(clazz);
+	}
+
+	@Override
+	public void validate(Object target, Errors errors) {
+		
+          UserBo member = (UserBo) target;
+		ValidationUtils.rejectIfEmptyOrWhitespace(errors, "email", "NotEmpty.member.email");
+		ValidationUtils.rejectIfEmptyOrWhitespace(errors, "firstName", "NotEmpty.member.firstName");
+		
+		ValidationUtils.rejectIfEmptyOrWhitespace(errors, "userName", "NotEmpty.member.userName");
+		ValidationUtils.rejectIfEmptyOrWhitespace(errors, "city", "NotEmpty.member.city");
+		ValidationUtils.rejectIfEmptyOrWhitespace(errors, "country", "NotEmpty.member.country");
+		
+		List<User> listEmail;
+		List<User> listUserName;
+		try {
+			listEmail=userService.checkExistingEmailForSettingsUpdate(member.getEmail(), myCurrentUser.getEmail());
+		} catch (FixitException e) {
+			listEmail = null;
+		}
+		if(listEmail!=null && listEmail.size()>0){
+			errors.rejectValue("exist", "user.exist", "Email Already exist");
+		}
+		try {
+			listUserName=userService.checkExistingUserNameForSettingsUpdate(member.getUserName(), myCurrentUser.getUserName());
+		} catch (FixitException e) {
+			listUserName = null;
+		}
+		if(listUserName!=null && listUserName.size()>0){
+			errors.rejectValue("exist", "user.exist", "UserName Already exist");
+		}
+		
+	}
+}

@@ -1,0 +1,131 @@
+package com.fixit.service;
+
+import java.math.BigInteger;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.fixit.dao.FixerRatingDao;
+import com.fixit.dao.QueryDao;
+import com.fixit.domain.bo.FixerRatingCountBo;
+import com.fixit.domain.vo.FixerRating;
+import com.fixit.domain.vo.Query;
+import com.fixit.domain.vo.User;
+import com.fixit.utility.FixitException;
+import com.google.inject.persist.Transactional;
+
+@Service("FixerRatingService")
+@Transactional
+public class FixerRatingServiceImpl implements FixerRatingService {
+
+	@Autowired
+	QueryService queryService;
+
+	@Autowired
+	UserService userService;
+
+	@Autowired
+	FixerRatingDao fixerRatingDao;
+
+	@Override
+	public FixerRating saveFixerRatings(Query query, User fixer, int userId, double starPoints, String review)
+			throws FixitException {
+		// TODO Auto-generated method stub
+		FixerRating fixerRating = new FixerRating();
+		try {
+			fixerRating.setUser(fixer);
+			fixerRating.setMemberId(userId);
+			fixerRating.setQuery(query);
+			fixerRating.setStarRating(starPoints);
+			fixerRating.setReview(review);
+			fixerRating.setCreatedAt(Calendar.getInstance());
+			fixerRatingDao.store(fixerRating);
+		} catch (Exception e) {
+
+		}
+
+		return fixerRating;
+	}
+
+	@Override
+	public FixerRating findRatingBasedOnIds(Integer queryId, Integer fixerId, Integer memberId) throws FixitException {
+		FixerRating fixerRating = null;
+		try {
+			fixerRating = fixerRatingDao.findRatingBasedOnIds(queryId, fixerId, memberId);
+			return fixerRating;
+		} catch (Exception e) {
+			return null;
+		}
+
+	}
+
+	@Override
+	public Integer upDateRatingBasedOnIds(Integer queryId, Integer fixerId, Integer memberId, double startPoints,
+			String review) throws FixitException {
+
+		try {
+			int result = fixerRatingDao.upDateRatingBasedOnIds(queryId, fixerId, memberId, startPoints, review);
+			return result;
+		} catch (Exception e) {
+			return -1;
+		}
+
+	}
+
+	@Override
+	public double getAggregateRatingsOfFixer(int fixerId, int fixerRatingByAdmin) throws FixitException {
+		try {
+			Double result = fixerRatingDao.getAggregateRatingsOfFixer(fixerId);
+			double ratingResult = 0;
+			   if(result!=null){
+				   ratingResult = result.doubleValue();
+			   }
+			   double count = getCountsRatingsOfFixer(fixerId);
+			   if(count != 0){
+			   if (fixerRatingByAdmin > 0) {
+					ratingResult = ((ratingResult * count) + fixerRatingByAdmin) / (count + 1);
+			   }else{
+				   ratingResult = ((ratingResult * count)) / (count);
+			   }
+			   }
+			  return ratingResult;
+
+		} catch (Exception e) {
+			return -1;
+		}
+	}
+
+	@Override
+	public List<FixerRatingCountBo> findRatingByFixerIdAndRating(int fixerId) throws FixitException {
+		List<FixerRatingCountBo> count = fixerRatingDao.findRatingByFixerIdAndRating(fixerId);
+
+		int length = count.size();
+		// for (int i = 0; i < length; i++) {
+		// FixerRatingCountBo fixerRating = new FixerRatingCountBo();
+		//// fixerRating.setCount(count.get(i).);
+		//// count.get(i).get
+		// }
+
+		return count;
+	}
+
+	@Override
+	public Long getCountsRatingsOfFixer(int fixerId) {
+		try {
+			Long result = fixerRatingDao.getCountsRatingsOfFixer(fixerId);
+			if (result != null) {
+				long ratingResult = result;
+				return ratingResult;
+			} else {
+				return (long) 0;
+			}
+
+		} catch (Exception e) {
+			return (long) -1;
+		}
+	}
+
+}

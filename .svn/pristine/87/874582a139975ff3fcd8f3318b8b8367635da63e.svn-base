@@ -1,0 +1,33 @@
+# live database credentials
+fixit_db.dialect=org.hibernate.dialect.MySQLDialect
+fixit_db.show_sql=false
+fixit_db.generateDdl=false
+fixit_db.minPoolSize=1
+fixit_db.maxPoolSize=32
+fixit_db.connection.url=jdbc:mysql://aa1jk6a66dpnrob.cpmfefjpyczy.us-west-2.rds.amazonaws.com:3306/fixit
+fixit_db.connection.username=linchpin
+fixit_db.connection.password=erpfixers123
+fixit_db.connection.driver_class=com.mysql.jdbc.Driver
+
+
+#live database credentials  test
+#fixit_db.dialect=org.hibernate.dialect.MySQLDialect
+#fixit_db.show_sql=false
+#fixit_db.generateDdl=false
+#fixit_db.minPoolSize=1
+#fixit_db.maxPoolSize=10
+#fixit_db.connection.url=jdbc:mysql://aa13cliaurahnuh.cpmfefjpyczy.us-west-2.rds.amazonaws.com:3306/fixit
+#fixit_db.connection.username=linchpin
+#fixit_db.connection.password=erpfixers123
+#fixit_db.connection.driver_class=com.mysql.jdbc.Driver
+
+
+#fixit_db.dialect=org.hibernate.dialect.MySQLDialect
+#fixit_db.show_sql=false
+#fixit_db.generateDdl=false
+#fixit_db.minPoolSize=1
+#fixit_db.maxPoolSize=10
+#fixit_db.connection.url=jdbc:mysql://127.0.0.1:3306/fixit
+#fixit_db.connection.username=root
+#fixit_db.connection.password=root
+#fixit_db.connection.driver_class=com.mysql.jdbc.Driver

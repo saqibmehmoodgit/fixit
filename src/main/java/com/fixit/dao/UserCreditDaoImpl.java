@@ -1,0 +1,103 @@
+package com.fixit.dao;
+
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
+
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
+
+import org.skyway.spring.util.dao.AbstractJpaDao;
+import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
+
+import com.fixit.domain.vo.Query;
+import com.fixit.domain.vo.UserCredit;
+import com.fixit.utility.FixitException;
+
+@Repository("UserCreditDao")
+@Transactional
+public class UserCreditDaoImpl extends AbstractJpaDao<UserCredit> implements
+		UserCreditDao {
+
+	@PersistenceContext(unitName = "fixit")
+	private EntityManager entityManager;
+
+	private final static Set<Class<?>> dataTypes = new HashSet<Class<?>>(
+			Arrays.asList(new Class<?>[] { Query.class }));
+
+	@Override
+	public EntityManager getEntityManager() {
+		
+		return entityManager;
+	}
+
+	@Override
+	public Set<Class<?>> getTypes() {
+		
+		return dataTypes;
+	}
+
+	@Override
+	public boolean canBeMerged(UserCredit o) {
+		
+		return true;
+	}
+
+	@Override
+	@Transactional
+	public Long findUserCreditPoints(int userId) throws FixitException {
+		
+		try {
+			javax.persistence.Query query = createNamedQuery(
+					"findUserCreditPointsByUserId", -1, -1, userId);
+
+			return (Long) query.getSingleResult();
+		} catch (Exception nre) {
+			return null;
+		}
+
+	}
+
+	@Override
+	@Transactional
+	public int updateUserCreditPoints(int userId, long points)
+			throws FixitException {
+		
+		try {
+			Long point=points;
+			javax.persistence.Query query = createNamedQuery(
+					"updateUserCreditPointsByUserId", -1, -1, userId, point);
+			return query.executeUpdate();
+		} catch (Exception nre) {
+			return -1;
+		}
+	}
+	@Override
+	@Transactional
+	public int deleteUserCreditPoints(int userId) throws FixitException{
+		
+		try {
+			
+			javax.persistence.Query query = createNamedQuery(
+					"deleteUserCreditPoints", -1, -1, userId);
+			return query.executeUpdate();
+		} catch (Exception nre) {
+			return -1;
+		}
+	}
+	@Override
+	@Transactional
+	public Long getCreditCountsByUserId(int userId) throws FixitException {
+		
+		try {
+			javax.persistence.Query query = createNamedQuery(
+					"getCreditCountsByUserId", -1, -1, userId);
+				
+			return (Long) query.getSingleResult();
+		} catch (Exception nre) {
+			return null;
+		}
+	}
+
+}

@@ -1,0 +1,96 @@
+welcome.first&lastName=First & Last Name 
+welcome.name=Name
+welcome.lastName=Last Name 
+welcome.companyName=Company Name
+welcome.jobTitle=Job Title 
+welcome.userName=UserName
+welcome.address=Address 
+welcome.city=City 
+welcome.state=State 
+welcome.zip=Zip 
+welcome.country=Country 
+welcome.email=Email 
+welcome.mobileNumber=Mobile Number 
+welcome.password=Password 
+welcome.confirmPassword=Confirm Password 
+welcome.alertEmail=Email 
+welcome.alertText=Text 
+welcome.profilePhoto=ProfilePhoto 
+welcome.username=Username
+welcome.linkedinProfile=Linkedin Profile
+welcome.paypalId=PayPal ID
+
+
+welcome.currentPassword=Current Password
+welcome.newPassword=New Password
+welcome.confirmNewPassword=Confirm New Password
+
+#validation Custom Message
+Email.user.email=Your e-mail is incorrect.  
+NotEmpty.user.email=Please enter your Email.
+NotEmpty.user.password=Please enter your password . 
+NotEmpty.user.confirmPassword=Please enter your confirm-password.
+NotEmpty.user.firstName=Please enter your First & Last Name.
+NotEmpty.user.lastName=Please enter your Last name.
+NotEmpty.user.city=Please enter your city.
+NotEmpty.user.country=Please enter your country.
+NotEmpty.user.mobileNumber=Please enter your Mobile Number.
+NotEmpty.query.queryContent=Please Enter Content
+NotEmpty.query.queryTitle=Please Enter Query Title
+NotEmpty.query.categories=Please select atLeast one Category.
+NotEmpty.user.catId=Please Select atLeast one Category.
+NotEmpty.user.userName=Please Enter your UserName.
+NotEmpty.user.linkedinProfile=Please Enter your Linkedin Profile.
+NotEmpty.fixer.email=Please enter your e-mail.
+
+NotEmpty.fixer.firstName=Please enter your First and last name.
+NotEmpty.fixer.city=Please enter your city.
+NotEmpty.fixer.paypalId=Please enter your PayPal Id.
+NotEmpty.fixer.country=Please enter your country.
+NotEmpty.fixer.userName=Please enter your Username.
+NotEmpty.fixer.linkedinProfile=Please Enter your Linkedin Profile.
+Email.fixer.linkedinProfile=Your linkedin profile is incorrect. 
+NotEmpty.fixer.mobileNumber=Please enter your Mobile Number.
+NotEmpty.fixer.password=Please enter your password.
+
+
+
+
+#validation Custom Message for member
+Email.member.email=Your E-mail is incorrect .  
+NotEmpty.member.email=Please enter your Email.
+NotEmpty.member.firstName=Please enter your First and last name.
+NotEmpty.member.userName=Please enter your Username.
+NotEmpty.member.password=Please enter your Password.
+NotEmpty.member.confirmPassword=Please enter your confirm-password .
+NotEmpty.member.city=Please enter your City.
+NotEmpty.member.country=Please enter your Country.
+NotEmpty.member.mobileNumber=Please enter your Mobile Number.
+NotEmpty.member.linkedinProfile=Please Enter your Linkedin Profile.
+NotEmpty.member.paypalId=Please enter your PayPal Id.
+NotEmpty.profile.categories=Please Select atLeast one category.
+NotEmpty.profile.industries=Please Select atLeast one industry.
+NotEmpty.memberProfile.industries=Please Select atleast one industry.
+NotEmpty.member.currentPassword=Please enter your current password.
+NotEmpty.member.newPassword=Please enter your new password. 
+NotEmpty.member.confirmNewPassword=Please enter your confirm password.
+NotEmpty.member.companyName=Please enter your company name.
+
+
+
+#label  createProfile
+welcome.createMyProfile=Create My  Profile
+welcome.writeOverview=Write an overreview about your company and your position.
+welcome.typeHere=Type here
+welcome.myIndustry=My Industry(s)
+welcome.searchFor=Search for your industry or select from the dropdown.
+welcome.smartSearch=Smart Search
+welcome.industries=Industries
+welcome.saveProfile=Save Profile
+welcome.companyName=Company Name
+
+
+
+AbstractUserDetailsAuthenticationProvider.disabled=User is deactivated by Admin
+
+AbstractUserDetailsAuthenticationProvider.badCredentials=Galat username or password

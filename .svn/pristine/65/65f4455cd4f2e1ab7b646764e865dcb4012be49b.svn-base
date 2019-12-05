@@ -1,0 +1,380 @@
+	var catList = new Array();
+	var catList1 = new Array();
+	var catArr = new Array();
+	var currentIndex;
+	var selectedFixers = new Array();
+	
+	var originalCategory = new Array();
+	var checkedItem = new Array();
+	var childIdByParentId = new Array();
+	var uncheckedItem = new Array();
+	var lodeMoreId = 0;
+	$(document).ready(function(){
+		
+		$('a').removeClass('active');
+		$('#openRequest').addClass('active');
+	   
+		/*$('#myModal').on('show.bs.modal', function (e) {
+			checkedItem=[];
+			uncheckedItem=[];
+		});*/
+		
+		  for(var i=0; i<catJson.length;i++){
+		  	  catArr.push(catJson[i].catgName);
+		  }
+		 
+
+			
+
+				
+				 
+				  $(document).on('click','#the-basics .tt-selectable',function(){
+					  var str = $("#smart_search").val();
+					  var id = findCatValueFromKey(catList,str);
+					  if($("#catId"+id).attr("checked")!="checked"){
+					  originalCategory.push(id);
+					  $("#catId"+id).attr('checked', true);
+					  $("#catId"+id).prop('checked', true);
+					  var myElement = document.getElementById("catId"+originalCategory[i]);
+					  html = '<span  id="catNameId'+id+'" >'+str+'<i class="icon" data-icon="y" onclick="onDelete('+id+')" ></i></span>';
+					  $("#categoryNameId").append(html);
+					  $("#smart_search").val('');
+					  }
+				    }); 
+	});
+	
+
+	  for(var i=0; i<catJson.length;i++){
+			    catList.push({
+			  	key:catJson[i].catgName,
+			  	value:catJson[i].catId,
+			    });
+	  } 	
+		  
+    for(var i=0; i<catJson.length;i++){
+			    catList1.push({
+			  	key:catJson[i].catId,
+			  	value:catJson[i].catgName,
+			    });
+		  } 	
+	
+
+	function findCatValueFromKey(catList,key){
+		  for(var i in catList){
+			  if(catList[i]['key'] == key){
+				  return  catList[i]['value'];
+			}
+		  }
+	}
+	  
+	  function onFindValue(catList,key){
+		for(var i in catList){
+			  if(catList[i]['key'] == key){
+				  return  catList[i]['value'];
+			}
+		  }
+	}
+	  
+	 
+	  function findChildCatIdByParent(id){
+			 childIdByParentId = [];
+			 for(var i=0; i<catJson.length;i++){
+				 if(catJson[i].parentId==id){
+					 childIdByParentId.push(catJson[i].catId);
+				 }
+			 }
+		}  
+
+
+		function checkChildIdChecked(){
+			var j;
+			for(var i=0;i<childIdByParentId.length;i++){
+				  j = checkedItem.indexOf(childIdByParentId[i]);
+				if(j!=-1){
+					return true;
+				}
+			}
+			return false;
+		} 
+	  
+	  
+	  function  showSelectedCategory(){
+			var str = $('#valueHolderId').text();
+			var index = $('#valueHolderIdIndex').text();
+			
+			var id = findCatValueFromKey(catList,str);
+		/*	var	myElement = document.getElementById("valueHolderId");
+			myElement.remove();
+			
+			var	myElement = document.getElementById("valueHolderIdIndex");
+			myElement.remove();
+			*/
+			$('#valueHolderId').remove();
+			$('#valueHolderIdIndex').remove();
+
+			
+			var combinedId = ''+index+id;
+			 originalCategory.push(combinedId);
+			 $("#catId"+combinedId).attr('checked', true);
+			 var myElement = document.getElementById("catId"+combinedId);
+			 html = '<span  id="catNameId'+combinedId+'" >'+str+'<i class="icon catIcon" data-icon="y" onclick="onDelete('+combinedId+')" ></i></span>';
+			 $("#categoryNameId"+index).append(html);
+		}
+	;
+	function onSave(){
+		var myElement;
+		var html;
+		for(var i =0;i<checkedItem.length;i++){
+			 myElement = document.getElementById("catId"+checkedItem[i].toString());
+			 html = '<span  id="catNameId'+checkedItem[i]+'" >'+onFindValue(catList1,myElement.value)+'<i class="icon" data-icon="y" onclick="onDelete('+checkedItem[i]+')" ></i></span>';
+			 $("#catId"+checkedItem[i]).attr('checked', true);
+			 originalCategory.push(checkedItem[i]);
+			 $("#categoryNameId").append(html);
+		}
+		for(var i=0;i<uncheckedItem.length;i++){
+			 $("#catId"+uncheckedItem[i]).attr('checked', false);
+			 var j = originalCategory.indexOf(uncheckedItem[i].toString());
+			/* myElement = document.getElementById("catNameId"+originalCategory[j]);
+			 myElement.remove();*/
+			 $("#catNameId"+originalCategory[j]).remove();
+				if(j != -1) {
+					originalCategory.splice(j, 1);
+				}
+			
+			 
+		}
+	}
+	function onCancel(){
+		$(".categoriesList" ).css( "display", "none" );
+		for(var i =0;i<checkedItem.length;i++){
+			 $("#catId"+checkedItem[i]).attr('checked', false);
+			 $("#catId"+checkedItem[i]).prop('checked', false);
+		}
+		
+		for(var i =0;i<uncheckedItem.length;i++){
+			 $("#catId"+uncheckedItem[i]).attr('checked', true);
+			 $("#catId"+uncheckedItem[i]).prop('checked', true);
+		}
+    }
+	
+	
+
+	function onParentCatClick(id){
+		 $("#categoriesL"+id).slideToggle();
+	       $("#categoriesT"+id).css({"border-color":"#1c75bc","color":"#1c75bc",});
+	       
+	}
+
+	function onChildCatClick(id){
+		var myElement;
+		var j;
+		myElement = document.getElementById("catId"+id);
+		
+		if($("#catId"+id).is(':checked')){
+			 j = uncheckedItem.indexOf(id);
+			 if(j!=-1){
+				 uncheckedItem.splice(j, 1);
+			 }
+			checkedItem.push(id);
+		}else{
+			 j = checkedItem.indexOf(id);
+			 if(j!=-1){
+				 checkedItem.splice(j, 1);
+			 }
+			uncheckedItem.push(id);
+		}
+	}
+
+	function onDelete(id){
+		var	myElement = document.getElementById("catId"+id);
+		$("#catId"+id).attr('checked', false);
+		$("#catId"+id).prop('checked', false);	
+		/*var	myElement1 = document.getElementById("catNameId"+id);
+			myElement1.remove();*/
+		$("#catNameId"+id).remove()
+	}
+	
+	 function  setSearchedFixers1(response,id)
+	 {
+		 var selectedIndexs = [];
+		 var length  = 0;
+		 if(response.result.fixers == null)
+		length = response.result.fixers.length;
+		// $("#interestedFixers_searched").empty();	
+			
+		 for(var i=0;i<response.result.fixers.length;i++){
+	 		 var idToLoad = i+lodeMoreId;
+
+		var catList = '';
+		for(var j=0;j<response.result.fixers[i].categoryList.length;j++)
+			{
+			catList = catList + response.result.fixers[i].categoryList[j] + ', ';
+			}
+		catList = catList.substring(0, catList.length - 2);
+		var companyName = '';
+		if(response.result.fixers[i].companyName != null)
+			companyName = response.result.fixers[i].companyName;
+			 
+		 var html ='<div class= "clientDetail" id="clientDetail'+idToLoad+'">'+
+			'<div id="clientHead'+idToLoad+'" class="clientHead">'+
+			'<img src="'+response.result.fixers[i].profilePhoto+'" onerror= "this.src =\'../images/profile.png\'"><img src="../flags/'+response.result.fixers[i].country+'.png" class="CuntryFlag"  onerror= "this.src =\'../flags/United States of America(USA).png\'">'+
+ 			'<h1><span onclick="detailFixer('+idToLoad+')" id="searchedFixerNAme'+idToLoad+'" class="name">'+response.result.fixers[i].firstName+'&nbsp;'+response.result.fixers[i].lastName+'</span>';
+				if(response.result.fixers[i].favUnFavstatus == 'U')
+					html += ' <span id = "fav'+ idToLoad+'" onclick = "makeUserFavOpen('+response.result.fixers[i].userId+','+idToLoad+')" class="fixertag"> <i data-icon="k" class="icon"></i> <span style="display:none" id = "favtext'+ idToLoad+'">Favorite</span>';
+				else
+					html += ' <span id = "fav'+ idToLoad+'" onclick = "makeUserUnFavOpen('+response.result.fixers[i].userId+','+idToLoad+')" class="fixertag green"> <i data-icon="k" class="icon"></i> <span style="display:block" id = "favtext'+ idToLoad+'">Favorite</span>';
+				html+='</span> <span id="companyName'+ idToLoad+'">'+companyName+'</span>'+
+				'</h1>'+
+				'<span id = "ratingC'+idToLoad+'" class="ratingC"> <i id = "rating1_'+idToLoad+'" data-icon="l" class="icon"></i>'+
+				'	<i id = "rating2_'+idToLoad+'" data-icon="l" class="icon"></i> <i id = "rating3_'+idToLoad+'" data-icon="l" class="icon"></i>'+
+				'	<i id = "rating4_'+idToLoad+'" data-icon="l" class="icon"></i> '+
+				'	<i id= "rating5_'+idToLoad+'" data-icon="l" class="icon"></i>'+
+				'</span> <span style="display: block;" class = "details" id="details'+idToLoad+'" onclick="detailFixer('+idToLoad+')">Details</span>'+
+				'<span style="display: none;" class="closeC" id="closeC'+idToLoad+'" onclick="closeFixer('+idToLoad+')">Close</span>'+
+			'</div>'+
+			'<div style="display: none;" class="clientB" id="clientB'+idToLoad+'">'+
+				'<div class="clientD">'+
+				'	<span class="location">Location: <strong>'+response.result.fixers[i].city+', '+response.result.fixers[i].country+'</strong></span>';
+				if(response.result.fixers[i].linkedinProfile.indexOf("http")<0)
+	 				html += '<a href = "http://'+response.result.fixers[i].linkedinProfile+'" target="_blank"><span class="linkdin">';
+	 			else
+	 				html += '<a href = "'+response.result.fixers[i].linkedinProfile+'" target="_blank"><span class="linkdin">';
+				html+='	<img src="../images/in.png" alt=""> '+response.result.fixers[i].linkedinProfile+'</span></a>'+
+					'<div class="clearfix"></div>'+
+					'<span class="time">Time Zone: <strong>'+response.result.fixers[i].timeZone+'</strong></span> '+
+					'<span class="time">Fixer Since: <strong>'+response.result.fixers[i].fixersSince+'</strong></span> '+
+					'<span class="categorie">Categories: <strong>'+catList+'</strong></span>'+
+					'<span class="time">Fixed Requests: <strong>'+response.result.fixers[i].fixedCounts+'</strong></span>'+
+					'<span class="time">Resolved within Deadline: <strong>'+response.result.fixers[i].fixedUnderdeadline+'</strong></span>'+
+					'<span class="time">Last Active: <strong>'+response.result.fixers[i].lastLogin+'</strong></span>'+
+			'	</div>'+
+				'<p>'+response.result.fixers[i].overview+'</p>';
+		
+	 	if(contains(selectedFixers,[response.result.fixers[i].userId])==true){
+	 		selectedIndexs.push(idToLoad.toString());
+	 		html += '<div id="submitbtn'+idToLoad+'" class="rateFixer" onClick="removeRequestToFixerOpen('+response.result.fixers[i].userId+',\''+response.result.fixers[i].firstName+'\',\''+response.result.fixers[i].lastName+'\','+idToLoad+','+id+')"  > Deselect '+response.result.fixers[i].firstName+'&nbsp;'+response.result.fixers[i].lastName+'</div>';
+		}else{
+			html += '<div id="submitbtn'+idToLoad+'" class="rateFixer" onClick="submitRequestToFixerOpen('+response.result.fixers[i].userId+',\''+response.result.fixers[i].firstName+'\',\''+response.result.fixers[i].lastName+'\','+idToLoad+','+id+')"  > Submit Request to '+response.result.fixers[i].firstName+'&nbsp;'+response.result.fixers[i].lastName+'</div>';
+		}
+	 	html+='</div></div>' ;
+			
+			
+		
+		
+		
+		 $("#interestedFixers_searched" + id).append(html);	
+		 
+
+			for(var j=1;j<=response.result.fixers[i].fixerRating;j++)
+				{
+				$("#rating"+j+"_"+idToLoad).attr("data-icon", "m");
+				}
+			
+		} 
+		 for(var k=0;k<selectedIndexs.length;k++)
+			{
+			 setSelectedFIxerDivColor(selectedIndexs[k], 'selected');
+			}
+		  	lodeMoreId += response.result.fixers.length;
+
+	 }
+	 
+	 function makeUserFavOpen(userId,index)
+		{
+			 $.ajax({
+		 			method : "POST",
+		 		    url : "../member/fixerFavourite",
+		 		    data : {
+		 		  fixerId : userId
+		 		   
+		 		   
+		 		    }
+		 		   }).done(function(response) {
+		 			if(response.result.response == 'success')
+		 				{
+	 					$("#favtext"+index).css('display','block');
+
+		 					$("#fav"+index).addClass('green');
+		 					 document.getElementById('fav'+index).setAttribute('onclick','makeUserUnFavOpen('+userId+','+index+')');
+		 				}
+		 				
+		 		   });
+		}
+		
+		function makeUserUnFavOpen(userId,index)
+		{
+			 $.ajax({
+		 			method : "POST",
+		 		    url : "../member/deleteFavouriteFixer",
+		 		    data : {
+		 		  fixerId : userId
+		 		   
+		 		   
+		 		    }
+		 		   }).done(function(response) {
+		 			if(response.status == 'success')
+		 				{
+	 					$("#favtext"+index).css('display','none');
+
+		 				document.getElementById('fav'+index).setAttribute('onclick','makeUserFavOpen('+userId+','+index+')')
+		 					$("#fav"+index).removeClass('green');
+		 				}
+		 				
+		 		   });
+		}
+		
+		var selectedFixers = new Array();
+		
+		function submitRequestToFixerOpen(id,firstName,lastName,index,queryIndex){
+			 selectedFixers.push(id);
+			 $("#updateBtn").text('Update Request ('+selectedFixers.length+')');
+			 $("#submitbtn"+index).text('Deselect '+firstName+' '+lastName);
+			 $("#fixersIds"+queryIndex).val(selectedFixers);
+			 document.getElementById('submitbtn'+index).setAttribute('onclick','removeRequestToFixerOpen('+id+',\''+firstName+'\',\''+lastName+'\','+index+','+queryIndex+')')
+			// document.getElementById("submitbtn"+index).onclick = removeRequestToFixer(id,firstName,lastName,index);
+			 setSelectedFIxerDivColor(index, 'selected');
+
+		}
+		
+		function removeRequestToFixerOpen(id,firstName,lastName,index,queryIndex){
+			 var j = selectedFixers.indexOf(id);
+			 if(j != -1) {
+				 selectedFixers.splice(j, 1);
+			 }
+			 $("#updateBtn").text('Update Requests('+selectedFixers.length+')');
+			 $("#submitbtn"+index).text('Submit request to '+firstName+' '+lastName);
+			 $("#fixersIds"+queryIndex).val(selectedFixers);
+			 document.getElementById('submitbtn'+index).setAttribute('onclick','submitRequestToFixerOpen('+id+',\''+firstName+'\',\''+lastName+'\','+index+','+queryIndex+')');
+			 setSelectedFIxerDivColor(index, 'deselected');
+		}
+		
+		function getCheckedBoxes(chkboxName) {
+			  var checkboxes = document.getElementsByName(chkboxName);
+			  var checkboxesChecked = [];
+			  for (var i=0; i<checkboxes.length; i++) {
+			     if (checkboxes[i].checked) {
+			        checkboxesChecked.push(checkboxes[i].value);
+			     }
+			  }
+			  return checkboxesChecked.length > 0 ? checkboxesChecked : null;
+			}
+
+	   function highlightParentCatBorder(){
+		   
+		   for(var i=0;i<parentCatJson.length;i++){
+			   $("#"+"categoriesT"+parentCatJson[i].catId).removeClass('active');
+		   }
+		   
+		   var catsIds = getCheckedBoxes('categories');
+		   var parentId;
+		   for (var j=0; j<catsIds.length; j++) {
+				 for(var i=0; i<catJson.length;i++){
+					 if(catJson[i].catId==catsIds[j]){
+						parentId = catJson[i].parentId;
+					 }
+				 }
+				$("#"+"categoriesT"+parentId).addClass('active');
+		   }
+	   }
+	
+	

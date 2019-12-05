@@ -1,0 +1,154 @@
+package com.fixit.service;
+
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import org.springframework.stereotype.Service;
+
+import com.paypal.exception.ClientActionRequiredException;
+import com.paypal.exception.HttpErrorException;
+import com.paypal.exception.InvalidCredentialException;
+import com.paypal.exception.InvalidResponseDataException;
+import com.paypal.exception.MissingCredentialException;
+import com.paypal.exception.SSLConfigurationException;
+import com.paypal.sdk.exceptions.OAuthException;
+import com.paypal.svcs.services.AdaptivePaymentsService;
+import com.paypal.svcs.types.ap.PayRequest;
+import com.paypal.svcs.types.ap.PayResponse;
+import com.paypal.svcs.types.ap.PaymentDetailsRequest;
+import com.paypal.svcs.types.ap.PaymentDetailsResponse;
+import com.paypal.svcs.types.ap.Receiver;
+import com.paypal.svcs.types.ap.ReceiverList;
+import com.paypal.svcs.types.common.RequestEnvelope;
+
+
+@Service
+public class PayPalMerchantToFixerPaymentService {
+
+	
+public String sendPaymentToFixerPayKeyGeneration(Double amount,String fixerPayPalId,String contextPath){
+	PayRequest payRequest = new PayRequest();
+	  
+	List<Receiver> receivers = new ArrayList<Receiver>();
+	Receiver receiver = new Receiver();
+	receiver.setAmount(amount);
+	receiver.setEmail(fixerPayPalId);
+	receivers.add(receiver);
+	ReceiverList receiverList = new ReceiverList(receivers);
+
+	payRequest.setReceiverList(receiverList);
+
+	RequestEnvelope requestEnvelope = new RequestEnvelope("en_US");
+	payRequest.setRequestEnvelope(requestEnvelope); 
+	payRequest.setActionType("PAY");
+	payRequest.setCancelUrl(contextPath+"admin/fixersList");
+	payRequest.setReturnUrl(contextPath+"admin/finalFixerPayment");
+	payRequest.setCurrencyCode("USD");
+	//payRequest.setIpnNotificationUrl("http://replaceIpnUrl.com");
+
+	Map<String, String> sdkConfig = new HashMap<String, String>();
+	sdkConfig.put("mode", "live");
+	sdkConfig.put("acct1.UserName", "admin_api1.erpfixers.com");
+	sdkConfig.put("acct1.Password", "AU73FAE87C8MTPA3");
+	sdkConfig.put("acct1.Signature","AFcWxV21C7fd0v3bYYYRCpSSRl31AeKxgBsHGkWdnKfp8d7MLGJIdXLZ");
+	sdkConfig.put("acct1.AppId","APP-5EJ40596MC447293T");
+
+	AdaptivePaymentsService adaptivePaymentsService = new AdaptivePaymentsService(sdkConfig);
+	try {
+		PayResponse payResponse = adaptivePaymentsService.pay(payRequest);
+		String payKey=payResponse.getPayKey();
+		String href=payKey;
+		return href;
+	} catch (SSLConfigurationException e) {
+		
+		e.printStackTrace();
+	} catch (InvalidCredentialException e) {
+		
+		e.printStackTrace();
+	} catch (UnsupportedEncodingException e) {
+		
+		e.printStackTrace();
+	} catch (HttpErrorException e) {
+		
+		e.printStackTrace();
+	} catch (InvalidResponseDataException e) {
+		
+		e.printStackTrace();
+	} catch (ClientActionRequiredException e) {
+		
+		e.printStackTrace();
+	} catch (MissingCredentialException e) {
+		
+		e.printStackTrace();
+	} catch (OAuthException e) {
+		
+		e.printStackTrace();
+	} catch (IOException e) {
+		
+		e.printStackTrace();
+	} catch (InterruptedException e) {
+		
+		e.printStackTrace();
+	}	
+	return null;
+}
+
+
+public void finalPaymentStepExecuteAdminToFixerAdaptive(String paykey){
+	RequestEnvelope requestEnvelope = new RequestEnvelope("en_US");
+	PaymentDetailsRequest paymentDetailsRequest = new PaymentDetailsRequest(requestEnvelope);
+	paymentDetailsRequest.setPayKey(paykey);
+
+	Map<String, String> sdkConfig = new HashMap<String, String>();
+	/*sdkConfig.put("mode", "sandbox");
+	sdkConfig.put("acct1.UserName", "admin-facilitator_api1.erpfixers.com");
+	sdkConfig.put("acct1.Password", "RPUC2F4FKQ6N4TAS");
+	sdkConfig.put("acct1.Signature","Acf9xKF8h9HUJ3AEPeaLVoYPLwdAA4KlFtFd9Q3btDJGUH0RmuD7alnD");
+	sdkConfig.put("acct1.AppId","APP-80W284485P519543T");*/
+	
+	sdkConfig.put("mode", "live");
+	sdkConfig.put("acct1.UserName", "admin_api1.erpfixers.com");
+	sdkConfig.put("acct1.Password", "AU73FAE87C8MTPA3");
+	sdkConfig.put("acct1.Signature","AFcWxV21C7fd0v3bYYYRCpSSRl31AeKxgBsHGkWdnKfp8d7MLGJIdXLZ");
+	sdkConfig.put("acct1.AppId","APP-5EJ40596MC447293T");
+
+	AdaptivePaymentsService adaptivePaymentsService = new AdaptivePaymentsService(sdkConfig);
+	try {
+		PaymentDetailsResponse paymentDetailsResponse = adaptivePaymentsService.paymentDetails(paymentDetailsRequest);
+	} catch (SSLConfigurationException e) {
+		
+		e.printStackTrace();
+	} catch (InvalidCredentialException e) {
+		
+		e.printStackTrace();
+	} catch (UnsupportedEncodingException e) {
+		
+		e.printStackTrace();
+	} catch (HttpErrorException e) {
+		
+		e.printStackTrace();
+	} catch (InvalidResponseDataException e) {
+		
+		e.printStackTrace();
+	} catch (ClientActionRequiredException e) {
+		
+		e.printStackTrace();
+	} catch (MissingCredentialException e) {
+		
+		e.printStackTrace();
+	} catch (OAuthException e) {
+		
+		e.printStackTrace();
+	} catch (IOException e) {
+		
+		e.printStackTrace();
+	} catch (InterruptedException e) {
+		
+		e.printStackTrace();
+	}
+}
+}

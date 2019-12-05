@@ -1,0 +1,105 @@
+package com.fixit.dao;
+import java.math.BigInteger;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.LinkedHashSet;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Set;
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
+import org.skyway.spring.util.dao.AbstractJpaDao;
+import org.springframework.dao.DataAccessException;
+import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
+
+import com.fixit.domain.bo.FixerAccountingGroup;
+import com.fixit.domain.vo.FixerAccounting;
+
+@Repository("FixerAccountingDao")
+@Transactional
+public class FixerAccountingDaoImpl extends AbstractJpaDao<FixerAccounting> implements FixerAccountingDao {
+
+	@PersistenceContext(unitName = "fixit_db")
+	private EntityManager entityManager;
+
+	private final static Set<Class<?>> dataTypes = new HashSet<Class<?>>(
+			Arrays.asList(new Class<?>[] { FixerAccounting.class }));
+
+	public FixerAccountingDaoImpl() {
+		super();
+	}
+
+	@Override
+	public EntityManager getEntityManager() {
+		return entityManager;
+	}
+
+	@Override
+	public Set<Class<?>> getTypes() {
+		return dataTypes;
+	}
+
+	@Override
+	public boolean canBeMerged(FixerAccounting o) {
+		return true;
+	}
+
+	@Override
+	@Transactional
+	public List<FixerAccountingGroup> findFixerUnpaidQuery(Integer startIndex , Integer maxResult) throws DataAccessException {
+		try{
+			maxResult=startIndex+maxResult;
+			String sqlQuery = "select fixer_id,count(fixer_id),sum(amount_paid)  from fixer_accounting where status=0 group by fixer_id limit " +startIndex+","+maxResult;
+			javax.persistence.Query query = entityManager.createNativeQuery(
+					sqlQuery,"fixerAccountingMapping");
+			List<FixerAccountingGroup> groups=new LinkedList<FixerAccountingGroup>();
+			for (Object o : query.getResultList()) {
+				   Object[] cols = (Object[]) o;
+				   FixerAccountingGroup fixerAccountingGroup = new FixerAccountingGroup();
+				   fixerAccountingGroup.setFixer_id((Integer)cols[0]);
+				   fixerAccountingGroup.setCount((BigInteger)cols[1]);
+				   fixerAccountingGroup.setAmount_paid((Double)cols[2]);
+                   groups.add(fixerAccountingGroup);
+				  }
+			return groups;
+		} catch (Exception e) {
+			return null;
+		}
+	}
+
+	@Override
+	@Transactional
+	public Integer findFixerUnpaidQueryCount() throws DataAccessException {
+		
+		try{
+			String sqlQuery = "select fixer_id,count(fixer_id),sum(amount_paid)  from fixer_accounting where status=0 group by fixer_id;";
+			javax.persistence.Query query = entityManager.createNativeQuery(
+					sqlQuery,"fixerAccountingMapping");
+			List<FixerAccountingGroup> groups=query.getResultList();
+			return (Integer) groups.size();
+		} catch (Exception e) {
+			return null;
+		}
+	}
+	@Override
+	@Transactional
+	public int updateFixerPaidStatus(Integer fixerId ,int status) throws DataAccessException{
+		try {
+			javax.persistence.Query query = createNamedQuery("updateFixerPaidStatus", -1, -1, fixerId,status);
+			return query.executeUpdate();
+		} catch (Exception nre) {
+			return -1;
+		}
+	}
+	@Override
+	@Transactional
+	public int deleteDataBasedOnQueryId(Integer queryId) throws DataAccessException{
+		try {
+			javax.persistence.Query query = createNamedQuery("deleteDataBasedOnQueryId", -1, -1, queryId);
+			return query.executeUpdate();
+		} catch (Exception nre) {
+			return -1;
+		}
+	}
+}

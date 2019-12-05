@@ -1,0 +1,102 @@
+package com.fixit.utility;
+
+public class DbConstants {
+	public static String STATUS_OPEN = "O";
+	public static String STATUS_HOLD = "H";
+	public static String STATUS_CLOSED = "C";
+	public static String STATUS_REVIEW = "R";
+	public static String STATUS_WORKING = "W";
+	public static String STATUS_DELETE = "D";
+	public static String STATUS_UNRESOLVED_INACTIVITY = "UI";
+	public static String STATUS_UNRESOLVED_NOTFIXED = "UN";
+	public static String STATUS_FIXER_REJECTED = "FR";
+	public static String STATUS_WORKING_DOCUMENT = "WD";
+	public static String STATUS_WORKING_LINK = "WL";
+	public static String CUSTOMER = "C";
+	public static String FIXER = "F";
+	public static String ADMIN = "A";
+
+	public static String FIXER_STATUS_FAVOURITE = "F";
+	public static String FIXER_STATUS_UNFAVOURITE = "U";
+
+	//
+	public static String DOCUMENT = "D";
+	public static String LINK = "L";
+
+	// messages
+	public static String MSG_OPEN = "Issue Open";
+	public static String MSG_CLOSED = "Issue Closed";
+	public static String MSG_DELETE = "Issue Deleted";
+	public static String MSG_UNRESOLVED_INACTIVITY = "Issue Unresolved due to Inactivity";
+	public static String MSG_UNRESOLVED_NOTFIXED = "Issue Unresolved due to NotFixed";
+	public static String MSG_WORKING = "Started Working";
+	public static String MSG_FIXER_REJECTED = "Fixer Rejected";
+	public static String MSG_REVIEW = "Issue is in review by Admin.";
+
+	// all Fixer Id 0
+	public static int ALL_FIXER = 0;
+
+	// user status
+	public static String USER_ACTIVE = "A";
+	public static String USER_DEACTIVE = "D";
+	public static String USER_REVIEW = "R";
+
+	// days limits
+	public static int FIXER_INACTIVE_LIMIT = 2;
+	public static int CUSTOMER_NOT_ANSWER_LIMIT = 2;
+	public static int MARK_ISSUE_FIX_LIMIT = 3;
+
+	// days limits for Testing
+	public static int FIXER_INACTIVE_LIMIT_TEST = 2;
+	public static int FIXER_INACTIVE_LIMIT_TEST_MIN = 10;
+	public static int CUSTOMER_NOT_ANSWER_LIMIT_TEST = 2;
+	public static int CUSTOMER_NOT_ANSWER_LIMIT_TEST_MIN = 10;
+	public static int MARK_ISSUE_FIX_LIMIT_TEST = 3;
+	public static int MARK_ISSUE_FIX_LIMIT_TEST_MIN = 15;
+	public static int EMAIL_DELETE_LIMIT = 5;
+	public static int EMAIL_DELETE_LIMIT_MIN = 25;
+	public static int QUERY_ACCEPT_LIMIT = 1;
+	public static int QUERY_ACCEPT_LIMIT_MIN = 5;
+
+	//
+	public static String PAYMENT_OPTION = "Y";
+
+	public static int PAGE_NO_DISPLAY = 100;
+	public static int PAGE_SIZE = 100;
+	public static int PAGE_FEED_SIZE = 40;
+
+	public static int ADMIN_USERS_PAGE_SIZE = 40;
+
+	// storage live
+//	public final static String AMAZON_S3_URL = "https://s3-us-west-2.amazonaws.com/erpfixersdocument";
+//	public final static String BUCKET_NAME = "erpfixersdocument";
+
+	// storage anil
+	// public final static String AMAZON_S3_URL
+	// ="https://s3-us-west-2.amazonaws.com/erpfixersstorage";
+	// public final static String BUCKET_NAME = "erpfixersstorage";
+	//
+	// storage live test
+	 public final static String AMAZON_S3_URL
+	 ="https://s3-us-west-2.amazonaws.com/erpfixersdocumenttest";
+	 public final static String BUCKET_NAME = "erpfixersdocumenttest";
+
+	public final static String PROFILE_FOLDER = "profileimage";
+	public final static String YOUTUBE_VIDEOS_FOLDER = "youtubevideos";
+	public final static String YOUTUBE_MEMBER_VIDEO_URL = "Members' Demo.mp4";
+	public final static String YOUTUBE_FIXER_VIDEO_URL = "Fixers Demo.mp4";
+	public final static String YOUTUBE_MEMBER_VIDEO_URL_OGG = "Members_39_Demo (1).ogv";
+	public final static String YOUTUBE_FIXER_VIDEO_URL_OGG = "Fixers_Demo.ogv";
+	public final static String DOCUMENTS_FOLDER = "documents";
+	public final static String USER_FOLDER = "user";
+	public final static String QUERY_FOLDER = "query";
+	public final static String Member_FOLDER = "member";
+	public final static String Fixer_FOLDER = "fixer";
+	public final static String Member = "member";
+	public final static String SUFFIX = "/";
+	public final static Integer NOT_SURE_CAT_ID = 10000;
+	public final static Integer PAID_AMOUNT_PER_ISSUE = 80;
+	public final static String EMAIL_ALERT = "Y";
+	public static final int PAGE_SIZE_SEARCHED_FIXERS = 10;
+
+}

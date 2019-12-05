@@ -1,0 +1,200 @@
+package com.fixit.dao;
+
+import java.math.BigInteger;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.LinkedHashSet;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Set;
+
+import javax.persistence.EntityManager;
+import javax.persistence.NoResultException;
+import javax.persistence.PersistenceContext;
+import javax.persistence.Query;
+
+import org.skyway.spring.util.dao.AbstractJpaDao;
+import org.springframework.dao.DataAccessException;
+import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
+
+import com.fixit.domain.vo.QueryAudit;
+import com.fixit.utility.FixitException;
+
+@Repository("QueryAuditDao")
+@Transactional
+public class QueryAuditDaoImpl extends AbstractJpaDao<QueryAudit> implements
+		QueryAuditDao {
+
+	@PersistenceContext(unitName = "fixit_db")
+	private EntityManager entityManager;
+
+	private final static Set<Class<?>> dataTypes = new HashSet<Class<?>>(
+			Arrays.asList(new Class<?>[] { QueryAudit.class }));
+
+	public QueryAuditDaoImpl() {
+		super();
+	}
+
+	@Override
+	public EntityManager getEntityManager() {
+		return entityManager;
+	}
+
+	@Override
+	public Set<Class<?>> getTypes() {
+		return dataTypes;
+	}
+
+	@Override
+	public boolean canBeMerged(QueryAudit o) {
+		return true;
+	}
+
+	@Override
+	public int findUnresolvedIssueByFIxerId(int fixerId)
+			throws DataAccessException {
+		return findUnresolvedIssueByFIxerId(fixerId, -1, -1);
+	}
+
+	@Override
+	@Transactional
+	public int findUnresolvedIssueByFIxerId(int fixerId, int startResult,
+			int max) throws DataAccessException {
+		try {
+			Query query = createNamedQuery("findUnresolvedIssueByFIxerId",
+					startResult, max, fixerId);
+			return ((Number) query.getSingleResult()).intValue();
+		} catch (NoResultException nre) {
+			return -1;
+		}
+	}
+
+	@Override
+	@Transactional
+	public int deleteQueryAuditByQueryId(int queryId) {
+		try {
+			javax.persistence.Query query = createNamedQuery("deleteQueryAuditByQueryId", -1, -1, queryId);
+			return query.executeUpdate();
+		} catch (NoResultException nre) {
+			return 0;
+		}
+
+	}
+
+	@Override
+	@Transactional
+	public List<QueryAudit> getQueryRelatedMessages(int queryId, int fixerId ,int startResult, int max) throws DataAccessException {
+		return getAllQueryRelatedMessages(queryId, fixerId,startResult, max);
+	}
+
+	@Override
+	@Transactional
+	public List<QueryAudit> getAllQueryRelatedMessages(int queryId,int fixerId , int startResult, int max) throws DataAccessException {
+		javax.persistence.Query query;
+		try {
+             query = createNamedQuery("getMessagesByQueryId", startResult, max, queryId ,fixerId);
+             return new LinkedList<QueryAudit>(query.getResultList());
+		} catch (NoResultException nre) {
+			return null;
+		}
+	}
+
+	@Override
+	@Transactional
+	public QueryAudit getQueryAuditBasedOnStatus(Integer memberId,
+			Integer fixerId, Integer queryId, String currentStatus)
+			throws DataAccessException {
+		javax.persistence.Query query;
+		try {
+            query = createNamedQuery("getQueryAuditBasedOnStatus",-1,-1,queryId,memberId,fixerId,currentStatus);
+            return (QueryAudit) (query.getSingleResult());
+		} catch (NoResultException nre) {
+			return null;
+		}
+		catch (Exception nre) {
+			return null;
+		}
+	}
+	@Override
+	@Transactional
+	public QueryAudit getQueryAuditBasedOnStatusAndMsgFrom(Integer memberId,Integer fixerId,Integer queryId,String currentStatus,String msgFrom) throws DataAccessException{
+		javax.persistence.Query query;
+		try {
+            query = createNamedQuery("getQueryAuditBasedOnStatusAndMsgFroms",-1,-1,queryId,memberId,fixerId,currentStatus,msgFrom);
+            return (QueryAudit) (query.getSingleResult());
+		} catch (NoResultException nre) {
+			return null;
+		}
+		catch(Exception e){
+			return null;
+		}
+	}
+
+	@Override
+	public long findAllQueryCountByFixerId(int fixerId,String status) throws FixitException {
+		Query query = createNamedQuery("findAllQueryCountByFixerId", -1, -1,fixerId,status);
+		return (long)query.getSingleResult();
+	}
+
+	@Override
+	public List<QueryAudit> findAllQueryFixerIdAndSatus(int fixerId,
+			String status) throws FixitException {
+		Query query = createNamedQuery("findAllQueryFixerIdAndSatus", -1, -1,fixerId,status);
+		return query.getResultList();
+	}
+
+	@Override
+	public long findAllQueryUserIdAndSatus(int userId, String status)
+			throws FixitException {
+		Query query = createNamedQuery("findAllQueryUserIdAndSatus", -1, -1,userId,status);
+		return (long)query.getSingleResult();
+	}
+
+	@Override
+	@Transactional
+	public Set<QueryAudit> findAllQueryAudit(Integer startIndex , Integer maxResult) throws DataAccessException {
+		javax.persistence.Query query;
+		try {
+             query = createNamedQuery("findAllQueryAudit", startIndex,maxResult);
+             return new LinkedHashSet<QueryAudit>(query.getResultList());
+		} catch (NoResultException nre) {
+			return null;
+		}
+	}
+
+	@Override
+	@Transactional
+	public long findAllQueryAuditCount() throws DataAccessException {
+		try{
+			Query query = createNamedQuery("findAllQueryAuditCount", -1, -1);
+			return (long)query.getSingleResult();
+		}catch(NoResultException e){
+			return 0;
+		}
+		
+	
+	}
+
+	@Override
+	public long getUnreadMessageCount(int queryId, int fixerId , String userType) throws FixitException {
+		// TODO Auto-generated method stub
+		Query query = createNamedQuery("getUnreadMessagesCountByQueryId", -1, -1,queryId,fixerId,userType);
+		return (long)query.getSingleResult();
+	}
+
+	@Override
+	public void updateMessagesToRead(Integer queryId, Integer fixerId,String userType) throws FixitException {
+		try{
+		Query query = createNamedQuery("updateUnreadMessages", -1, -1,queryId,fixerId,userType);
+		query.executeUpdate();
+		}
+		catch(Exception e)
+		{
+			e.printStackTrace();
+		}
+		// TODO Auto-generated method stub
+		
+	}
+
+}

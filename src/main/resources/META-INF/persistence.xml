@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<persistence version="2.1" xmlns="http://xmlns.jcp.org/xml/ns/persistence" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/persistence http://xmlns.jcp.org/xml/ns/persistence/persistence_2_1.xsd">
+	<persistence-unit name="fixit">
+	<description>generated-persistence-unit</description>
+		<provider>org.hibernate.ejb.HibernatePersistence</provider>
+		 
+        <class>com.fixit.domain.vo.Admin</class>
+		<class>com.fixit.domain.vo.CategoryType</class>
+		<class>com.fixit.domain.vo.FixerAccounting</class>
+		<class>com.fixit.domain.vo.Query</class>
+		<class>com.fixit.domain.vo.QueryAudit</class>
+		<class>com.fixit.domain.vo.QueryCategory</class>
+		<class>com.fixit.domain.vo.QueryFiles</class>
+		<class>com.fixit.domain.vo.Testimonial</class>
+		<class>com.fixit.domain.vo.User</class>
+		<class>com.fixit.domain.vo.UserCategory</class>
+		<class>com.fixit.domain.vo.IndustryType</class>
+		<class>com.fixit.domain.vo.UserIndustry</class>
+		<class>com.fixit.domain.vo.UserDecline</class>
+		<class>com.fixit.domain.vo.UserCredit</class>
+		<class>com.fixit.domain.vo.UsersAccounting</class>
+		<class>com.fixit.domain.vo.QueryExpire</class>
+		<class>com.fixit.domain.vo.FavouriteFixer</class>
+		<class>com.fixit.domain.vo.FixerRating</class>
+		<class>com.fixit.domain.vo.Blog</class>
+		<class>com.fixit.domain.vo.BlogFiles</class>
+		<class>com.fixit.domain.vo.BlogCategory</class>
+		<class>com.fixit.domain.vo.Country</class>
+		<class>com.fixit.domain.vo.Verification</class>
+		 <class>com.fixit.domain.vo.ChatGroups</class>
+		<class>com.fixit.domain.vo.ChatUserGroup</class>
+		 <class>com.fixit.domain.vo.ChatMessage</class>
+		<class>com.fixit.domain.vo.MessageDoc</class>  
+		<class>com.fixit.domain.vo.MessageNotification</class>  
+		<class>com.fixit.domain.vo.QueryFixers</class>  
+		<class>com.fixit.domain.vo.QueryAppliedFixers</class>  
+		<exclude-unlisted-classes>true</exclude-unlisted-classes>
+		<properties>
+      	 <property name="hibernate.dialect" value="org.hibernate.dialect.MySQLDialect"/><!--org.hibernate.dialect.MySQLDialect ,,,, org.hibernate.dialect.HSQLDialect--> 
+         <property name="hibernate.show_sql" value="true"/>
+         <property name="hibernate.cache.provider_class" value="org.hibernate.cache.HashtableCacheProvider"/>
+      </properties>
+	</persistence-unit>
+</persistence>

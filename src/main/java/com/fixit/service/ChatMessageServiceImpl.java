@@ -1,0 +1,74 @@
+package com.fixit.service;
+
+import java.util.Calendar;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.LinkedHashSet;
+import java.util.Set;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import com.fixit.dao.ChatMessageDao;
+import com.fixit.domain.bo.ChatMessageBo;
+import com.fixit.domain.vo.ChatGroups;
+import com.fixit.domain.vo.ChatMessage;
+import com.fixit.domain.vo.User;
+import com.fixit.utility.FixitException;
+import com.fixit.utility.TimeDiffUtility;
+
+@Service("ChatMessageService")
+@Transactional
+public class ChatMessageServiceImpl  implements ChatMessageService{
+
+	@Autowired
+	private ChatMessageDao chatMessageDao;
+	
+	public ChatMessage saveChatMessage(String message,User chatFrom,ChatGroups chatGroups) throws FixitException{
+			ChatMessage chatMessage=new ChatMessage();
+			try{
+			
+			chatMessage.setUser(chatFrom);
+			chatMessage.setChatGroups(chatGroups);
+			chatMessage.setChatMessage(message);
+			chatMessage.setCreatedAt(Calendar.getInstance());
+			chatMessage=chatMessageDao.store(chatMessage);
+			return chatMessage;
+			}catch(Exception e){
+			throw new FixitException();	
+			}
+		
+	}
+	
+	@Override
+	@Transactional
+	public Set<ChatMessageBo> getAllChatMessagesBasedOnGroupId(Integer chatGroupId,User myUser) throws FixitException{
+		Set<ChatMessage> chatMessageSet=new LinkedHashSet<ChatMessage>();
+		Set<ChatMessageBo> chatMessageBoSet=new LinkedHashSet<ChatMessageBo>();
+		try{
+			chatMessageSet=chatMessageDao.getAllChatMessagesBasedOnGroupId(chatGroupId);
+			Iterator< ChatMessage> iterator=chatMessageSet.iterator();
+			while(iterator.hasNext()){
+				ChatMessage chatMessage=iterator.next();
+				ChatMessageBo chatMessageBo=new ChatMessageBo();
+				chatMessageBo.setMessageId(chatMessage.getMessageId());
+				chatMessageBo.setUser(chatMessage.getUser());
+			
+				chatMessageBo.setChatMessage(chatMessage.getChatMessage());
+				chatMessageBo.setCreatedAt(TimeDiffUtility.timeToSpecificTimezoneForChat(chatMessage.getCreatedAt(), myUser.getTimeZone()));
+				chatMessageBo.setUpdatedAt(chatMessage.getUpdatedAt());
+				chatMessageBo.setChatGroups(chatMessage.getChatGroups());
+				chatMessageBoSet.add(chatMessageBo);
+				
+				
+			}
+			
+			return chatMessageBoSet;
+		}catch(Exception e){
+			e.printStackTrace();
+			throw new FixitException();
+		}
+		
+	}
+}

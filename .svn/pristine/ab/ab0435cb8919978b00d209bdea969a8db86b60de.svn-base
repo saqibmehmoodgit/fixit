@@ -1,0 +1,422 @@
+package com.fixit.utility;
+
+import java.util.Calendar;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Set;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Async;
+import org.springframework.scheduling.annotation.EnableAsync;
+import org.springframework.stereotype.Component;
+
+import com.fixit.dao.QueryDao;
+import com.fixit.domain.vo.Query;
+import com.fixit.domain.vo.QueryAudit;
+import com.fixit.domain.vo.QueryExpire;
+import com.fixit.domain.vo.User;
+import com.fixit.service.EmailServcie;
+import com.fixit.service.QueryAuditService;
+import com.fixit.service.QueryExpireService;
+import com.fixit.service.QueryService;
+import com.fixit.service.UserDeclineService;
+import com.fixit.service.UserService;
+
+@Component
+@EnableAsync
+public class BackgroundScenario {
+
+	@Autowired
+	private UserService userService;
+
+	@Autowired
+	private EmailUtility emailUtility;
+
+	@Autowired
+	private QueryDao queryDao;
+
+	@Autowired
+	private  QueryService queryService;
+
+	@Autowired
+	private  QueryAuditService queryAuditService;
+	
+	
+	@Autowired
+	private EmailServcie emailServcie;
+	
+	
+	@Autowired
+	private QueryExpireService queryExpireService;
+	
+	@Autowired
+	private UserDeclineService userDeclineService;
+	
+	
+	@Async
+	public void backgroundScenarios() throws FixitException {
+		System.out.println("CRON JOB START");
+		alertToMemberFixerNotAccept();
+		//alertToCustomerFixerNotAccept();
+		//alertToCustomerToRespond();
+		alertToDeadlineDate();
+		deleteEmailExpire();
+		//openQueryIfNotNotifyAfterNotFixed();
+		Calendar currentTime = Calendar.getInstance();
+		System.out.println("CRON RUN SUCCESS  " + currentTime.getTime());
+	}
+	
+	
+	
+	
+
+	/**
+	 *   for FixerNotResponded with in 24 Hrs
+	 */
+	public void alertToMemberFixerNotAccept() throws FixitException{
+		Calendar date = Calendar.getInstance();
+   		Set<Query> queries = queryDao.findQueryNotAcceptedByFixerNative(DateFormat.getDateFormat().format(date.getTime()),DbConstants.QUERY_ACCEPT_LIMIT);
+		Set<QueryExpire> expireSet = null;
+		Set<User> users = new HashSet<User>();
+		for(Query query : queries){
+			try{
+				if(null == query.getQueryAppliedFixers() || query.getQueryAppliedFixers().size()==0){
+				users = new HashSet<User>();
+				users.add(query.getUser());
+				expireSet = queryExpireService.saveQueryExpire(users, query.getUser().getUserId(), query.getQueryId(), FixitVariables.BASE_URL);
+				emailServcie.emailToMemberAllFixerNotAcceptedQuery(query,expireSet,FixitVariables.BASE_URL);
+				}
+			 }catch(Exception e){
+				System.out.println("Email Exception emailToMemberAllFixerNotAcceptedQuery");
+			}
+		}
+		System.out.println("alertToAdminFixerNotAccept  Finish");
+	}
+	
+	public void alertToDeadlineDate() throws FixitException{
+		try{
+			Calendar date = Calendar.getInstance();
+			date.add(Calendar.HOUR, 6);
+			Set<Query> queries = queryDao.findQueriesNearByDeadline(DateFormat.getDateFormat().format(date.getTime()));
+			
+		
+			Set<User> users = new HashSet<User>();
+			for(Query query : queries){
+				try{
+					users = new HashSet<User>();
+					User user = userService.findUserById(query.getFixerId());
+					users.add(user);
+					
+					emailServcie.emailToFixerAlertRequestDeadline(FixitVariables.BASE_URL,query,user);	
+				}catch(Exception e){
+					System.out.println("Email Exception EmailToDeadlineDate");
+				}
+					
+			}
+			
+			System.out.println("EmailToDeadlineDate  Finish");
+		}catch(Exception e){
+			System.out.println("Email Exception EmailToDeadlineDate");
+		}
+	
+	}
+
+	
+	
+	/**
+	 *   for FixerNotResponded with in 24 Hrs
+	 */
+	public void openQueryIfNotNotifyAfterNotFixed() throws FixitException{
+		Calendar date = Calendar.getInstance();
+		Set<Query> queries = queryDao.openQueryIfNotNotifyAfterNotFixed(DateFormat.getDateFormat().format(date.getTime()),DbConstants.QUERY_ACCEPT_LIMIT);
+		Set<QueryExpire> queryExpireSet = new HashSet<QueryExpire>();
+		Set<QueryExpire> expireSet;
+		Set<User> users = new HashSet<User>();
+		for(Query query : queries){
+			try{
+				Integer declinedFixerId=query.getFixerId();
+			Query myQuery=	queryService.FixerAcceptedForNotAnswer(query.getQueryId());
+			if(myQuery!=null){
+				Set<User> fixers = userService
+						.findFixerWhoMatchQueryCat(query.getQueryId());
+
+				Iterator<User> iterator = fixers.iterator();
+				while (iterator.hasNext()) {
+					User fixer = iterator.next();
+					if (declinedFixerId == fixer.getUserId()) {
+						emailServcie.emailToFixerForNotReplyingAfterNotFixed(fixer, myQuery);
+						fixers.remove(fixer);
+					}
+				}
+				
+				String base = FixitVariables.BASE_URL;
+				queryExpireSet = queryExpireService
+						.saveQueryExpire(fixers, myQuery.getUser().getUserId(),
+								query.getQueryId(), base);
+				emailServcie.emailToFixerWhoMatchQueryCatAndQueryExpire(
+						fixers, query, queryExpireSet, base, null);
+			}
+				/*users = new HashSet<User>();
+				users.add(query.getUser());
+				expireSet = queryExpireService.saveQueryExpire(users, query.getUser().getUserId(), query.getQueryId(), FixitVariables.BASE_URL);
+				for(QueryExpire expire :expireSet){
+					queryExpireSet.add(expire);
+				}
+				emailServcie.emailToMemberAllFixerNotAcceptedQuery(query,expireSet,FixitVariables.BASE_URL);	*/
+			}catch(Exception e){
+				System.out.println("Email Exception emailToMemberAllFixerNotAcceptedQuery");
+			}
+				
+		}
+		
+		System.out.println("alertToAdminFixerNotAccept  Finish");
+	}
+	/**
+	 *  cron for FixerNotResponded or accepted with in 24 Hrs
+	 */
+	public void alertToCustomerFixerNotAccept() throws FixitException{
+		Calendar date = Calendar.getInstance();
+		Set<Query> queries;
+		queries = queryDao.findQueryNotAcceptedByIndividualFixer(DateFormat.getDateFormat().format(date.getTime()),DbConstants.QUERY_ACCEPT_LIMIT);
+		Set<QueryExpire> queryExpireSet = new HashSet<QueryExpire>();
+		Set<QueryExpire> expireSet;
+		Set<User> users = new HashSet<User>();
+		for(Query query : queries){
+			users = new HashSet<User>();
+			users.add(query.getUser());
+			expireSet = queryExpireService.saveQueryExpire(users, query.getUser().getUserId(), query.getQueryId(), FixitVariables.BASE_URL);
+			for(QueryExpire expire :expireSet){
+				queryExpireSet.add(expire);
+			}
+		}
+		emailServcie.emailToMembersFixerNotAcceptedQuery(queries,queryExpireSet,FixitVariables.BASE_URL);
+		System.out.println("alertToCustomerFixerNotAccept Finish");
+     }
+
+	
+	public void removeIssueFromFixerProfileDueToInactivicty() throws FixitException {
+		Query query ,reopenQuery;
+		QueryAudit queryAudit;
+		Calendar currentTime;
+		Set<Query> queries,queryToreOpen;
+		Iterator<Query> iterator,reopenIterator;
+		Set<QueryExpire> queryExpireSet;
+		Set<User> fixers;
+		int fixerId;
+		
+		int unresolvedCount;
+		User fixer;
+		
+		
+		currentTime = Calendar.getInstance();
+		queries = queryService.findQueryInactiveFixers(DateFormat.getDateFormat().format(currentTime.getTime()),DbConstants.FIXER_INACTIVE_LIMIT_TEST);
+		iterator = queries.iterator();
+		while (iterator.hasNext()) {
+		 try{
+			query = iterator.next();
+			fixerId = query.getFixerId();
+			query.setFixerId(DbConstants.ALL_FIXER);
+			currentTime = Calendar.getInstance();
+			query.setDateRaised(currentTime);
+			query.setCurrentStatus(DbConstants.STATUS_OPEN);
+			query.setDateAccepted(null);
+			query.setLastUpdateByUser(null);
+			query.setLastUpdateByFixer(null);
+			queryService.UpdateQuery(query);
+				
+			
+
+            
+			
+			// add unresolved status to queryAudit
+			queryAudit = new QueryAudit();
+			queryAudit.setQuery(query);
+			queryAudit.setCustomerId(query.getUser().getUserId());
+			queryAudit.setFixerId(fixerId);
+			queryAudit.setMessage(DbConstants.MSG_UNRESOLVED_INACTIVITY);
+			queryAudit.setMsgFrom(DbConstants.ADMIN);
+			queryAudit.setStatus(DbConstants.STATUS_UNRESOLVED_INACTIVITY);
+			currentTime = Calendar.getInstance();
+			queryAudit.setAuditDate(currentTime);
+			queryAuditService.saveQueryAudit(queryAudit);
+			
+			
+			//  if unresolvedCount ==  3 , then deactivate Fixer Profile  
+		    unresolvedCount = queryAuditService.findUnresolvedIssueByFIxerId(fixerId);
+		    if(unresolvedCount >= 3){
+		    	fixer = userService.findUserById(fixerId);
+		    	fixer.setFixerStatus(DbConstants.USER_DEACTIVE);
+		    	fixer =  userService.updateUser(fixer);
+		    	try{
+		    		emailServcie.emailToFixerDeactivated(fixer);
+		    	}catch(Exception e){
+		    		System.out.println("Email Exception emailToFixerDeactivated");
+		    	}
+		    	System.out.println("Fixer Profile Deactivated");
+		    	
+		    	
+		    //	reopened All issues of Fixer
+		     queryToreOpen = 	queryDao.findQueryWorkingFixer(fixerId);
+		     reopenIterator = queryToreOpen.iterator();
+		     while(reopenIterator.hasNext()){
+		    	 reopenQuery = reopenIterator.next();
+		    	 reopenQuery.setFixerId(DbConstants.ALL_FIXER);
+				 currentTime = Calendar.getInstance();
+				 reopenQuery.setDateRaised(currentTime);
+				 reopenQuery.setCurrentStatus(DbConstants.STATUS_OPEN);
+				 reopenQuery.setDateAccepted(null);
+				 reopenQuery.setLastUpdateByUser(null);
+				 reopenQuery.setLastUpdateByFixer(null);
+				 queryService.UpdateQuery(query);
+				 
+				 queryAudit = new QueryAudit();
+				 queryAudit.setQuery(query);
+				 queryAudit.setCustomerId(query.getUser().getUserId());
+				 queryAudit.setFixerId(DbConstants.ALL_FIXER);
+				 queryAudit.setMessage(DbConstants.MSG_OPEN);
+				 queryAudit.setMsgFrom(DbConstants.ADMIN);
+				 queryAudit.setStatus(DbConstants.STATUS_OPEN);
+				 currentTime = Calendar.getInstance();
+				 queryAudit.setAuditDate(currentTime);
+				 queryAuditService.saveQueryAudit(queryAudit);
+				 
+				 
+			  
+				// userDeclineService.saveUserDecline(fixerId, query.getQueryId());
+			 fixers = userService.findFixerWhoMatchQueryCat(reopenQuery.getQueryId());
+				 //fixers.remove(userService.findUserById(fixerId));
+			 
+				 queryExpireSet =queryExpireService.saveQueryExpire(fixers, reopenQuery.getUser().getUserId(), reopenQuery.getQueryId(),FixitVariables.BASE_URL);
+					try{
+						emailServcie.emailToFixerWhoMatchQueryCatAndQueryExpire(fixers, reopenQuery,queryExpireSet,FixitVariables.BASE_URL, null);	
+					}catch(Exception e){
+						System.out.println("Email Exception");
+					}
+					 
+				 
+		     }
+		     
+		    	
+		    }
+			
+			// add open status to queryAudit
+			queryAudit = new QueryAudit();
+			queryAudit.setQuery(query);
+			queryAudit.setCustomerId(query.getUser().getUserId());
+			queryAudit.setFixerId(DbConstants.ALL_FIXER);
+			queryAudit.setMessage(DbConstants.MSG_OPEN);
+			queryAudit.setMsgFrom(DbConstants.ADMIN);
+			queryAudit.setStatus(DbConstants.STATUS_OPEN);
+			currentTime = Calendar.getInstance();
+			queryAudit.setAuditDate(currentTime);
+			queryAuditService.saveQueryAudit(queryAudit);
+		
+			
+			userDeclineService.saveUserDecline(fixerId, query.getQueryId());
+			
+			fixers = userService.findFixerWhoMatchQueryCat(query.getQueryId());
+			fixers.remove(userService.findUserById(fixerId));
+			 
+			 queryExpireSet =queryExpireService.saveQueryExpire(fixers, query.getUser().getUserId(), query.getQueryId(),FixitVariables.BASE_URL);
+			try{
+				emailServcie.emailToFixerWhoMatchQueryCatAndQueryExpire(fixers, query,queryExpireSet,FixitVariables.BASE_URL, null);	
+			}catch(Exception e){
+				System.out.println("Email Exception");
+			}
+			
+			  try{
+				  User inActiveFixer = userService.findUserById(fixerId);
+				  emailServcie.emailToFixerRequestRejectedNonResponse(inActiveFixer,query);
+			  }catch(Exception e){
+				  System.out.println("emailToFixerRequestRejectedNonResponse");
+				  
+			  }
+			
+			
+		 }catch(Exception e){
+			 System.out.println("");	
+			}
+
+		 
+		
+		 
+		}
+
+		System.out.println("removeIssueFromFixerProfileDueToInactivicty Finish");
+
+	}
+
+	/**
+	 *    to remind customer to respond to answered by fixer
+	 */
+	public void alertToCustomerToRespond() throws FixitException{
+		Calendar currentTime;
+		Set<Query> queries;
+		currentTime = Calendar.getInstance();
+		queries = queryService.findQueryCustomerNotAnswer(DateFormat.getDateFormat().format(currentTime.getTime()), DbConstants.CUSTOMER_NOT_ANSWER_LIMIT_TEST);
+		Set<QueryExpire> queryExpireSet = new HashSet<QueryExpire>();
+		Set<QueryExpire> expireSet;
+		Set<User> users = new HashSet<User>();
+		for(Query query : queries){
+			users = new HashSet<User>();
+			users.add(query.getUser());
+			expireSet = queryExpireService.saveQueryExpire(users, query.getUser().getUserId(), query.getQueryId(), FixitVariables.BASE_URL);
+			for(QueryExpire expire :expireSet){
+				queryExpireSet.add(expire);
+			}
+		}
+		emailServcie.emailToMembersToRespondFixer(queries,queryExpireSet,FixitVariables.BASE_URL);
+		System.out.println("alertToCustomerToRespond Finish");
+	}
+
+	/*
+	 *  if after 24 hour customer donot respond marked issue as fixed 
+	 */
+	public void  markIssueFixed() throws FixitException {
+		Query query;
+		QueryAudit queryAudit;
+		Calendar currentTime;
+		Set<Query> queries;
+		Iterator<Query> iterator;
+		currentTime = Calendar.getInstance();
+		queries = queryService.findQueryCustomerNotAnswer(DateFormat.getDateFormat().format(currentTime.getTime()),DbConstants.MARK_ISSUE_FIX_LIMIT_TEST);
+		iterator = queries.iterator();
+		while (iterator.hasNext()) {
+			// marked issue as fixed
+		 try{
+			query = iterator.next();
+			query.setCurrentStatus(DbConstants.STATUS_CLOSED);
+			currentTime = Calendar.getInstance();
+			query.setClosureDate(currentTime);
+			queryService.UpdateQueryToClosed(query);
+
+			queryAudit = new QueryAudit();
+			queryAudit.setQuery(query);
+			queryAudit.setCustomerId(query.getUser().getUserId());
+			queryAudit.setFixerId(query.getFixerId());
+			queryAudit.setMessage(DbConstants.MSG_CLOSED);
+			queryAudit.setMsgFrom(DbConstants.ADMIN);
+			queryAudit.setStatus(DbConstants.STATUS_CLOSED);
+			currentTime = Calendar.getInstance();
+			queryAudit.setAuditDate(currentTime);
+			queryAuditService.saveQueryAudit(queryAudit);
+		 }catch(Exception e){
+			System.out.println(""); 
+		 }
+		}
+
+		System.out.println("markIssueFixed Finish");
+
+	}
+
+	
+	public void deleteEmailExpire(){
+		Calendar currentTime;
+		 try{
+			 currentTime = Calendar.getInstance();
+			 queryExpireService.deleteQueryExpireByDaysInterval(DateFormat.getDateFormat().format(currentTime.getTime()),DbConstants.EMAIL_DELETE_LIMIT);
+		 }catch(Exception e){
+			System.out.println("Exception deleteEmailExpire"); 
+	 }
+	}
+}

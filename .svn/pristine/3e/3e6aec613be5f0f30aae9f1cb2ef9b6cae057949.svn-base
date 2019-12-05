@@ -1,0 +1,407 @@
+package com.fixit.service;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Iterator;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Set;
+
+import javax.servlet.http.HttpSession;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.ModelAndView;
+
+import com.fixit.dao.BlogCategoryDao;
+import com.fixit.dao.BlogDao;
+import com.fixit.dao.UserDao;
+import com.fixit.domain.bo.BlogBo;
+import com.fixit.domain.vo.Blog;
+import com.fixit.domain.vo.BlogCategory;
+import com.fixit.domain.vo.CategoryType;
+import com.fixit.domain.vo.User;
+import com.fixit.utility.DbConstants;
+import com.fixit.utility.FileUpload;
+import com.fixit.utility.FixitException;
+
+@Service("BlogService")
+@Transactional
+public class BlogServiceImpl implements BlogService {
+
+	@Autowired
+	private BlogDao blogDao;
+
+	@Autowired
+	private UserDao userDao;
+
+	@Autowired
+	private BlogCategoryDao blogCategoryDao;
+
+	
+	
+	@Override
+	public Blog loadBlog(BlogBo blogBo, User user) throws FixitException {
+		Blog blog = new Blog();
+		try {
+			
+			blog.setBlogTitle(blogBo.getBlogTitle());
+			blog.setBlogDescription(blogBo.getBlogDescription());
+			if (blogBo.getButton().equals("Publish")) {
+				blog.setBlogStatus("pending");
+			} else {
+				blog.setBlogStatus("draft");
+			}
+			blog.setCreatedAt(Calendar.getInstance());
+			blog.setUser(user);
+			blog = blogDao.store(blog);
+			List<Integer> categoryIdList = blogBo.getCatId();
+			Iterator<Integer> iterator = categoryIdList.iterator();
+			while (iterator.hasNext()) {
+				int catId = iterator.next();
+				BlogCategory blogCategory = new BlogCategory();
+				blogCategory.setBlog(blog);
+				CategoryType categoryType = new CategoryType();
+				categoryType.setCatId(catId);
+				blogCategory.setCategoryType(categoryType);
+				blogCategory = blogCategoryDao.store(blogCategory);
+			}
+
+		} catch (Exception exception) {
+			exception.printStackTrace();
+		}
+		return blog;
+	}
+
+	@Override
+	public List<Blog> findBlogDataByStatus(String Status, int min, int max) {
+		List<Blog> list = blogDao.findBlogDataByStatus(Status, min, max);
+		return list;
+	}
+
+	@Override
+	public int updateStatusByBlogId(String blogStatus, int blogId) {
+		int result = blogDao.updateStatusByBlogId(blogStatus, blogId);
+		return result;
+	}
+
+	@Override
+	public List<Blog> findAllBlog(int min, int max) {
+		List<Blog> list = blogDao.findAllBlog(min, max);
+		return list;
+	}
+
+	
+
+	@Override
+	public List<Blog> findAllBlogByUserId(int userId, int min, int max) {
+
+		List<Blog> list = blogDao.findAllBlogByUserId(userId, min, max);
+		return list;
+	}
+
+	@Override
+	public Blog findAllBlogByBlogId(int blogId) {
+
+		Blog blog = blogDao.findAllBlogByBlogId(blogId);
+		return blog;
+	}
+
+	@Override
+	public void blogPagination(int pageNo, String flag, ModelAndView mav,
+			int totalPage) {
+		switch (flag) {
+		case "left":
+			if (pageNo % DbConstants.PAGE_NO_DISPLAY == 1) {
+				mav.addObject(
+						"startPage",
+						(DbConstants.PAGE_NO_DISPLAY * ((pageNo / DbConstants.PAGE_NO_DISPLAY) - 1)) + 1);
+				if (((((pageNo / DbConstants.PAGE_NO_DISPLAY) - 1) + 1) * DbConstants.PAGE_NO_DISPLAY) >= totalPage) {
+					mav.addObject("endPage", totalPage);
+				} else {
+					mav.addObject("endPage",
+							(((pageNo / DbConstants.PAGE_NO_DISPLAY) - 1) + 1)
+									* DbConstants.PAGE_NO_DISPLAY);
+				}
+
+			} else {
+				if (pageNo % DbConstants.PAGE_NO_DISPLAY == 0) {
+					mav.addObject(
+							"startPage",
+							(DbConstants.PAGE_NO_DISPLAY * ((pageNo / DbConstants.PAGE_NO_DISPLAY) - 1)) + 1);
+					if (((((pageNo / DbConstants.PAGE_NO_DISPLAY))) * DbConstants.PAGE_NO_DISPLAY) >= totalPage) {
+						mav.addObject("endPage", totalPage);
+					} else {
+						mav.addObject("endPage",
+								(((pageNo / DbConstants.PAGE_NO_DISPLAY)))
+										* DbConstants.PAGE_NO_DISPLAY);
+					}
+
+				} else {
+					mav.addObject(
+							"startPage",
+							(DbConstants.PAGE_NO_DISPLAY * ((pageNo / DbConstants.PAGE_NO_DISPLAY))) + 1);
+					if (((((pageNo / DbConstants.PAGE_NO_DISPLAY) + 1)) * DbConstants.PAGE_NO_DISPLAY) >= totalPage) {
+						mav.addObject("endPage", totalPage);
+					} else {
+						mav.addObject("endPage",
+								(((pageNo / DbConstants.PAGE_NO_DISPLAY) + 1))
+										* DbConstants.PAGE_NO_DISPLAY);
+					}
+
+				}
+			}
+			mav.addObject("currentPageNo", pageNo - 1);
+
+			break;
+
+		case "right":
+			if (pageNo > 0) {
+
+				if (pageNo + DbConstants.PAGE_NO_DISPLAY > totalPage) {
+					if (pageNo % DbConstants.PAGE_NO_DISPLAY == 0) {
+						mav.addObject(
+								"startPage",
+								(DbConstants.PAGE_NO_DISPLAY * ((pageNo / DbConstants.PAGE_NO_DISPLAY))) + 1);
+						mav.addObject("endPage", totalPage);
+					} else {
+						mav.addObject(
+								"startPage",
+								(DbConstants.PAGE_NO_DISPLAY * (pageNo / DbConstants.PAGE_NO_DISPLAY)) + 1);
+						if ((((pageNo / DbConstants.PAGE_NO_DISPLAY) + 1) * DbConstants.PAGE_NO_DISPLAY) >= totalPage) {
+							mav.addObject("endPage", totalPage);
+						} else {
+							mav.addObject(
+									"endPage",
+									((pageNo / DbConstants.PAGE_NO_DISPLAY) + 1)
+											* DbConstants.PAGE_NO_DISPLAY);
+						}
+
+					}
+				} else {
+					if (pageNo % DbConstants.PAGE_NO_DISPLAY == 0) {
+						mav.addObject(
+								"startPage",
+								(DbConstants.PAGE_NO_DISPLAY * (pageNo / DbConstants.PAGE_NO_DISPLAY)) + 1);
+						mav.addObject("endPage",
+								((pageNo / DbConstants.PAGE_NO_DISPLAY) + 1)
+										* DbConstants.PAGE_NO_DISPLAY);
+					} else {
+						mav.addObject(
+								"startPage",
+								(DbConstants.PAGE_NO_DISPLAY * (pageNo / DbConstants.PAGE_NO_DISPLAY)) + 1);
+						mav.addObject("endPage",
+								((pageNo / DbConstants.PAGE_NO_DISPLAY) + 1)
+										* DbConstants.PAGE_NO_DISPLAY);
+					}
+				}
+				mav.addObject("currentPageNo", pageNo + 1);
+
+			} else {
+				mav.addObject("startPage", 1);
+				if (DbConstants.PAGE_NO_DISPLAY <= totalPage) {
+					mav.addObject("endPage", DbConstants.PAGE_NO_DISPLAY);
+				} else {
+					mav.addObject("endPage", totalPage);
+				}
+				mav.addObject("currentPageNo", 1);
+
+			}
+
+			break;
+
+		case "current":
+			if (pageNo % DbConstants.PAGE_NO_DISPLAY == 0) {
+				mav.addObject(
+						"startPage",
+						(DbConstants.PAGE_NO_DISPLAY * ((pageNo / DbConstants.PAGE_NO_DISPLAY) - 1)) + 1);
+				if ((((pageNo / DbConstants.PAGE_NO_DISPLAY)) * DbConstants.PAGE_NO_DISPLAY) >= totalPage) {
+					mav.addObject("endPage", totalPage);
+				} else {
+					mav.addObject("endPage",
+							((pageNo / DbConstants.PAGE_NO_DISPLAY))
+									* DbConstants.PAGE_NO_DISPLAY);
+				}
+
+			} else {
+				mav.addObject(
+						"startPage",
+						(DbConstants.PAGE_NO_DISPLAY * (pageNo / DbConstants.PAGE_NO_DISPLAY)) + 1);
+				if ((((pageNo / DbConstants.PAGE_NO_DISPLAY) + 1) * DbConstants.PAGE_NO_DISPLAY) >= totalPage) {
+					mav.addObject("endPage", totalPage);
+				} else {
+					mav.addObject("endPage",
+							((pageNo / DbConstants.PAGE_NO_DISPLAY) + 1)
+									* DbConstants.PAGE_NO_DISPLAY);
+				}
+
+			}
+			mav.addObject("currentPageNo", pageNo);
+			break;
+
+		default:
+			break;
+		}
+	}
+
+	@Override
+	public Blog updateBlog(BlogBo blogBo, int blogId) throws FixitException {
+		
+		Blog blog = blogDao.findAllBlogByBlogId(blogId);
+		blog.setBlogTitle(blogBo.getBlogTitle());
+		blog.setBlogDescription(blogBo.getBlogDescription());
+		if (blogBo.getButton().equals("Save")) {
+			blog.setBlogStatus("draft");
+		} else {
+			blog.setBlogStatus("pending");
+		}
+		blog = blogDao.store(blog);
+
+		blogCategoryDao.deleteBlogCategoryByBlogId(blogId);
+
+		List<Integer> categoryIdList = blogBo.getCatId();
+		Iterator<Integer> iterator = categoryIdList.iterator();
+		while (iterator.hasNext()) {
+			int catId = iterator.next();
+			BlogCategory blogCategory = new BlogCategory();
+			blogCategory.setBlog(blog);
+			CategoryType categoryType = new CategoryType();
+			categoryType.setCatId(catId);
+			blogCategory.setCategoryType(categoryType);
+			blogCategory = blogCategoryDao.store(blogCategory);
+		}
+
+		return blog;
+	}
+
+	@Override
+	public List<Blog> findBlogByStatusAndUserId(String status, int userId,
+			int min, int max) throws FixitException {
+		List<Blog> blogsList = blogDao.findBlogByStatusAndUserId(status,
+				userId, min, max);
+		return blogsList;
+	}
+
+	@Override
+	public int updateStatusWithReasonByBlogId(String blogStatus, String reason,
+			int blogId) throws FixitException {
+		int result = blogDao.updateStatusWithReasonByBlogId(blogStatus, reason,
+				blogId);
+		return result;
+	}
+
+	@Override
+	public int deleteBlogAndBlogCategoryByBlogId(int blogId) {
+		int deleteBlogCategory = 0;
+		try {
+			deleteBlogCategory = blogCategoryDao
+					.deleteBlogCategoryByBlogId(blogId);
+			if (deleteBlogCategory > 0) {
+				blogDao.deleteBlogByBlogId(blogId);
+				deleteBlogCategory++;
+			}
+			return deleteBlogCategory;
+		} catch (Exception e) {
+			e.printStackTrace();
+			return deleteBlogCategory;
+		}
+
+	}
+
+	@Override
+	public List<BlogCategory> categoriesByBlogId(int blogId)
+			throws FixitException {
+		List<BlogCategory> blogCategories = blogCategoryDao
+				.categoriesByBlogId(blogId);
+		return blogCategories;
+	}
+
+	@Override
+	public String uloadBlogFile(String userName, MultipartFile upload)
+			throws IOException, FixitException, InterruptedException {
+
+		String fileName = null;
+
+		fileName = FileUpload.uploadBlogFiles(upload, userName);
+
+		return fileName;
+	}
+
+	@Override
+	public List<Blog> blogsByUserIdCatId(int userId, int catId, int min, int max)
+			throws FixitException {
+		List<Blog> blogList = new ArrayList<Blog>();
+		List<BlogCategory> blogCategories = blogCategoryDao.blogByCategories(
+				userId, catId, min, max);
+		Iterator<BlogCategory> itr = blogCategories.iterator();
+		while (itr.hasNext()) {
+			blogList.add(itr.next().getBlog());
+		}
+		return blogList;
+	}
+
+	@Override
+	public List<Blog> findBlogByStatusUserIdCatId(String status, int userId,
+			int catId, int min, int max) throws FixitException {
+		List<Blog> blogsList = blogDao.findBlogByStatusAndUserId(status,
+				userId, min, max);
+		return blogsList;
+
+	}
+
+	@Override
+	public List<Blog> findBlogByStatusAndCategories(int catId,
+			String blogStatus, int min, int max) throws FixitException {
+		List<Blog> blogList = new ArrayList<Blog>();
+		List<BlogCategory> blogCategories = blogCategoryDao
+				.findBlogByStatusAndCategories(catId, blogStatus, min, max);
+		Iterator<BlogCategory> itr = blogCategories.iterator();
+		while (itr.hasNext()) {
+			blogList.add(itr.next().getBlog());
+		}
+		return blogList;
+	}
+
+	@Override
+	public List<Blog> findBlogByStatusUserIdAndCategories(int catId,
+			String blogStatus, int userId, int min, int max)
+			throws FixitException {
+		List<Blog> blogList = new ArrayList<Blog>();
+		List<BlogCategory> blogCategories = blogCategoryDao
+				.findBlogByUserIdStatusAndCategories(catId, blogStatus, userId,
+						min, max);
+		Iterator<BlogCategory> itr = blogCategories.iterator();
+		while (itr.hasNext()) {
+			blogList.add(itr.next().getBlog());
+		}
+		return blogList;
+	}
+
+	@Override
+	public int deleteBlogByUserId(int userId) {
+		int deleteBlogCategory = 0;
+		try {
+
+			List<Blog> blogList = blogDao.findAllBlogByUserId(userId, -1, -1);
+			Iterator<Blog> iterator = blogList.iterator();
+			while (iterator.hasNext()) {
+			
+				Integer blogId=iterator.next().getBlogId();
+				deleteBlogCategory = blogCategoryDao
+						.deleteBlogCategoryByBlogId(blogId);
+				
+					blogDao.deleteBlogByBlogId(blogId);
+					deleteBlogCategory++;
+				
+			}
+
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return deleteBlogCategory;
+	}
+}
